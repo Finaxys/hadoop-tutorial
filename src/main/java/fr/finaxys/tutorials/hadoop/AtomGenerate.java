@@ -51,8 +51,7 @@ public class AtomGenerate {
 
     // Create simulator with custom logger
     Simulation sim = new MonothreadedSimulation();
-    v13.Logger logger = new v13.Logger(out);
-    sim.setLogger(logger);
+    sim.setLogger(new fr.finaxys.tutorials.hadoop.FileLogger(System.getProperty("atom.output.file", "dump")));
 
     LOGGER.log(Level.INFO, "Setting up agents and orderbooks");
 
