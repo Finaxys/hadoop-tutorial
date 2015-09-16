@@ -1,4 +1,4 @@
-package fr.finaxys.tutorials.hadoop;
+package fr.tutorials.utils;
 
 import java.io.FileInputStream;
 import java.text.DateFormat;

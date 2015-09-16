@@ -1,8 +1,7 @@
-package fr.finaxys.tutorials.hadoop;
+package fr.tutorials.utils;
 
 import java.io.PrintStream;
 import java.util.Collection;
-import java.util.Date;
 import java.util.Iterator;
 import v13.Day;
 import v13.LimitOrder;
@@ -13,13 +12,13 @@ import v13.agents.Agent;
 
 public class FileLogger extends v13.Logger{
     private PrintStream pw = null;
-    private fr.finaxys.tutorials.hadoop.TimeStampBuilder tsb;
+    private TimeStampBuilder tsb;
     private int nb_order = 0;
 
     public FileLogger(String filename) {
         try {
             this.pw = new PrintStream(filename);
-            tsb = new fr.finaxys.tutorials.hadoop.TimeStampBuilder();
+            tsb = new TimeStampBuilder();
             tsb.loadConfig();
             tsb.init();
         } catch (Exception var3) {
