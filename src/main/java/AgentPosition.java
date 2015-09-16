@@ -44,7 +44,7 @@ public class AgentPosition extends Configured implements Tool {
 	}
 
 	public static class LongSumReducer extends
-			Reducer<Text, IntWritable, Text, LongWritable> {
+			Reducer<Text, LongWritable, Text, LongWritable> {
 
 		private LongWritable result = new LongWritable();
 
