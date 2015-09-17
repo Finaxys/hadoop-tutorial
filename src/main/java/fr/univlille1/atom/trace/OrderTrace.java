@@ -4,17 +4,19 @@ public class OrderTrace implements Trace {
 
 	private final TraceType type = TraceType.Order;
 	private String orderBook;
+	private String sender;
 	private String identifier;
 	private OrderNature nature;
 	private OrderDirection direction;
 	private long price;
 	private long quantity;
 	private int validity;
-	
+	private long timestamp;
+
 	public OrderTrace() {}
 	
-	public OrderTrace(String orderBook, String identifier, OrderNature nature, OrderDirection direction,
-			long price, long quantity, int validity) {
+	public OrderTrace(String orderBook, String sender, String identifier, OrderNature nature, OrderDirection direction,
+			long price, long quantity, int validity, long timestamp) {
 		super();
 		this.orderBook = orderBook;
 		this.identifier = identifier;
@@ -23,6 +25,8 @@ public class OrderTrace implements Trace {
 		this.price = price;
 		this.quantity = quantity;
 		this.validity = validity;
+		this.timestamp = timestamp;
+		this.sender = sender;
 	}
 	
 	public TraceType getType() { return type; }
@@ -75,11 +79,20 @@ public class OrderTrace implements Trace {
 		this.quantity = quantity;
 	}
 
-	public int getValidity() {
-		return validity;
+	public String getSender() {
+		return sender;
 	}
 
-	public void setValidity(int validity) {
-		this.validity = validity;
+	public void setSender(String sender) {
+		this.sender = sender;
+	}
+
+	public long getTimestamp() {
+		return timestamp;
+	}
+
+	public void setTimestamp(long timestamp) {
+
+		this.timestamp = timestamp;
 	}
 }

@@ -51,10 +51,10 @@ public class TraceUtils {
 		} else if (TraceType.Exec.equals(type)) {
 			t = new ExecTrace(st.nextToken());
 		} else if (TraceType.Order.equals(type)) {
-			t = new OrderTrace(st.nextToken(), st.nextToken(),
+			t = new OrderTrace(st.nextToken(), st.nextToken(), st.nextToken(),
 					OrderNature.valueOf(st.nextToken()), OrderDirection.valueOf(st.nextToken()),
 					Long.parseLong(st.nextToken()), Long.parseLong(st.nextToken()),
-					Integer.parseInt(st.nextToken()));
+					Integer.parseInt(st.nextToken()), Long.parseLong(st.nextToken()));
 		} else if (TraceType.Price.equals(type)) {
 			t = new PriceTrace(st.nextToken(), Long.parseLong(st.nextToken()),
 					Long.parseLong(st.nextToken()),

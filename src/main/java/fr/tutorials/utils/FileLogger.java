@@ -58,8 +58,8 @@ public class FileLogger extends v13.Logger{
     public void order(Order o) {
         if(this.pw != null) {
             ++nb_order;
+            this.print(o.toString());
             displayTimestamp();
-            this.println(o.toString());
         }
 
     }
@@ -143,6 +143,6 @@ public class FileLogger extends v13.Logger{
     private void displayTimestamp()
     {
         long ts = tsb.nextTimeStamp();
-        this.print(ts + ";");
+        this.println(";" + ts);
     }
 }
