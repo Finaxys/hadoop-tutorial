@@ -1,15 +1,17 @@
 # hadoop-tutorial
+### Dependencies
+	You'll need atom.jar (http://atom.univ-lille1.fr). Put it in the root of the project.
 ### Compile/Build project
     mvn clean compile package
 ### Generate Atom files simulation into AtomLogs/*
     ./atom-generate.sh
 	-- Update properties.txt to generate more (or less) data
 	-- You can look at atom-example.txt for sample file format
-	-- atom website: http://atom.univ-lille1.fr
+
 	-- Update log4j2.xml to change output directory and rolling file strategy
 ### If Hadoop has not been setup and started
-   $HADOOP_HOME/bin/hdfs namenode -format
-   $HADOOP_HOME/sbin/start-dfs.sh
+	$HADOOP_HOME/bin/hdfs namenode -format
+	$HADOOP_HOME/sbin/start-dfs.sh
 ### To check that hadoop is up and running
 	Web Interface - http://localhost:50070
 	With $> Jps 
