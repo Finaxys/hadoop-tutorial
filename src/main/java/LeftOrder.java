@@ -2,8 +2,6 @@ import fr.univlille1.atom.trace.*;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.io.IntWritable;
-import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
@@ -17,7 +15,7 @@ import org.apache.hadoop.util.ToolRunner;
 import java.io.IOException;
 
 /**
- * Hello world!
+ * Left Order
  * 
  */
 public class LeftOrder extends Configured implements Tool {
@@ -61,7 +59,7 @@ public class LeftOrder extends Configured implements Tool {
 
 	public int run(String[] args) throws Exception {
 		Configuration conf = new Configuration();
-		Job job = Job.getInstance(conf, "Agent Position");
+		Job job = Job.getInstance(conf, "Left Order");
 		job.setJarByClass(LeftOrder.class);
 		job.setMapperClass(TokenizerMapper.class);
 		job.setCombinerClass(NotMatchedReducer.class);

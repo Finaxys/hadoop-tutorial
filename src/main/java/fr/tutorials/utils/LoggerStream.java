@@ -21,21 +21,21 @@ public class LoggerStream extends OutputStream {
 	@Override
 	public void write(byte[] b) throws IOException {
 		String string = new String(b);
-		if (!string.trim().isEmpty())
+		if (!string.trim().isEmpty() && string.charAt(0) != '!')
 			logger.log(logLevel, string);
 	}
 
 	@Override
 	public void write(byte[] b, int off, int len) throws IOException {
 		String string = new String(b, off, len);
-		if (!string.trim().isEmpty())
+		if (!string.trim().isEmpty() && string.charAt(0) != '!')
 			logger.log(logLevel, string);
 	}
 
 	@Override
 	public void write(int b) throws IOException {
 		String string = String.valueOf((char) b);
-		if (!string.trim().isEmpty())
+		if (!string.trim().isEmpty() && string.charAt(0) != '!')
 			logger.log(logLevel, string);
 	}
 }

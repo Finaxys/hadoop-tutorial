@@ -5,7 +5,6 @@ import java.io.IOException;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
@@ -22,7 +21,7 @@ import fr.univlille1.atom.trace.TraceType;
 import fr.univlille1.atom.trace.TraceUtils;
 
 /**
- * Hello world!
+ * Agent Position
  * 
  */
 public class AgentPosition extends Configured implements Tool {

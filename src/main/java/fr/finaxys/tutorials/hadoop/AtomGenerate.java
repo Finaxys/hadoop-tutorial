@@ -45,14 +45,15 @@ public class AtomGenerate {
 //    	o = new PrintStream(outFile);
 //    }
     PrintStream out = new PrintStream(new LoggerStream(LogManager.getLogger("atom"), Level.INFO));
-   
+    //PrintStream out = System.out;
 
     // How long
     long startTime = System.currentTimeMillis();
 
     // Create simulator with custom logger
     Simulation sim = new MonothreadedSimulation();
-    sim.setLogger(new FileLogger(System.getProperty("atom.output.file", "dump")));
+    sim.setLogger(new FileLogger(out));
+    //sim.setLogger(new FileLogger(System.getProperty("atom.output.file", "dump")));
 
     LOGGER.log(Level.INFO, "Setting up agents and orderbooks");
 
@@ -60,15 +61,17 @@ public class AtomGenerate {
     boolean marketmaker = System.getProperty("atom.marketmaker", "true").equals("true");
     int marketmakerQuantity = marketmaker ? Integer.parseInt(System.getProperty("atom.marketmaker.quantity", "1")) : 0;
 
-    for (String agent : agents)
+    for (String agent : agents) {
       sim.addNewAgent(new ZIT(agent, Integer.parseInt(System.getProperty("simul. .cash", "0")),
           Integer.parseInt(System.getProperty("simul.agent.minprice", "10000")),
           Integer.parseInt(System.getProperty("simul.agent.maxprice", "20000")),
           Integer.parseInt(System.getProperty("simul.agent.minquantity", "10")),
           Integer.parseInt(System.getProperty("simul.agent.maxquantity", "50"))));
+    }
     for (int i = 0 ; i< orderBooks.size(); i++) {
-      if (marketmaker)
+      if (marketmaker) {
         sim.addNewMarketMaker(orderBooks.get(i) + "" + ((i % marketmakerQuantity) + 1));
+      }
       sim.addNewOrderBook(orderBooks.get(i));
     }
     LOGGER.log(Level.INFO, "Launching simulation");
@@ -117,7 +120,7 @@ public class AtomGenerate {
 
     if (agents.isEmpty() || orderBooks.isEmpty()) {
       LOGGER.log(Level.ERROR, "Agents/Orderbooks not set");
-      throw new Exception("agents/orderbooks");
+      throw new Exception("agents or orderbooks not set");
     }
   }
 }

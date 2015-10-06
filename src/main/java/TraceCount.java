@@ -1,6 +1,3 @@
-
-
-
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -19,7 +16,7 @@ import fr.univlille1.atom.trace.TraceType;
 import fr.univlille1.atom.trace.TraceUtils;
 
 /**
- * Hello world!
+ * Trace Count
  * 
  */
 public class TraceCount {
@@ -63,7 +60,7 @@ public class TraceCount {
 
 	public static void main(String[] args) throws Exception {
 		Configuration conf = new Configuration();
-		Job job = Job.getInstance(conf, "Agent Position");
+		Job job = Job.getInstance(conf, "Trace Count");
 		job.setJarByClass(TraceCount.class);
 		job.setMapperClass(TokenizerMapper.class);
 		job.setCombinerClass(IntSumReducer.class);

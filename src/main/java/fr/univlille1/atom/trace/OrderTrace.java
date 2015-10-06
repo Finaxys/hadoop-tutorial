@@ -16,7 +16,7 @@ public class OrderTrace implements Trace {
 	public OrderTrace() {}
 	
 	public OrderTrace(String orderBook, String sender, String identifier, OrderNature nature, OrderDirection direction,
-			long price, long quantity, int validity, long timestamp) {
+			long price, long quantity, int validity/*, long timestamp*/) {
 		super();
 		this.orderBook = orderBook;
 		this.identifier = identifier;
@@ -25,8 +25,8 @@ public class OrderTrace implements Trace {
 		this.price = price;
 		this.quantity = quantity;
 		this.validity = validity;
-		this.timestamp = timestamp;
 		this.sender = sender;
+		//this.timestamp = timestamp;
 	}
 	
 	public TraceType getType() { return type; }
@@ -92,7 +92,16 @@ public class OrderTrace implements Trace {
 	}
 
 	public void setTimestamp(long timestamp) {
-
 		this.timestamp = timestamp;
 	}
+
+	public int getValidity() {
+		return validity;
+	}
+
+	public void setValidity(int validity) {
+		this.validity = validity;
+	}
+	
+	
 }

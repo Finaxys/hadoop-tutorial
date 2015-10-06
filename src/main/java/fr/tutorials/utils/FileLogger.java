@@ -25,7 +25,18 @@ public class FileLogger extends v13.Logger{
             var3.printStackTrace();
             System.exit(1);
         }
-
+    }
+    
+    public FileLogger(PrintStream pw) {
+        try {
+            this.pw = pw;
+            tsb = new TimeStampBuilder();
+            tsb.loadConfig();
+            tsb.init();
+        } catch (Exception var3) {
+            var3.printStackTrace();
+            System.exit(1);
+        }
     }
 
     public void println(String s) {
@@ -58,8 +69,7 @@ public class FileLogger extends v13.Logger{
     public void order(Order o) {
         if(this.pw != null) {
             ++nb_order;
-            this.print(o.toString());
-            displayTimestamp();
+            this.print(o.toString()/*+displayTimestamp()*/);
         }
 
     }
@@ -68,7 +78,7 @@ public class FileLogger extends v13.Logger{
         if(this.pw != null) {
             tsb.setCurrentDay(nbDays);
 
-            Iterator i$ = orderbooks.iterator();
+            Iterator<OrderBook> i$ = orderbooks.iterator();
 
             while(i$.hasNext()) {
                 OrderBook ob = (OrderBook)i$.next();
@@ -90,7 +100,7 @@ public class FileLogger extends v13.Logger{
             tsb.setCurrentTick(day.currentTick());
             tsb.setTimeStamp(tsb.baseTimeStampForCurrentTick());
 
-            Iterator i$ = orderbooks.iterator();
+            Iterator<OrderBook> i$ = orderbooks.iterator();
 
             while(i$.hasNext()) {
                 OrderBook ob = (OrderBook)i$.next();
@@ -140,9 +150,8 @@ public class FileLogger extends v13.Logger{
 
     }
 
-    private void displayTimestamp()
-    {
+    /*private String displayTimestamp() {
         long ts = tsb.nextTimeStamp();
-        this.println(";" + ts);
-    }
+        return ";" + ts;
+    }*/
 }

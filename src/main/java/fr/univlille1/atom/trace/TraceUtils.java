@@ -54,7 +54,7 @@ public class TraceUtils {
 			t = new OrderTrace(st.nextToken(), st.nextToken(), st.nextToken(),
 					OrderNature.valueOf(st.nextToken()), OrderDirection.valueOf(st.nextToken()),
 					Long.parseLong(st.nextToken()), Long.parseLong(st.nextToken()),
-					Integer.parseInt(st.nextToken()), Long.parseLong(st.nextToken()));
+					Integer.parseInt(st.nextToken())/*, Long.parseLong(st.nextToken())*/);
 		} else if (TraceType.Price.equals(type)) {
 			t = new PriceTrace(st.nextToken(), Long.parseLong(st.nextToken()),
 					Long.parseLong(st.nextToken()),
