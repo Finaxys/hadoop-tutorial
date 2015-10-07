@@ -45,13 +45,17 @@
     $HADOOP_HOME/bin/hadoop jar target/hadoop-tutorial-1.0-SNAPSHOT.jar AgentPosition /user/pierre/input/ /user/pierre/agentposition
 ### Display agent position per day
     $HADOOP_HOME/bin/hdfs dfs -cat /user/pierre/agentposition/part-r-00000
-### Calculate agent position per day
+### Exercice #1
+	Implement a  MapReduce function which calculate the volume of order for each order book
+### Calculate agent position per day (Join example)
     $HADOOP_HOME/bin/hadoop jar target/hadoop-tutorial-1.0-SNAPSHOT.jar LeftOrder /user/pierre/input/ /user/pierre/leftorder
 	$HADOOP_HOME/bin/hdfs dfs -cat /user/pierre/leftorder/part-r-00000
-### Clean
+### Exercice #2
+	Implement a  MapReduce function which calculate the volume of executed order for each order book
+### Clean data
     $HADOOP_HOME/bin/hdfs dfs -rm -r /user/pierre/agentposition
     $HADOOP_HOME/bin/hdfs dfs -rm -r /user/pierre/tracecount
     $HADOOP_HOME/bin/hdfs dfs -rm -r /user/pierre/leftorder
- ### Stop YARN and HDFS
+### Stop YARN and HDFS
      $HADOOP_HOME/sbin/stop-yarn.sh
      $HADOOP_HOME/sbin/stop-dfs.sh
