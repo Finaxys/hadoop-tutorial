@@ -4,7 +4,7 @@ package fr.tutorials.utils.hbase;
 import com.sun.istack.NotNull;
 
 import fr.tutorials.utils.AtomDataInjector;
-import fr.tutorials.utils.AtomHBConfiguration;
+import fr.tutorials.utils.AtomConfiguration;
 import v13.Day;
 import v13.Logger;
 import v13.Order;
@@ -17,12 +17,15 @@ import java.io.PrintStream;
 import java.util.List;
 import java.util.logging.Level;
 
+/**
+ * @deprecated
+ */
 public class HBaseLogger extends Logger {
   private static final java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(HBaseLogger.class.getName());
 
   AtomDataInjector injectors[];
 
-  public HBaseLogger(AtomHBConfiguration conf, AtomDataInjector... injectors) throws Exception {
+  public HBaseLogger(AtomConfiguration conf, AtomDataInjector... injectors) throws Exception {
     super();
     if (conf.isOutFile()) {
       this.getClass().getField("pw").setAccessible(true);

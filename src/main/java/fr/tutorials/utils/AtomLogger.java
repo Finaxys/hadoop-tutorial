@@ -20,7 +20,7 @@ public class AtomLogger extends Logger {
 
   AtomDataInjector injectors[];
 
-  public AtomLogger(AtomHBConfiguration conf, AtomDataInjector... injectors) throws Exception {
+  public AtomLogger(AtomConfiguration conf, AtomDataInjector... injectors) throws Exception {
     super();
     if (conf.isOutFile()) {
       this.getClass().getField("pw").setAccessible(true);

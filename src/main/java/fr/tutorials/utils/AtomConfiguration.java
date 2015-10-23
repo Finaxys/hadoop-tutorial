@@ -1,6 +1,5 @@
 package fr.tutorials.utils;
 
-import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.util.Bytes;
 
 import java.io.FileInputStream;
@@ -15,9 +14,9 @@ import java.util.logging.Logger;
 /**
  *
  */
-public class AtomHBConfiguration {
+public class AtomConfiguration {
 
-  private static final Logger LOGGER = Logger.getLogger(AtomHBConfiguration.class.getName());
+  private static final Logger LOGGER = Logger.getLogger(AtomConfiguration.class.getName());
 
   //Business Data
   private List<String> agents = new ArrayList<>();
@@ -49,7 +48,7 @@ public class AtomHBConfiguration {
   private boolean outFile;
 
 
-  public AtomHBConfiguration() throws IOException {
+  public AtomConfiguration() throws IOException {
     load();
   }
 

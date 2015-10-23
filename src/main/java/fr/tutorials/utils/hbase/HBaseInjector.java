@@ -3,7 +3,7 @@ package fr.tutorials.utils.hbase;
 import com.sun.istack.NotNull;
 
 import fr.tutorials.utils.AtomDataInjector;
-import fr.tutorials.utils.AtomHBConfiguration;
+import fr.tutorials.utils.AtomConfiguration;
 import fr.tutorials.utils.TimeStampBuilder;
 
 import org.apache.hadoop.conf.Configuration;
@@ -28,7 +28,6 @@ import v13.PriceRecord;
 import v13.agents.Agent;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.Collection;
@@ -49,7 +48,7 @@ public class HBaseInjector implements AtomDataInjector {
 
   AtomicLong idGen = new AtomicLong(1_000_000);
   //Confs
-  private final AtomHBConfiguration atomConf;
+  private final AtomConfiguration atomConf;
   private final Configuration hbConf;
   //MThreads
   private ExecutorService eService;
@@ -65,7 +64,7 @@ public class HBaseInjector implements AtomDataInjector {
 
   private final AtomicLong globalCount = new AtomicLong(0L);
 
-  public HBaseInjector(@NotNull AtomHBConfiguration conf) throws Exception {
+  public HBaseInjector(@NotNull AtomConfiguration conf) throws Exception {
     this.atomConf = conf;
     this.queue = new ArrayBlockingQueue<>(atomConf.getBufferSize());
     this.cfall = conf.getColumnFamily();

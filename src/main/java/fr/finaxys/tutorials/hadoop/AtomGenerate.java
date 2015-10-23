@@ -18,7 +18,7 @@ import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import fr.tutorials.utils.AtomHBConfiguration;
+import fr.tutorials.utils.AtomConfiguration;
 import fr.tutorials.utils.AtomLogger;
 import fr.tutorials.utils.LoggerStream;
 import fr.tutorials.utils.hbase.HBaseInjector;
@@ -34,7 +34,7 @@ public class AtomGenerate {
   static private List<String> agents;
   
   private static v13.Logger logger = null;
-  private static AtomHBConfiguration atomConf;
+  private static AtomConfiguration atomConf;
 
   // Main configuration for Atom
   public static void main(String args[]) throws IOException {
@@ -114,7 +114,7 @@ public class AtomGenerate {
     p.load(propFile);
     System.setProperties(p);
     
-    atomConf = new AtomHBConfiguration();
+    atomConf = new AtomConfiguration();
 
     // Get agents & orderbooks
     String obsym = System.getProperty("atom.orderbooks", "");
