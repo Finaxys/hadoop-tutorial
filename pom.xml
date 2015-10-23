@@ -4,7 +4,7 @@
   <groupId>fr.finaxys</groupId>
   <artifactId>hadoop-tutorial</artifactId>
   <packaging>jar</packaging>
-  <version>1.0-SNAPSHOT</version>
+  <version>0.2-SNAPSHOT</version>
   <name>hadoop-tutorial</name>
   <url>http://maven.apache.org</url>
   
