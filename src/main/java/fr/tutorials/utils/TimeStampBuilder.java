@@ -128,7 +128,7 @@ public class TimeStampBuilder
      *
      * @throws Exception
      */
-    protected void loadConfig() throws Exception
+    public void loadConfig() throws Exception
     {
         //take the date
         String dateBegin = System.getProperty("simul.time.startdate");
@@ -170,7 +170,8 @@ public class TimeStampBuilder
 
     }
 
-    protected void init() throws Exception
+    // @TODO ajouter une verification pour que ce ne soit fait qu'une fois
+    public void init() throws Exception
     {
         ratio = (closeHoursToSeconds - openHoursToSeconds) / (nbTickMax); // +1 to not reach the closehour on the last tick or not +1 but begin at openhour
 

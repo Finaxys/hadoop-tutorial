@@ -18,7 +18,10 @@ import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import fr.tutorials.utils.AtomHBConfiguration;
+import fr.tutorials.utils.AtomLogger;
 import fr.tutorials.utils.LoggerStream;
+import fr.tutorials.utils.hbase.HBaseInjector;
 
 public class AtomGenerate {
 	
@@ -29,6 +32,9 @@ public class AtomGenerate {
  // static public final String[] DOW30 = {"MMM", "AXP", "AAPL", "BA", "CAT", "CVX", "CSCO", "KO", "DIS", "DD", "XOM", "GE", "GS", "HD", "IBM", "INTC", "JNJ", "JPM", "MCD", "MRK", "MSFT", "NKE", "PFE", "PG", "TRV", "UTX", "UNH", "VZ", "V", "WMT"};
   static private List<String> orderBooks;
   static private List<String> agents;
+  
+  private static v13.Logger logger = null;
+  private static AtomHBConfiguration atomConf;
 
   // Main configuration for Atom
   public static void main(String args[]) throws IOException {
@@ -52,7 +58,20 @@ public class AtomGenerate {
 
     // Create simulator with custom logger
     Simulation sim = new MonothreadedSimulation();
-    sim.setLogger(new FileLogger(out));
+    
+    try {
+	    if (atomConf.isOutHbase()) {
+	      logger = new AtomLogger(atomConf, new HBaseInjector(atomConf));
+	    } else {
+	      logger = new FileLogger(out); // new AtomLogger(atomConf);
+	    }
+    } catch (Exception e) {
+        LOGGER.log(Level.ERROR, "Could not instantiate logger", e);
+        return;
+      }
+    
+    sim.setLogger(logger);
+    
     //sim.setLogger(new FileLogger(System.getProperty("atom.output.file", "dump")));
 
     LOGGER.log(Level.INFO, "Setting up agents and orderbooks");
@@ -94,6 +113,8 @@ public class AtomGenerate {
     Properties p = new Properties(System.getProperties());
     p.load(propFile);
     System.setProperties(p);
+    
+    atomConf = new AtomHBConfiguration();
 
     // Get agents & orderbooks
     String obsym = System.getProperty("atom.orderbooks", "");
