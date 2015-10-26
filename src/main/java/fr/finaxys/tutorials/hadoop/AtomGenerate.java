@@ -1,6 +1,7 @@
 package fr.finaxys.tutorials.hadoop;
 
 import fr.tutorials.utils.FileLogger;
+import fr.tutorials.utils.avro.AvroInjector;
 import v13.Day;
 import v13.MonothreadedSimulation;
 import v13.Simulation;
@@ -60,9 +61,12 @@ public class AtomGenerate {
     Simulation sim = new MonothreadedSimulation();
     
     try {
-	    if (atomConf.isOutHbase()) {
-	      logger = new AtomLogger(atomConf, new HBaseInjector(atomConf));
-	    } else {
+	    if (atomConf.isOutHbase())
+        {
+          logger = new AtomLogger(atomConf, new HBaseInjector(atomConf));
+        } else if (atomConf.isOutAvro()) {
+        logger = new AtomLogger(atomConf, new AvroInjector(atomConf));
+	    } else  {
 	      logger = new FileLogger(out); // new AtomLogger(atomConf);
 	    }
     } catch (Exception e) {

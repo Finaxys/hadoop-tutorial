@@ -6,6 +6,7 @@ import v13.OrderBook;
 import v13.PriceRecord;
 import v13.agents.Agent;
 
+import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 
@@ -18,19 +19,19 @@ public interface AtomDataInjector {
 
   public void createOutput() throws Exception;
 
-  public void sendAgent(Agent a, Order o, PriceRecord pr);
+  public void sendAgent(Agent a, Order o, PriceRecord pr) throws IOException;
 
-  public void sendPriceRecord(PriceRecord pr, long bestAskPrice, long bestBidPrice);
+  public void sendPriceRecord(PriceRecord pr, long bestAskPrice, long bestBidPrice) throws IOException;
 
   public void sendAgentReferential(List<AgentReferentialLine> referencial);
 
-  public void sendOrder(Order o);
+  public void sendOrder(Order o) throws IOException;
 
-  public void sendTick(Day day, Collection<OrderBook> orderbooks);
+  public void sendTick(Day day, Collection<OrderBook> orderbooks) throws IOException;
 
-  public void sendDay(int nbDays, Collection<OrderBook> orderbooks);
+  public void sendDay(int nbDays, Collection<OrderBook> orderbooks) throws IOException;
 
-  public void sendExec(Order o);
+  public void sendExec(Order o) throws IOException;
 
-  public void close();
+  public void close() throws IOException;
 }

@@ -4,7 +4,7 @@
   <groupId>fr.finaxys</groupId>
   <artifactId>hadoop-tutorial</artifactId>
   <name>hadoop-tutorial</name>
-  <version>1.0-SNAPSHOT</version>
+  <version>0.2-SNAPSHOT</version>
   <url>http://maven.apache.org</url>
   <build>
     <plugins>
@@ -63,7 +63,7 @@
       <artifactId>atom</artifactId>
       <version>1.0</version>
       <scope>system</scope>
-      <systemPath>/Users/pierre/workspace/hadoop-tutorial/atom.jar</systemPath>
+      <systemPath>/home/heraul_m/dev/hadoop-tutorial/atom.jar</systemPath>
     </dependency>
     <dependency>
       <groupId>org.apache.hadoop</groupId>

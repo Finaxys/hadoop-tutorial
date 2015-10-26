@@ -46,7 +46,13 @@ public class AtomConfiguration {
   private boolean replay;
   private String replaySource;
   private boolean outFile;
-
+  private boolean outAvro;
+  private String avroSchema;
+  private String pathCore;
+  private String pathSite;
+  private String pathHDFS;
+  private String destHDFS;
+  private String pathAvro;
 
   public AtomConfiguration() throws IOException {
     load();
@@ -82,6 +88,9 @@ public class AtomConfiguration {
     this.outSystem = System.getProperty("simul.output.standard", "false").equals("false");
     this.dayGap = Integer.parseInt(System.getProperty("simul.day.startDay", "1")) - 1;
 
+    this.outAvro = System.getProperty("simul.output.avro", "true").equals("true");
+    this.avroSchema = System.getProperty("avro.schema");
+
     this.startTime = System.currentTimeMillis();
     this.worker = Integer.parseInt(System.getProperty("simul.worker", "10"));
     this.flushRatio = Integer.parseInt(System.getProperty("simul.flushRatio", "1000"));
@@ -97,6 +106,11 @@ public class AtomConfiguration {
     this.replay = Boolean.parseBoolean(System.getProperty("simul.replay", "false"));
     this.replaySource = System.getProperty("simul.replay.source", "");
 
+    this.pathCore = System.getProperty("hbase.conf.core");
+    this.pathSite = System.getProperty("hbase.conf.site");
+    this.pathHDFS = System.getProperty("hbase.conf.hdfs");
+    this.destHDFS = System.getProperty("dest.hdfs");
+    this.pathAvro = System.getProperty("avro.path");
   }
 
   public String getTableName() {
@@ -186,4 +200,18 @@ public class AtomConfiguration {
   public boolean isOutFile() {
     return outFile;
   }
+
+  public boolean isOutAvro() { return outAvro; }
+
+  public String getPathCore() { return pathCore; }
+
+  public String getPathSite() { return pathSite; }
+
+  public String getPathHDFS() { return pathHDFS; }
+
+  public String getAvroSchema() { return avroSchema; }
+
+  public String getDestHDFS() { return destHDFS; }
+
+  public String getPathAvro() { return pathAvro; }
 }
