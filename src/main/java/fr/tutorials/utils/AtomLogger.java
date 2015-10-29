@@ -30,16 +30,10 @@ public class AtomLogger extends Logger {
     init();
   }
 
-  public void init() throws
-      Exception {
-    try {
+  public void init() {
       for (int i = 0; i < injectors.length; i++) {
         injectors[i].createOutput();
       }
-    } catch (IOException e) {
-      LOGGER.log(Level.SEVERE, "Could not create Connection", e);
-      throw new Exception("hbase connection", e);
-    }
   }
 
   public void agentReferential(@NotNull List<AgentReferentialLine> referencial) throws

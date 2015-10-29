@@ -1,16 +1,16 @@
 package fr.tutorials.utils;
 
-import java.io.FileInputStream;
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-import java.util.Properties;
 
 public class TimeStampBuilder
 {
     private static final java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(TimeStampBuilder.class.getName());
+    
     private int nbTickMax;
     private int currentTick = 1;
     private int currentDay = 0;
@@ -128,8 +128,7 @@ public class TimeStampBuilder
      *
      * @throws Exception
      */
-    public void loadConfig() throws Exception
-    {
+    public void loadConfig() throws ParseException {
         //take the date
         String dateBegin = System.getProperty("simul.time.startdate");
         assert dateBegin != null;
@@ -145,12 +144,10 @@ public class TimeStampBuilder
         convertFromString(dateBegin, openHourStr, closeHourStr, nbTickMaxStr);
     }
 
-    protected void convertFromString(String dateBegin, String openHourStr, String closeHourStr, String nbTickMaxStr) throws Exception
-    {
+    protected void convertFromString(String dateBegin, String openHourStr, String closeHourStr, String nbTickMaxStr) throws ParseException {
         SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy");
-        Date date = null;
-
-        date = formatter.parse(dateBegin);
+        Date date = formatter.parse(dateBegin);
+		
         //LOGGER.info("date = " + date);
         dateToSeconds = date.getTime();
         //LOGGER.info("timestamp à partir du fichier de conf : " + dateToSeconds);
@@ -171,8 +168,7 @@ public class TimeStampBuilder
     }
 
     // @TODO ajouter une verification pour que ce ne soit fait qu'une fois
-    public void init() throws Exception
-    {
+    public void init() {
         ratio = (closeHoursToSeconds - openHoursToSeconds) / (nbTickMax); // +1 to not reach the closehour on the last tick or not +1 but begin at openhour
 
         LOGGER.info("ratio = " + ratio);
@@ -185,12 +181,11 @@ public class TimeStampBuilder
         setTimeStamp(baseTimeStampForCurrentTick());
     }
 
-    private int getNbAgents() throws Exception
-    {
-        FileInputStream propFile = new FileInputStream("properties.txt");
-        Properties p = new Properties(System.getProperties());
-        p.load(propFile);
-        System.setProperties(p);
+    private int getNbAgents() {
+//        FileInputStream propFile = new FileInputStream("properties.txt");
+//        Properties p = new Properties(System.getProperties());
+//        p.load(propFile);
+//        System.setProperties(p);
         String nbAgentsStr = System.getProperty("symbols.agents.basic");
         assert nbAgentsStr != null;
         //LOGGER.info("nbAgentsStr = " + nbAgentsStr);

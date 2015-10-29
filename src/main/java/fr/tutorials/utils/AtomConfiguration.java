@@ -19,8 +19,13 @@ public class AtomConfiguration {
   private static final Logger LOGGER = Logger.getLogger(AtomConfiguration.class.getName());
 
   //Business Data
+  private String agentsParam;
   private List<String> agents = new ArrayList<>();
+  private String orderBooksParam;
   private List<String> orderBooks = new ArrayList<>();
+  
+  private int orderBooksRandom;
+  private int agentsRandom;
 
   private int dayGap;
   private int tickOpening;
@@ -43,8 +48,8 @@ public class AtomConfiguration {
   private boolean outHbase;
   private boolean outSystem;
   private String outFilePath;
-  private boolean replay;
-  private String replaySource;
+//  private boolean replay;
+//  private String replaySource;
   private boolean outFile;
   private boolean outAvro;
   private String avroSchema;
@@ -53,6 +58,12 @@ public class AtomConfiguration {
   private String pathHDFS;
   private String destHDFS;
   private String pathAvro;
+
+  
+  private String hadoopConfCore;
+  private String hbaseConfHbase;
+  private String hadoopConfHdfs;
+
 
   public AtomConfiguration() throws IOException {
     load();
@@ -65,19 +76,40 @@ public class AtomConfiguration {
     System.setProperties(p);
 
     // Get agents & orderbooks
-    String obsym = System.getProperty("atom.orderbooks", "");
-    LOGGER.info("obsym = " + obsym);
-    assert obsym != null;
-    String agsym = System.getProperty("atom.agents", "");
-    assert agsym != null;
+   
+    agentsParam = System.getProperty("atom.agents", "");
+    assert agentsParam != null;
+    LOGGER.info("obsym = " + agentsParam);
+    agentsRandom = Integer.parseInt(System.getProperty("atom.agents.random", "1000"));
 
-    this.agents = Arrays.asList(System.getProperty("symbols.agents." + agsym, "").split("\\s*,\\s*"));
-    this.orderBooks = Arrays.asList(System.getProperty("symbols.orderbooks." + obsym, "").split("\\s*,\\s*"));
-
+    if ("random".equals(agentsParam)) {
+    	agents = new ArrayList<String>(agentsRandom);
+    	for (int i = 0; i < agentsRandom; i++) {
+    		agents.add("Agent"+i);
+    	}
+    } else {
+    	agents = Arrays.asList(System.getProperty("symbols.agents." + agentsParam, "").split("\\s*,\\s*"));
+    }    
+    
+    orderBooksParam = System.getProperty("atom.orderbooks", "");
+    assert orderBooksParam != null;
+    LOGGER.info("obsym = " + orderBooksParam);
+    orderBooksRandom = Integer.parseInt(System.getProperty("atom.orderbooks.random", "100"));
+    
+    if ("random".equals(orderBooksParam)) {
+    	orderBooks = new ArrayList<String>(orderBooksRandom);
+    	for (int i = 0; i < orderBooksRandom; i++) {
+    		orderBooks.add("Orderbook"+i);
+    	}
+    } else {
+    	orderBooks = Arrays.asList(System.getProperty("symbols.orderbooks." + orderBooksParam, "").split("\\s*,\\s*"));
+    }
+    
     if (agents.isEmpty() || orderBooks.isEmpty()) {
       LOGGER.log(Level.SEVERE, "Agents/Orderbooks not set");
       throw new IOException("agents/orderbooks not set");
     }
+
 
     this.tableName = System.getProperty("hbase.table", "trace");
     this.cfName = Bytes.toBytes(System.getProperty("hbase.cf", "cf"));
@@ -103,8 +135,12 @@ public class AtomConfiguration {
     this.tickClosing = Integer.parseInt(System.getProperty("simul.tick.closing", "0"));
     this.days = Integer.parseInt(System.getProperty("simul.days", "1"));
 
-    this.replay = Boolean.parseBoolean(System.getProperty("simul.replay", "false"));
-    this.replaySource = System.getProperty("simul.replay.source", "");
+//    this.replay = Boolean.parseBoolean(System.getProperty("simul.replay", "false"));
+//    this.replaySource = System.getProperty("simul.replay.source", "");
+//    
+    this.hadoopConfCore = System.getProperty("hadoop.conf.core");
+    this.hbaseConfHbase = System.getProperty("hbase.conf.hbase");
+    this.hadoopConfHdfs = System.getProperty("hadoop.conf.hdfs");
 
     this.pathCore = System.getProperty("hbase.conf.core");
     this.pathSite = System.getProperty("hbase.conf.site");
@@ -189,17 +225,18 @@ public class AtomConfiguration {
     return tickContinuous;
   }
 
-  public boolean isReplay() {
-    return replay;
-  }
+//  public boolean isReplay() {
+//    return replay;
+//  }
 
-  public String getReplaySource() {
-    return replaySource;
-  }
+//  public String getReplaySource() {
+//    return replaySource;
+//  }
 
   public boolean isOutFile() {
     return outFile;
   }
+
 
   public boolean isOutAvro() { return outAvro; }
 
@@ -214,4 +251,33 @@ public class AtomConfiguration {
   public String getDestHDFS() { return destHDFS; }
 
   public String getPathAvro() { return pathAvro; }
+
+	public String getHadoopConfCore() {
+		return hadoopConfCore;
+	}
+	
+	public String getHbaseConfHbase() {
+		return hbaseConfHbase;
+	}
+	
+	public String getHadoopConfHdfs() {
+		return hadoopConfHdfs;
+	}
+
+	public String getAgentsParam() {
+		return agentsParam;
+	}
+
+	public String getOrderBooksParam() {
+		return orderBooksParam;
+	}
+
+	public int getOrderBooksRandom() {
+		return orderBooksRandom;
+	}
+
+	public int getAgentsRandom() {
+		return agentsRandom;
+	}
+	
 }

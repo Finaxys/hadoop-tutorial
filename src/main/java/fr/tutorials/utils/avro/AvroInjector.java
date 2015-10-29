@@ -76,116 +76,149 @@ public class AvroInjector implements AtomDataInjector
     //one schema for each agent ?
 
     @Override
-    public void createOutput() throws Exception
+    public void createOutput() 
     {
-        LOGGER.info("Create output ...");
-        DatumWriter<GenericRecord> datumWriter = new GenericDatumWriter<GenericRecord>(schema);
-        this.dataFileWriter = new DataFileWriter<GenericRecord>(datumWriter);
-        File file = new File(pathAvroFile);
-        this.dataFileWriter.create(schema, file);
-        this.genericRecord = new GenericData.Record(schema);
+    	try {
+	        LOGGER.info("Create output ...");
+	        DatumWriter<GenericRecord> datumWriter = new GenericDatumWriter<GenericRecord>(schema);
+	        this.dataFileWriter = new DataFileWriter<GenericRecord>(datumWriter);
+	        File file = new File(pathAvroFile);
+	        this.dataFileWriter.create(schema, file);
+	        this.genericRecord = new GenericData.Record(schema);
+    	} catch (IOException e) {
+ 			// TODO Auto-generated catch block
+ 			e.printStackTrace();
+ 		}
     }
 
     @Override
-    public void sendAgent(Agent a, Order o, PriceRecord pr) throws IOException
+    public void sendAgent(Agent a, Order o, PriceRecord pr)
     {
-        genericRecord.put("type", "Agent");
-        genericRecord.put("name", a.name);
-        genericRecord.put("cash", o.obName);
-        genericRecord.put("assetName", a.cash);
-        genericRecord.put("assetQuantity", pr.quantity);
-        genericRecord.put("currentPrice", pr.price);
-        dataFileWriter.append(genericRecord);
-        System.out.println("Agent");
+    	 try {
+	        genericRecord.put("type", "Agent");
+	        genericRecord.put("name", a.name);
+	        genericRecord.put("cash", o.obName);
+	        genericRecord.put("assetName", a.cash);
+	        genericRecord.put("assetQuantity", pr.quantity);
+	        genericRecord.put("currentPrice", pr.price);
+			dataFileWriter.append(genericRecord);
+        
+    	 } catch (IOException e) {
+ 			// TODO Auto-generated catch block
+ 			e.printStackTrace();
+ 		}
     }
 
     @Override
-    public void sendPriceRecord(PriceRecord pr, long bestAskPrice, long bestBidPrice) throws IOException
+    public void sendPriceRecord(PriceRecord pr, long bestAskPrice, long bestBidPrice)
     {
-        genericRecord.put("type", "Price");
-        genericRecord.put("orderBook", pr.obName);
-        genericRecord.put("price", pr.price);
-        genericRecord.put("quantity", pr.quantity);
-        genericRecord.put("direction", pr.dir);
-        genericRecord.put("initiatingOrderIdentifier", pr.extId1);
-        genericRecord.put("fullfillingOrderIdentifier", pr.extId2);
-        genericRecord.put("currentBestAsk", bestAskPrice);
-        genericRecord.put("currentBestBid", bestBidPrice);
-        dataFileWriter.append(genericRecord);
-        System.out.println("PriceRecord");
+    	try {
+	        genericRecord.put("type", "Price");
+	        genericRecord.put("orderBook", pr.obName);
+	        genericRecord.put("price", pr.price);
+	        genericRecord.put("quantity", pr.quantity);
+	        genericRecord.put("direction", pr.dir);
+	        genericRecord.put("initiatingOrderIdentifier", pr.extId1);
+	        genericRecord.put("fullfillingOrderIdentifier", pr.extId2);
+	        genericRecord.put("currentBestAsk", bestAskPrice);
+	        genericRecord.put("currentBestBid", bestBidPrice);
+	        dataFileWriter.append(genericRecord);
+    	} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
     }
 
     @Override
     public void sendAgentReferential(List<AgentReferentialLine> referencial)
     {
         genericRecord.put("", "");
-        System.out.println("AgentReferentialine");
     }
 
     @Override
-    public void sendOrder(Order o) throws IOException
+    public void sendOrder(Order o) 
     {
-        genericRecord.put("type", "Order");
-        genericRecord.put("orderBook", "");
-        genericRecord.put("sender", "");
-        genericRecord.put("identifier", "");
-        genericRecord.put("nature", "");
-        genericRecord.put("direction", "");
-        genericRecord.put("price", "");
-        genericRecord.put("quantity", "");
-        genericRecord.put("validity", "");
-        dataFileWriter.append(genericRecord);
-        System.out.println("Order");
+    	try {
+	        genericRecord.put("type", "Order");
+	        genericRecord.put("orderBook", "");
+	        genericRecord.put("sender", "");
+	        genericRecord.put("identifier", "");
+	        genericRecord.put("nature", "");
+	        genericRecord.put("direction", "");
+	        genericRecord.put("price", "");
+	        genericRecord.put("quantity", "");
+	        genericRecord.put("validity", "");
+	        dataFileWriter.append(genericRecord);
+        } catch (IOException e) {
+ 			// TODO Auto-generated catch block
+ 			e.printStackTrace();
+ 		}
     }
 
     @Override
-    public void sendTick(Day day, Collection<OrderBook> orderbooks) throws IOException
+    public void sendTick(Day day, Collection<OrderBook> orderbooks) 
     {
-        genericRecord.put("type", "Tick");
-        genericRecord.put("number", "");
-        genericRecord.put("orderBook", "");
-        genericRecord.put("bestAsk", "");
-        genericRecord.put("bestBid", "");
-        genericRecord.put("lastFixedPriced", "");
-        dataFileWriter.append(genericRecord);
-        System.out.println("Tick");
+    	try {
+	        genericRecord.put("type", "Tick");
+	        genericRecord.put("number", "");
+	        genericRecord.put("orderBook", "");
+	        genericRecord.put("bestAsk", "");
+	        genericRecord.put("bestBid", "");
+	        genericRecord.put("lastFixedPriced", "");
+	        dataFileWriter.append(genericRecord);
+    	} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
     }
 
     @Override
-    public void sendDay(int nbDays, Collection<OrderBook> orderbooks) throws IOException
+    public void sendDay(int nbDays, Collection<OrderBook> orderbooks) 
     {
-        for (OrderBook ob : orderbooks)
-        {
-            genericRecord.put("type", "Day");
-            genericRecord.put("number", nbDays + atomConf.getDayGap());
-            genericRecord.put("assetName", ob.obName);
-            genericRecord.put("lastFixedPrice1", ob.firstPriceOfDay);
-            genericRecord.put("lastFixedPrice2", ob.lowestPriceOfDay);
-            genericRecord.put("lastFixedPrice3", ob.highestPriceOfDay);
-            long price = 0;
-            if (ob.lastFixedPrice != null)
-                price = ob.lastFixedPrice.price;
-            genericRecord.put("lastFixedPrice4", price);
-            genericRecord.put("fixedPriceCount", ob.numberOfPricesFixed);
-            dataFileWriter.append(genericRecord);
-        }
-        System.out.println("Day");
+    	try {
+	        for (OrderBook ob : orderbooks)
+	        {
+	            genericRecord.put("type", "Day");
+	            genericRecord.put("number", nbDays + atomConf.getDayGap());
+	            genericRecord.put("assetName", ob.obName);
+	            genericRecord.put("lastFixedPrice1", ob.firstPriceOfDay);
+	            genericRecord.put("lastFixedPrice2", ob.lowestPriceOfDay);
+	            genericRecord.put("lastFixedPrice3", ob.highestPriceOfDay);
+	            long price = 0;
+	            if (ob.lastFixedPrice != null)
+	                price = ob.lastFixedPrice.price;
+	            genericRecord.put("lastFixedPrice4", price);
+	            genericRecord.put("fixedPriceCount", ob.numberOfPricesFixed);
+	            dataFileWriter.append(genericRecord);
+	        }
+    	} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
     }
 
     @Override
-    public void sendExec(Order o) throws IOException
+    public void sendExec(Order o) 
     {
-        genericRecord.put("type", "Exec");
-        genericRecord.put("orderIdentifier", o.extId);
-        dataFileWriter.append(genericRecord);
-        System.out.println("Exec");
+    	try {
+	        genericRecord.put("type", "Exec");
+	        genericRecord.put("orderIdentifier", o.extId);
+	        dataFileWriter.append(genericRecord);
+    	} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
     }
 
     @Override
-    public void close() throws IOException
+    public void close() 
     {
-        Path pathAvro = new Path(pathAvroFile);
-        sendToHDFS(pathAvro);
-        dataFileWriter.close();
+    	try {
+	        Path pathAvro = new Path(pathAvroFile);
+	        sendToHDFS(pathAvro);
+    	} catch (IOException e) {
+ 			// TODO Auto-generated catch block
+ 			e.printStackTrace();
+ 		}
     }
 }

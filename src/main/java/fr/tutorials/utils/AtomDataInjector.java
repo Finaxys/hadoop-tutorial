@@ -17,21 +17,21 @@ import fr.tutorials.utils.hbase.AgentReferentialLine;
  */
 public interface AtomDataInjector {
 
-  public void createOutput() throws Exception;
+  public void createOutput() throws HadoopTutorialException;
 
-  public void sendAgent(Agent a, Order o, PriceRecord pr) throws IOException;
+  public void sendAgent(Agent a, Order o, PriceRecord pr) throws HadoopTutorialException;
 
-  public void sendPriceRecord(PriceRecord pr, long bestAskPrice, long bestBidPrice) throws IOException;
+  public void sendPriceRecord(PriceRecord pr, long bestAskPrice, long bestBidPrice) throws HadoopTutorialException;
 
-  public void sendAgentReferential(List<AgentReferentialLine> referencial);
+  public void sendAgentReferential(List<AgentReferentialLine> referencial) throws HadoopTutorialException;
 
-  public void sendOrder(Order o) throws IOException;
+  public void sendOrder(Order o) throws HadoopTutorialException;
 
-  public void sendTick(Day day, Collection<OrderBook> orderbooks) throws IOException;
+  public void sendTick(Day day, Collection<OrderBook> orderbooks) throws HadoopTutorialException;
 
-  public void sendDay(int nbDays, Collection<OrderBook> orderbooks) throws IOException;
+  public void sendDay(int nbDays, Collection<OrderBook> orderbooks) throws HadoopTutorialException;
 
-  public void sendExec(Order o) throws IOException;
+  public void sendExec(Order o) throws HadoopTutorialException;
 
-  public void close() throws IOException;
+  public void close() throws HadoopTutorialException;
 }

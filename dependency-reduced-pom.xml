@@ -63,7 +63,7 @@
       <artifactId>atom</artifactId>
       <version>1.0</version>
       <scope>system</scope>
-      <systemPath>/home/heraul_m/dev/hadoop-tutorial/atom.jar</systemPath>
+      <systemPath>/Users/pierre/workspace/hadoop-tutorial/atom.jar</systemPath>
     </dependency>
     <dependency>
       <groupId>org.apache.hadoop</groupId>

@@ -23,6 +23,7 @@ import fr.tutorials.utils.AtomConfiguration;
 import fr.tutorials.utils.AtomLogger;
 import fr.tutorials.utils.LoggerStream;
 import fr.tutorials.utils.hbase.HBaseInjector;
+import fr.tutorials.utils.hbase.SimpleHBaseInjector;
 
 public class AtomGenerate {
 	
@@ -63,9 +64,9 @@ public class AtomGenerate {
     try {
 	    if (atomConf.isOutHbase())
         {
-          logger = new AtomLogger(atomConf, new HBaseInjector(atomConf));
+          logger = new AtomLogger(atomConf, new SimpleHBaseInjector(atomConf));
         } else if (atomConf.isOutAvro()) {
-        logger = new AtomLogger(atomConf, new AvroInjector(atomConf));
+        	logger = new AtomLogger(atomConf, new AvroInjector(atomConf));
 	    } else  {
 	      logger = new FileLogger(out); // new AtomLogger(atomConf);
 	    }
@@ -85,7 +86,7 @@ public class AtomGenerate {
     int marketmakerQuantity = marketmaker ? Integer.parseInt(System.getProperty("atom.marketmaker.quantity", "1")) : 0;
 
     for (String agent : agents) {
-      sim.addNewAgent(new ZIT(agent, Integer.parseInt(System.getProperty("simul. .cash", "0")),
+      sim.addNewAgent(new ZIT(agent, Integer.parseInt(System.getProperty("simul.agent.cash", "0")),
           Integer.parseInt(System.getProperty("simul.agent.minprice", "10000")),
           Integer.parseInt(System.getProperty("simul.agent.maxprice", "20000")),
           Integer.parseInt(System.getProperty("simul.agent.minquantity", "10")),
@@ -97,6 +98,8 @@ public class AtomGenerate {
       }
       sim.addNewOrderBook(orderBooks.get(i));
     }
+    
+    
     LOGGER.log(Level.INFO, "Launching simulation");
 
     sim.run(Day.createEuroNEXT(Integer.parseInt(System.getProperty("simul.tick.opening", "0")),
@@ -107,41 +110,27 @@ public class AtomGenerate {
     LOGGER.log(Level.INFO, "Closing up");
 
     sim.market.close();
+    
+    if (logger instanceof AtomLogger) {
+	    try {
+	        ((AtomLogger)logger).close();
+	      } catch (Exception e) {
+	        LOGGER.log(Level.FATAL, "Could not close logger", e);
+	        return;
+	      }
+    }
 
     long estimatedTime = System.currentTimeMillis() - startTime;
     LOGGER.info("Elapsed time: " + estimatedTime / 1000 + "s");
   }
 
   private static void getConfiguration() throws Exception {
-    FileInputStream propFile = new FileInputStream("properties.txt");
-    Properties p = new Properties(System.getProperties());
-    p.load(propFile);
-    System.setProperties(p);
-    
+
     atomConf = new AtomConfiguration();
 
     // Get agents & orderbooks
-    String obsym = System.getProperty("atom.orderbooks", "");
-    String agsym = System.getProperty("atom.agents", "");
-
-    if ("random".equals(agsym)) {
-    	int agsize = Integer.parseInt(System.getProperty("atom.agents.random", "1000"));
-    	agents = new ArrayList<String>(agsize);
-    	for (int i = 0; i < agsize; i++) {
-    		agents.add("Agent"+i);
-    	}
-    } else {
-    	agents = Arrays.asList(System.getProperty("symbols.agents." + agsym, "").split("\\s*,\\s*"));
-    }
-    if ("random".equals(obsym)) {
-    	int obsize = Integer.parseInt(System.getProperty("atom.orderbooks.random", "100"));
-    	orderBooks = new ArrayList<String>(obsize);
-    	for (int i = 0; i < obsize; i++) {
-    		orderBooks.add("Orderbook"+i);
-    	}
-    } else {
-    	orderBooks = Arrays.asList(System.getProperty("symbols.orderbooks." + obsym, "").split("\\s*,\\s*"));
-    }
+    agents = atomConf.getAgents();
+    orderBooks = atomConf.getOrderBooks();
 
     if (agents.isEmpty() || orderBooks.isEmpty()) {
       LOGGER.log(Level.ERROR, "Agents/Orderbooks not set");

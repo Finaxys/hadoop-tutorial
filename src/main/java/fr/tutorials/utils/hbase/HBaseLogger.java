@@ -5,6 +5,7 @@ import com.sun.istack.NotNull;
 
 import fr.tutorials.utils.AtomDataInjector;
 import fr.tutorials.utils.AtomConfiguration;
+import fr.tutorials.utils.HadoopTutorialException;
 import v13.Day;
 import v13.Logger;
 import v13.Order;
@@ -12,7 +13,6 @@ import v13.OrderBook;
 import v13.PriceRecord;
 import v13.agents.Agent;
 
-import java.io.IOException;
 import java.io.PrintStream;
 import java.util.List;
 import java.util.logging.Level;
@@ -35,20 +35,18 @@ public class HBaseLogger extends Logger {
     init();
   }
 
-  public void init() throws
-      Exception {
+  public void init() {
     try {
       for (int i = 0; i < injectors.length; i++) {
         injectors[i].createOutput();
       }
-    } catch (IOException e) {
+    } catch (HadoopTutorialException e) {
       LOGGER.log(Level.SEVERE, "Could not create Connection", e);
-      throw new Exception("hbase connection", e);
+      throw new HadoopTutorialException("Exception while initiating HBaseLogger", e.getCause());
     }
   }
 
-  public void agentReferential(@NotNull List<AgentReferentialLine> referencial) throws
-      IOException {
+  public void agentReferential(@NotNull List<AgentReferentialLine> referencial) {
     assert !referencial.isEmpty();
     for (int i = 0; i < injectors.length; i++) {
       injectors[i].sendAgentReferential(referencial);

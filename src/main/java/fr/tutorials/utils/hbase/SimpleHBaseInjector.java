@@ -31,7 +31,6 @@ import v13.agents.Agent;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.text.ParseException;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -45,74 +44,46 @@ import java.util.logging.Level;
 /**
  *
  */
-public class HBaseInjector implements AtomDataInjector {
-  private static final java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(HBaseInjector.class.getName());
+public class SimpleHBaseInjector implements AtomDataInjector {
+  private static final java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(SimpleHBaseInjector.class.getName());
 
   AtomicLong idGen = new AtomicLong(1_000_000);
   //Confs
   private final AtomConfiguration atomConf;
   private final Configuration hbConf;
-  //MThreads
-  private ExecutorService eService;
-
-  private final ArrayBlockingQueue<Put> queue;
-
+ 
   final HBaseDataTypeEncoder hbEncoder = new HBaseDataTypeEncoder();
   private TimeStampBuilder tsb;
 
-  private final AtomicBoolean isClosing = new AtomicBoolean(false);
   //Props
   private final byte[] cfall;
 
   private final AtomicLong globalCount = new AtomicLong(0L);
+  
+  private final Table table;
 
-  public HBaseInjector(@NotNull AtomConfiguration conf) {
+  public SimpleHBaseInjector(@NotNull AtomConfiguration conf) throws Exception {
     this.atomConf = conf;
-    this.queue = new ArrayBlockingQueue<>(atomConf.getBufferSize());
     this.cfall = conf.getColumnFamily();
     this.hbConf = createHbaseConfiguration();
-
+    this.table = createHTableConnexion(TableName.valueOf(atomConf.getTableName()), this.hbConf);
     this.tsb = new TimeStampBuilder();
     
     // @TODO
-    try {
-		this.tsb.loadConfig();
-		this.tsb.init();
-	    initWorkers();
-	} catch (ParseException e) {
-		LOGGER.log(Level.SEVERE, "Could not parse parameter", e);
-	    throw new HadoopTutorialException("parsing problem", e);
-	} catch (IOException e) {
-		LOGGER.log(Level.SEVERE, "Could not load parameter", e);
-	    throw new HadoopTutorialException("loading problem", e);
-	}
-    
+    this.tsb.loadConfig();
+    this.tsb.init();
   }
 
-  private void initWorkers() throws IOException {
-    int worker = atomConf.getWorker();
-    eService = Executors.newFixedThreadPool(worker);
-    for (int i = 1; i <= worker; i++) {
-      eService.submit(new HBWorker(queue, createHTableConnexion(TableName.valueOf(atomConf.getTableName()), this.hbConf),
-          atomConf.getFlushRatio(), i, isClosing, globalCount));
-    }
-  }
 
   private Table createHTableConnexion(TableName tableName, Configuration hbConf) throws IOException {
 	 Connection connection = ConnectionFactory
 		.createConnection(hbConf);
     Table table = connection.getTable(tableName);
-    // AutoFlushing
-//    if (atomConf.isAutoFlush()) {
-//    	table = connection.getBufferedMutator(tableName);
-//    } else {
-//    	table = 
-//    }
     return table;
   }
 
   @Override
-  public void createOutput()  {
+  public void createOutput() {
     assert !(atomConf.getTableName()==null);
     String port = hbConf.get("hbase.zookeeper.property.clientPort");
     String host = hbConf.get("hbase.zookeeper.quorum");
@@ -128,15 +99,16 @@ public class HBaseInjector implements AtomDataInjector {
       LOGGER.log(Level.SEVERE, "Could not create Connection", e);
       throw new HadoopTutorialException("hbase connection", e);
     } finally {
-    	try {
-		 if (connection != null) connection.close();
+      if (connection != null)
+		try {
+			connection.close();
 		} catch (IOException e) {
-			// can't do anything here
+			// can't do anything here...
 		}
     }
   }
 
-  private void createTable(Connection connection) throws HadoopTutorialException {
+  private void createTable(Connection connection) {
     Admin admin = null;
     try {
       admin = connection.getAdmin();
@@ -147,17 +119,22 @@ public class HBaseInjector implements AtomDataInjector {
       LOGGER.log(Level.SEVERE, "Could not connect to ZooKeeper", e);
       throw new HadoopTutorialException("zookeeper", e);
     } catch (IOException e) {
-    	LOGGER.log(Level.SEVERE, "IO Excption while getting admin", e);
-    	throw new HadoopTutorialException("hbase master server", e);
+    	LOGGER.log(Level.SEVERE, "IOException while accessing hbase admin", e);
+        throw new HadoopTutorialException("ioexception getAdmin", e);
 	}
+
     try {
-	    if (admin.tableExists(TableName.valueOf(atomConf.getTableName()))) {
-	      LOGGER.log(Level.INFO, atomConf.getTableName() + " already exists");
-	      return;
-	    }
-	
-	    HTableDescriptor tableDescriptor = new HTableDescriptor(TableName.valueOf(atomConf.getTableName()));
-    
+		if (admin.tableExists(TableName.valueOf(atomConf.getTableName()))) {
+		  LOGGER.log(Level.INFO, atomConf.getTableName() + " already exists");
+		  return;
+		}
+	} catch (IOException e1) {
+		LOGGER.log(Level.SEVERE, "IOException while checking table exist", e1);
+        throw new HadoopTutorialException("ioexception table exists", e1);
+	}
+
+    HTableDescriptor tableDescriptor = new HTableDescriptor(TableName.valueOf(atomConf.getTableName()));
+    try {
       LOGGER.log(Level.INFO, "Creating table");
       LOGGER.log(Level.INFO, admin.getClusterStatus().toString());
 
@@ -290,7 +267,6 @@ public class HBaseInjector implements AtomDataInjector {
         Put p = agent.toPut(hbEncoder, cfall, System.currentTimeMillis());
         table.put(p);
       }
-      //table.flushCommits();
       table.close();
     } catch (IOException e) {
       e.printStackTrace();
@@ -299,11 +275,9 @@ public class HBaseInjector implements AtomDataInjector {
 
   private void putTable(@NotNull Put p) {
     try {
-      if (queue.size() > 0 && queue.size() % 1000 == 0) {
-        LOGGER.info("Pending data size : " + queue.size());
-      }
-      queue.put(p);
-    } catch (InterruptedException e) {
+    	table.put(p);
+    	globalCount.addAndGet(1);
+    } catch (IOException e) {
       LOGGER.severe("Faild to push data into queue : " + e.getMessage());
     }
   }
@@ -314,17 +288,12 @@ public class HBaseInjector implements AtomDataInjector {
     return String.valueOf(rowKey) + name;
   }
 
-  private Configuration createHbaseConfiguration() {
+  private Configuration createHbaseConfiguration() throws Exception {
     Configuration conf = HBaseConfiguration.create();
- //   try {
-     // String miniCluster = System.getProperty("hbase.conf.minicluster", "");
-//      if (!miniCluster.isEmpty())
-//        conf.addResource(new FileInputStream(miniCluster));
-//      else {
-/*        conf.addResource(new File(atomConf.getHadoopConfCore()).getAbsoluteFile().toURI().toURL());
-        conf.addResource(new File(atomConf.getHbaseConfHbase()).getAbsoluteFile().toURI().toURL());
-        conf.addResource(new File(atomConf.getHadoopConfHdfs()).getAbsoluteFile().toURI().toURL());*/
-   //   }
+//    try {
+//        conf.addResource(new File(atomConf.getHadoopConfCore()).getAbsoluteFile().toURI().toURL());
+//        conf.addResource(new File(atomConf.getHbaseConfHbase()).getAbsoluteFile().toURI().toURL());
+//        conf.addResource(new File(atomConf.getHadoopConfHdfs()).getAbsoluteFile().toURI().toURL());
 //    } catch (MalformedURLException e) {
 //      LOGGER.log(Level.SEVERE, "Could not get hbase configuration files", e);
 //      throw new Exception("hbase", e);
@@ -335,13 +304,9 @@ public class HBaseInjector implements AtomDataInjector {
 
   @Override
   public void close() {
-    eService.shutdown();
-    isClosing.set(true);
     try {
-      while (!eService.awaitTermination(10L, TimeUnit.SECONDS)) {
-        LOGGER.info("Await pool termination. Still " + queue.size() + " puts to proceed.");
-      }
-    } catch (InterruptedException e) {
+      table.close();
+    } catch (IOException e) {
       e.printStackTrace();
     } finally {
       LOGGER.info("Total put sent : " + globalCount.get());
