@@ -1,21 +1,21 @@
 package fr.tutorials.utils;
 
+import java.util.Collection;
+import java.util.List;
+
 import v13.Day;
 import v13.Order;
 import v13.OrderBook;
 import v13.PriceRecord;
 import v13.agents.Agent;
-
-import java.io.IOException;
-import java.util.Collection;
-import java.util.List;
-
 import fr.tutorials.utils.hbase.AgentReferentialLine;
 
 /**
  *
  */
 public interface AtomDataInjector {
+	
+  public void setTimeStampBuilder(TimeStampBuilder tsb);
 
   public void createOutput() throws HadoopTutorialException;
 

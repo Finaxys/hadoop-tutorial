@@ -1,9 +1,13 @@
 package fr.tutorials.utils.avro;
 
 import com.sun.istack.NotNull;
+
 import fr.tutorials.utils.AtomConfiguration;
 import fr.tutorials.utils.AtomDataInjector;
+import fr.tutorials.utils.HadoopTutorialException;
+import fr.tutorials.utils.TimeStampBuilder;
 import fr.tutorials.utils.hbase.AgentReferentialLine;
+
 import org.apache.avro.Schema;
 import org.apache.avro.file.DataFileWriter;
 import org.apache.avro.generic.GenericData;
@@ -13,6 +17,7 @@ import org.apache.avro.io.DatumWriter;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+
 import v13.Day;
 import v13.Order;
 import v13.OrderBook;
@@ -37,6 +42,7 @@ public class AvroInjector implements AtomDataInjector
     private String pathAvroFile;
     private DataFileWriter<GenericRecord> dataFileWriter;
     private GenericRecord genericRecord;
+    private TimeStampBuilder tsb;
 
     public AvroInjector(@NotNull AtomConfiguration atomConf) throws Exception
     {
@@ -56,11 +62,11 @@ public class AvroInjector implements AtomDataInjector
 
     public void sendToHDFS(Path path) throws IOException
     {
-        fileSystem = FileSystem.get(conf);
-        pathDestHDFS = new Path(destHDFS);
-
-        try
+    	try
         {
+        	fileSystem = FileSystem.get(conf);
+        	pathDestHDFS = new Path(destHDFS);
+        
             fileSystem.copyFromLocalFile(false, true, path, pathDestHDFS);
         }
         catch (Exception e)
@@ -86,8 +92,7 @@ public class AvroInjector implements AtomDataInjector
 	        this.dataFileWriter.create(schema, file);
 	        this.genericRecord = new GenericData.Record(schema);
     	} catch (IOException e) {
- 			// TODO Auto-generated catch block
- 			e.printStackTrace();
+ 			throw new HadoopTutorialException("Cannot create Avro output", e);
  		}
     }
 
@@ -104,8 +109,7 @@ public class AvroInjector implements AtomDataInjector
 			dataFileWriter.append(genericRecord);
         
     	 } catch (IOException e) {
- 			// TODO Auto-generated catch block
- 			e.printStackTrace();
+    		 throw new HadoopTutorialException("Cannot create Avro output", e);
  		}
     }
 
@@ -221,4 +225,9 @@ public class AvroInjector implements AtomDataInjector
  			e.printStackTrace();
  		}
     }
+
+	@Override
+	public void setTimeStampBuilder(TimeStampBuilder tsb) {
+		this.tsb = tsb;
+	}
 }

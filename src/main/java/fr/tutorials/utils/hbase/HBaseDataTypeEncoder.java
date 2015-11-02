@@ -1,7 +1,5 @@
 package fr.tutorials.utils.hbase;
 
-import com.sun.istack.NotNull;
-
 import org.apache.hadoop.hbase.types.DataType;
 import org.apache.hadoop.hbase.types.OrderedBlobVar;
 import org.apache.hadoop.hbase.types.RawByte;
@@ -9,8 +7,9 @@ import org.apache.hadoop.hbase.types.RawDouble;
 import org.apache.hadoop.hbase.types.RawInteger;
 import org.apache.hadoop.hbase.types.RawLong;
 import org.apache.hadoop.hbase.types.RawStringTerminated;
-import org.apache.hadoop.hbase.util.SimplePositionedByteRange;
 import org.apache.hadoop.hbase.util.SimplePositionedMutableByteRange;
+
+import com.sun.istack.NotNull;
 
 public class HBaseDataTypeEncoder
 {
