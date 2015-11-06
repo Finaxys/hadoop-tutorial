@@ -53,12 +53,6 @@
   </build>
   <dependencies>
     <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>3.8.1</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
       <groupId>atom</groupId>
       <artifactId>atom</artifactId>
       <version>1.0</version>
@@ -79,6 +73,73 @@
       <type>test-jar</type>
       <scope>compile</scope>
     </dependency>
+    <dependency>
+      <groupId>org.apache.hbase</groupId>
+      <artifactId>hbase-testing-util</artifactId>
+      <version>1.1.2</version>
+      <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <artifactId>hbase-server</artifactId>
+          <groupId>org.apache.hbase</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>hbase-server</artifactId>
+          <groupId>org.apache.hbase</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>hbase-hadoop-compat</artifactId>
+          <groupId>org.apache.hbase</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>hbase-hadoop-compat</artifactId>
+          <groupId>org.apache.hbase</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>hbase-hadoop2-compat</artifactId>
+          <groupId>org.apache.hbase</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>hbase-hadoop2-compat</artifactId>
+          <groupId>org.apache.hbase</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>hadoop-client</artifactId>
+          <groupId>org.apache.hadoop</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>hadoop-minicluster</artifactId>
+          <groupId>org.apache.hadoop</groupId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.testng</groupId>
+      <artifactId>testng</artifactId>
+      <version>6.4</version>
+      <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <artifactId>bsh</artifactId>
+          <groupId>org.beanshell</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>jcommander</artifactId>
+          <groupId>com.beust</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>snakeyaml</artifactId>
+          <groupId>org.yaml</groupId>
+        </exclusion>
+      </exclusions>
+    </dependency>
   </dependencies>
+  <properties>
+    <testng.version>6.4</testng.version>
+    <hbase.version>1.1.2</hbase.version>
+    <log4j.version>2.3</log4j.version>
+    <hadoop.version>2.7.1</hadoop.version>
+    <junit.version>4.11</junit.version>
+  </properties>
 </project>
 

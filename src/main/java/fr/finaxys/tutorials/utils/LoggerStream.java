@@ -1,4 +1,4 @@
-package fr.tutorials.utils;
+package fr.finaxys.tutorials.utils;
 
 import java.io.IOException;
 import java.io.OutputStream;

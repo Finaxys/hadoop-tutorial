@@ -1,4 +1,4 @@
-package fr.tutorials.utils;
+package fr.finaxys.tutorials.utils;
 
 public class HadoopTutorialException extends RuntimeException {
 	

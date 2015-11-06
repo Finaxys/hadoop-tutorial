@@ -1,4 +1,4 @@
-package fr.tutorials.utils;
+package fr.finaxys.tutorials.utils;
 
 import java.util.Collection;
 import java.util.List;
@@ -8,7 +8,7 @@ import v13.Order;
 import v13.OrderBook;
 import v13.PriceRecord;
 import v13.agents.Agent;
-import fr.tutorials.utils.hbase.AgentReferentialLine;
+import fr.finaxys.tutorials.utils.hbase.AgentReferentialLine;
 
 /**
  *

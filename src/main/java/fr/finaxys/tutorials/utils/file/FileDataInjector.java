@@ -1,4 +1,4 @@
-package fr.tutorials.utils.file;
+package fr.finaxys.tutorials.utils.file;
 
 import java.io.IOException;
 import java.io.PrintStream;
@@ -12,10 +12,10 @@ import v13.Order;
 import v13.OrderBook;
 import v13.PriceRecord;
 import v13.agents.Agent;
-import fr.tutorials.utils.AtomDataInjector;
-import fr.tutorials.utils.HadoopTutorialException;
-import fr.tutorials.utils.TimeStampBuilder;
-import fr.tutorials.utils.hbase.AgentReferentialLine;
+import fr.finaxys.tutorials.utils.AtomDataInjector;
+import fr.finaxys.tutorials.utils.HadoopTutorialException;
+import fr.finaxys.tutorials.utils.TimeStampBuilder;
+import fr.finaxys.tutorials.utils.hbase.AgentReferentialLine;
 
 public class FileDataInjector implements AtomDataInjector {
 	

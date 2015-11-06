@@ -1,4 +1,4 @@
-package fr.tutorials.utils.hbase;
+package fr.finaxys.tutorials.utils.hbase;
 
 import com.sun.istack.NotNull;
 

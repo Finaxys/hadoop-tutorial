@@ -1,4 +1,4 @@
-package fr.tutorials.utils.hbase;
+package fr.finaxys.tutorials.utils.hbase;
 
 import org.apache.hadoop.hbase.types.DataType;
 import org.apache.hadoop.hbase.types.OrderedBlobVar;

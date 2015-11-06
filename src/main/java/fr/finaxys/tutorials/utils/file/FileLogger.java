@@ -1,10 +1,11 @@
-package fr.tutorials.utils.file;
+package fr.finaxys.tutorials.utils.file;
 
 import java.io.PrintStream;
 import java.util.Collection;
 import java.util.Iterator;
 
-import fr.tutorials.utils.TimeStampBuilder;
+import fr.finaxys.tutorials.utils.AtomConfiguration;
+import fr.finaxys.tutorials.utils.TimeStampBuilder;
 import v13.Day;
 import v13.LimitOrder;
 import v13.Order;
@@ -12,33 +13,19 @@ import v13.OrderBook;
 import v13.PriceRecord;
 import v13.agents.Agent;
 
-public class FileLogger extends v13.Logger{
+public class FileLogger extends v13.Logger {
+	
+	private static final java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(FileLogger.class.getName());
+	
     private PrintStream pw = null;
     private TimeStampBuilder tsb;
     private int nb_order = 0;
 
-    public FileLogger(String filename) {
-        try {
-            this.pw = new PrintStream(filename);
-            tsb = new TimeStampBuilder();
-            tsb.loadConfig();
-            tsb.init();
-        } catch (Exception var3) {
-            var3.printStackTrace();
-            System.exit(1);
-        }
-    }
     
-    public FileLogger(PrintStream pw) {
-        try {
-            this.pw = pw;
-            tsb = new TimeStampBuilder();
-            tsb.loadConfig();
-            tsb.init();
-        } catch (Exception var3) {
-            var3.printStackTrace();
-            System.exit(1);
-        }
+    public FileLogger(AtomConfiguration conf, PrintStream pw) {
+        this.pw = pw;
+        tsb = new TimeStampBuilder(conf.getTsbDateBegin(), conf.getTsbOpenHour(), conf.getTsbCloseHour(), conf.getTsbNbTickMax(), conf.getNbAgents(), conf.getNbOrderBooks());
+        tsb.init();
     }
 
     public void println(String s) {

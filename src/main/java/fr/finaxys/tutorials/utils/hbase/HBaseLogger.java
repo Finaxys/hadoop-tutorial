@@ -1,9 +1,11 @@
-package fr.tutorials.utils;
+package fr.finaxys.tutorials.utils.hbase;
 
-import java.io.IOException;
-import java.text.ParseException;
-import java.util.List;
 
+import com.sun.istack.NotNull;
+
+import fr.finaxys.tutorials.utils.AtomConfiguration;
+import fr.finaxys.tutorials.utils.AtomDataInjector;
+import fr.finaxys.tutorials.utils.HadoopTutorialException;
 import v13.Day;
 import v13.Logger;
 import v13.Order;
@@ -11,43 +13,40 @@ import v13.OrderBook;
 import v13.PriceRecord;
 import v13.agents.Agent;
 
-import com.sun.istack.NotNull;
+import java.io.PrintStream;
+import java.util.List;
+import java.util.logging.Level;
 
-import fr.tutorials.utils.hbase.AgentReferentialLine;
+/**
+ * @deprecated
+ */
+public class HBaseLogger extends Logger {
+  private static final java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(HBaseLogger.class.getName());
 
-public class AtomLogger extends Logger {
-  private static final java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(AtomLogger.class.getName());
+  AtomDataInjector injectors[];
 
-  private AtomDataInjector injectors[];
-  private TimeStampBuilder tsb;
-
-  public AtomLogger(AtomConfiguration conf, AtomDataInjector... injectors) throws Exception {
+  public HBaseLogger(AtomConfiguration conf, AtomDataInjector... injectors) throws Exception {
     super();
-//    if (conf.isOutFile()) {
-//      this.getClass().getField("pw").setAccessible(true);
-//      this.getClass().getField("pw").set(this, new PrintStream(conf.getOutFilePath()));
-//    }
+    if (conf.isOutFile()) {
+      this.getClass().getField("pw").setAccessible(true);
+      this.getClass().getField("pw").set(this, new PrintStream(conf.getOutFilePath()));
+    }
     this.injectors = injectors;
     init();
   }
 
   public void init() {
-	  try {
-          tsb = new TimeStampBuilder();
-          tsb.loadConfig();
-          tsb.init();
-      } catch (ParseException e) {
-      	 throw new HadoopTutorialException("Cannot init FileDataInjector", e);
-		}
-	  
+    try {
       for (int i = 0; i < injectors.length; i++) {
-    	  injectors[i].setTimeStampBuilder(tsb);
-    	  injectors[i].createOutput();
+        injectors[i].createOutput();
       }
+    } catch (HadoopTutorialException e) {
+      LOGGER.log(Level.SEVERE, "Could not create Connection", e);
+      throw new HadoopTutorialException("Exception while initiating HBaseLogger", e.getCause());
+    }
   }
 
-  public void agentReferential(@NotNull List<AgentReferentialLine> referencial) throws
-      IOException {
+  public void agentReferential(@NotNull List<AgentReferentialLine> referencial) {
     assert !referencial.isEmpty();
     for (int i = 0; i < injectors.length; i++) {
       injectors[i].sendAgentReferential(referencial);
@@ -91,9 +90,6 @@ public class AtomLogger extends Logger {
   @Override
   public void day(int nbDays, java.util.Collection<OrderBook> orderbooks) {
     super.day(nbDays, orderbooks);
-    
-    tsb.setCurrentDay(nbDays);
-    
     for (int i = 0; i < injectors.length; i++) {
       injectors[i].sendDay(nbDays, orderbooks);
     }
@@ -103,10 +99,6 @@ public class AtomLogger extends Logger {
   @Override
   public void tick(Day day, java.util.Collection<OrderBook> orderbooks) {
     super.tick(day, orderbooks);
-    
-	tsb.setCurrentTick(day.currentTick());
-	tsb.setTimeStamp(tsb.baseTimeStampForCurrentTick());
-	
     for (int i = 0; i < injectors.length; i++) {
       injectors[i].sendTick(day, orderbooks);
     }

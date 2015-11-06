@@ -1,11 +1,15 @@
-package fr.tutorials.utils;
+package fr.finaxys.tutorials.utils;
 
 import org.apache.hadoop.hbase.util.Bytes;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 import java.util.logging.Level;
@@ -56,9 +60,6 @@ public class AtomConfiguration {
 	private boolean outFile;
 	private boolean outAvro;
 	private String avroSchema;
-	private String pathCore;
-	private String pathSite;
-	private String pathHDFS;
 	private String destHDFS;
 	private String pathAvro;
 
@@ -71,6 +72,14 @@ public class AtomConfiguration {
 	private int agentMaxPrice;
 	private int agentMinQuantity;
 	private int agentMaxQuantity;
+	
+	// TimeStampBuilder
+	private String tsbDateBegin;
+	private String tsbOpenHour;
+	private String tsbCloseHour;
+	private int tsbNbTickMax;
+	private int nbAgents;
+    private int nbOrderBooks;
 
 	public AtomConfiguration() throws HadoopTutorialException {
 		load();
@@ -87,7 +96,7 @@ public class AtomConfiguration {
 
 			agentsParam = System.getProperty("atom.agents", "");
 			assert agentsParam != null;
-			LOGGER.info("obsym = " + agentsParam);
+			LOGGER.info("agsym = " + agentsParam);
 			agentsRandom = Integer.parseInt(System.getProperty(
 					"atom.agents.random", "1000"));
 
@@ -124,6 +133,10 @@ public class AtomConfiguration {
 				LOGGER.log(Level.SEVERE, "Agents/Orderbooks not set");
 				throw new IOException("agents/orderbooks not set");
 			}
+			
+			nbAgents = agents.size();
+			 
+	        nbOrderBooks = orderBooks.size();
 
 			this.tableName = System.getProperty("hbase.table", "trace");
 			this.cfName = Bytes.toBytes(System.getProperty("hbase.cf", "cf"));
@@ -184,11 +197,22 @@ public class AtomConfiguration {
 			this.hbaseConfHbase = System.getProperty("hbase.conf.hbase");
 			this.hadoopConfHdfs = System.getProperty("hadoop.conf.hdfs");
 
-			this.pathCore = System.getProperty("hbase.conf.core");
-			this.pathSite = System.getProperty("hbase.conf.site");
-			this.pathHDFS = System.getProperty("hbase.conf.hdfs");
 			this.destHDFS = System.getProperty("dest.hdfs");
 			this.pathAvro = System.getProperty("avro.path");
+			
+			this.tsbDateBegin = System.getProperty("simul.time.startdate");
+	        assert tsbDateBegin != null;
+
+	        //take the hours
+	        this.tsbOpenHour = System.getProperty("simul.time.openhour");
+	        this.tsbCloseHour = System.getProperty("simul.time.closehour");
+
+	        //Take the period
+	        String nbTickMaxStr = System.getProperty("simul.tick.continuous");
+	      //LOGGER.info("simul.tick.continuous = " + nbTickMaxStr);
+	        this.tsbNbTickMax = Integer.parseInt(nbTickMaxStr);
+	        assert nbTickMaxStr != null;
+	        
 		} catch (IOException e) {
 			throw new HadoopTutorialException("cannot load Atom Configuration",
 					e);
@@ -288,18 +312,6 @@ public class AtomConfiguration {
 		return outAvro;
 	}
 
-	public String getPathCore() {
-		return pathCore;
-	}
-
-	public String getPathSite() {
-		return pathSite;
-	}
-
-	public String getPathHDFS() {
-		return pathHDFS;
-	}
-
 	public String getAvroSchema() {
 		return avroSchema;
 	}
@@ -368,4 +380,28 @@ public class AtomConfiguration {
 		return agentMaxQuantity;
 	}
 
+	public String getTsbDateBegin() {
+		return tsbDateBegin;
+	}
+
+	public String getTsbOpenHour() {
+		return tsbOpenHour;
+	}
+
+	public String getTsbCloseHour() {
+		return tsbCloseHour;
+	}
+
+	public int getTsbNbTickMax() {
+		return tsbNbTickMax;
+	}
+
+	public int getNbAgents() {
+		return nbAgents;
+	}
+
+	public int getNbOrderBooks() {
+		return nbOrderBooks;
+	}
+	
 }
