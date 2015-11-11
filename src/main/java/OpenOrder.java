@@ -15,7 +15,12 @@ import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import fr.univlille1.atom.trace.TraceType;
 import fr.univlille1.atom.trace.TraceUtils;
 
-
+/**
+ * Not implemented (meaning less)
+ * @author Pierre
+ * @deprecated
+ */
+@Deprecated
 public class OpenOrder {
 
 	private static final Logger LOGGER = Logger.getLogger(TraceCount.class.getName());

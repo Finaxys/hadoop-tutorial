@@ -2,11 +2,11 @@ package fr.finaxys.tutorials.utils.avro;
 
 import com.sun.istack.NotNull;
 
+import fr.finaxys.tutorials.utils.AgentReferentialLine;
 import fr.finaxys.tutorials.utils.AtomConfiguration;
 import fr.finaxys.tutorials.utils.AtomDataInjector;
 import fr.finaxys.tutorials.utils.HadoopTutorialException;
 import fr.finaxys.tutorials.utils.TimeStampBuilder;
-import fr.finaxys.tutorials.utils.hbase.AgentReferentialLine;
 
 import org.apache.avro.Schema;
 import org.apache.avro.file.DataFileWriter;
@@ -202,7 +202,7 @@ public class AvroInjector implements AtomDataInjector {
 	}
 
 	@Override
-	public void close() {
+	public void closeOutput() {
 		try {
 			Path pathAvro = new Path(pathAvroFile);
 			sendToHDFS(pathAvro);
@@ -215,5 +215,10 @@ public class AvroInjector implements AtomDataInjector {
 	@Override
 	public void setTimeStampBuilder(TimeStampBuilder tsb) {
 		this.tsb = tsb;
+	}
+
+	@Override
+	public TimeStampBuilder getTimeStampBuilder() {
+		return tsb;
 	}
 }

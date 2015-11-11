@@ -12,10 +12,10 @@ import v13.Order;
 import v13.OrderBook;
 import v13.PriceRecord;
 import v13.agents.Agent;
+import fr.finaxys.tutorials.utils.AgentReferentialLine;
 import fr.finaxys.tutorials.utils.AtomDataInjector;
 import fr.finaxys.tutorials.utils.HadoopTutorialException;
 import fr.finaxys.tutorials.utils.TimeStampBuilder;
-import fr.finaxys.tutorials.utils.hbase.AgentReferentialLine;
 
 public class FileDataInjector implements AtomDataInjector {
 	
@@ -167,7 +167,7 @@ public class FileDataInjector implements AtomDataInjector {
 	}
 
 	@Override
-	public void close() throws HadoopTutorialException {
+	public void closeOutput() throws HadoopTutorialException {
 		this.pw.close();
 		this.pw = null;
 	}
@@ -177,8 +177,9 @@ public class FileDataInjector implements AtomDataInjector {
 		this.tsb = tsb;
 	}
 
-    /*private String displayTimestamp() {
-        long ts = tsb.nextTimeStamp();
-        return ";" + ts;
-    }*/
+	@Override
+	public TimeStampBuilder getTimeStampBuilder() {
+		return tsb;
+	}
+
 }

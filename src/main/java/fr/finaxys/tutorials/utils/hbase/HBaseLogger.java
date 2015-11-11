@@ -3,6 +3,7 @@ package fr.finaxys.tutorials.utils.hbase;
 
 import com.sun.istack.NotNull;
 
+import fr.finaxys.tutorials.utils.AgentReferentialLine;
 import fr.finaxys.tutorials.utils.AtomConfiguration;
 import fr.finaxys.tutorials.utils.AtomDataInjector;
 import fr.finaxys.tutorials.utils.HadoopTutorialException;
@@ -107,7 +108,7 @@ public class HBaseLogger extends Logger {
 
   public void close() throws Exception {
     for (int i = 0; i < injectors.length; i++) {
-      injectors[i].close();
+      injectors[i].closeOutput();
     }
   }
 

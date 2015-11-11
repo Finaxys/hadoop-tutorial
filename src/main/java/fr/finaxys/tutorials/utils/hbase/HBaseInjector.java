@@ -34,6 +34,7 @@ import v13.agents.Agent;
 
 import com.sun.istack.NotNull;
 
+import fr.finaxys.tutorials.utils.AgentReferentialLine;
 import fr.finaxys.tutorials.utils.AtomConfiguration;
 import fr.finaxys.tutorials.utils.AtomDataInjector;
 import fr.finaxys.tutorials.utils.HadoopTutorialException;
@@ -322,20 +323,21 @@ public class HBaseInjector implements AtomDataInjector {
 
 	@Override
 	public void sendAgentReferential(List<AgentReferentialLine> referencial) {
-		Table table = null;
-		try {
-			table = createHTableConnexion(
-					TableName.valueOf(atomConf.getTableName()), hbConf);
-			for (AgentReferentialLine agent : referencial) {
-				Put p = agent.toPut(hbEncoder, cfall,
-						System.currentTimeMillis());
-				table.put(p);
-			}
-			// table.flushCommits();
-			table.close();
-		} catch (IOException e) {
-			e.printStackTrace();
+		for (AgentReferentialLine agent : referencial) {
+			Put p = mkPutAgentReferential(agent, hbEncoder, cfall,
+					System.currentTimeMillis());
+			putTable(p);
 		}
+	}
+	
+	@NotNull
+	private Put mkPutAgentReferential(@NotNull AgentReferentialLine agent, @NotNull HBaseDataTypeEncoder encoder, @NotNull byte[] columnF, long ts) {
+	    Put p = new Put(Bytes.toBytes(agent.agentRefId + "R"), ts);
+	    p.addColumn(columnF, Bytes.toBytes("agentRefId"), encoder.encodeInt(agent.agentRefId));
+	    p.addColumn(columnF, Bytes.toBytes("agentName"), encoder.encodeString(agent.agentName));
+	    p.addColumn(columnF, Bytes.toBytes("isMarketMaker"), encoder.encodeBoolean(agent.isMarketMaker));
+	    p.addColumn(columnF, Bytes.toBytes("details"), encoder.encodeString(agent.details));
+	    return p;
 	}
 
 	private void putTable(@NotNull Put p) {
@@ -383,7 +385,7 @@ public class HBaseInjector implements AtomDataInjector {
 	}
 
 	@Override
-	public void close() {
+	public void closeOutput() {
 		eService.shutdown();
 		isClosing.set(true);
 		try {
@@ -401,5 +403,10 @@ public class HBaseInjector implements AtomDataInjector {
 	@Override
 	public void setTimeStampBuilder(TimeStampBuilder tsb) {
 		this.tsb = tsb;
+	}
+
+	@Override
+	public TimeStampBuilder getTimeStampBuilder() {
+		return tsb;
 	}
 }

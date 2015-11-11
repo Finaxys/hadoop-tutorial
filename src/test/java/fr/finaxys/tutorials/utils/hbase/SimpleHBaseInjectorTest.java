@@ -29,7 +29,6 @@ import v13.Day;
 import v13.LimitOrder;
 import v13.Order;
 import v13.OrderBook;
-import v13.Period;
 import v13.PriceRecord;
 import v13.agents.Agent;
 import v13.agents.DumbAgent;
@@ -84,7 +83,7 @@ public class SimpleHBaseInjectorTest {
 
 	@After
 	public void tearDown() {
-		injector.close();
+		injector.closeOutput();
 	}
 
 	@Test
@@ -96,7 +95,7 @@ public class SimpleHBaseInjectorTest {
 			o.sender = a;
 			PriceRecord pr = new PriceRecord("o", 10, 1, LimitOrder.ASK, "o-1", "o-2");
 			injector.sendAgent(a, o, pr);
-			String reference = injector.getLastRequired(SimpleHBaseInjector.AGENT);
+			String reference = Bytes.toString(injector.getLastRequired(AtomHBaseHelper.AGENT));
 			LOGGER.log(Level.INFO, "Agent reference :"+reference);
 			Get g = new Get(Bytes.toBytes(reference));
 			g.addFamily(TEST_FAMILY);
@@ -124,7 +123,7 @@ public class SimpleHBaseInjectorTest {
 			long bestAskPrice = 1;
 			long bestBidPrice = 2;
 			injector.sendPriceRecord(pr, bestAskPrice, bestBidPrice);
-			String reference = injector.getLastRequired(SimpleHBaseInjector.PRICE);
+			String reference = Bytes.toString(injector.getLastRequired(AtomHBaseHelper.PRICE));
 			LOGGER.log(Level.INFO, "Price Record reference :"+reference);
 			Get g = new Get(Bytes.toBytes(reference));
 			g.addFamily(TEST_FAMILY);
@@ -154,7 +153,7 @@ public class SimpleHBaseInjectorTest {
 			LimitOrder o = new LimitOrder("o", "1", LimitOrder.ASK, 1, 10);
 			o.sender = new DumbAgent("a");
 			injector.sendOrder(o);
-			String reference = injector.getLastRequired(SimpleHBaseInjector.ORDER);
+			String reference = Bytes.toString(injector.getLastRequired(AtomHBaseHelper.ORDER));
 			LOGGER.log(Level.INFO, "Order reference :"+reference);
 			Get g = new Get(Bytes.toBytes(reference));
 			g.addFamily(TEST_FAMILY);
@@ -185,9 +184,9 @@ public class SimpleHBaseInjectorTest {
 			obs.add(ob);
 			obs.add(ob2);
 			injector.sendTick(day, obs);
-			String reference = injector.getLastRequired(SimpleHBaseInjector.TICK);
+			String reference = Bytes.toString(injector.getLastRequired(AtomHBaseHelper.TICK));
 			LOGGER.log(Level.INFO, "Tick reference :"+reference);
-			// WILL RETRIEVE LAST DAY ONLY
+			// WILL RETRIEVE LAST TICK ONLY
 			Get g = new Get(Bytes.toBytes(reference));
 			g.addFamily(TEST_FAMILY);
 			Result result = table.get(g);
@@ -206,9 +205,7 @@ public class SimpleHBaseInjectorTest {
 			
 			List<Pair<byte[], byte[]>> keys = new ArrayList<Pair<byte[], byte[]>>();
 		    keys.add(new Pair<byte[], byte[]>(
-		    		Bytes.toBytes("???????????????????"+SimpleHBaseInjector.TICK),
-		    		//new byte[] {52, 55, 55, 52, 51, 57, 53, 48, 52, 55, 54, 52, 48, 53, 54, 51, 55, 49, 50, 84},
-		    		//Bytes.toBytesBinary("\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00"+SimpleHBaseInjector.TICK),
+		    		Bytes.toBytes("???????????????????"+AtomHBaseHelper.TICK),
 		    		new byte[] { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0 }));
 		    Filter filter = new FuzzyRowFilter(keys);
 		    
@@ -236,7 +233,7 @@ public class SimpleHBaseInjectorTest {
 			obs.add(ob);
 			obs.add(ob2);
 			injector.sendDay(day, obs);
-			String reference = injector.getLastRequired(SimpleHBaseInjector.DAY);
+			String reference = Bytes.toString(injector.getLastRequired(AtomHBaseHelper.DAY));
 			// WILL RETRIEVE LAST DAY ONLY
 			Get g = new Get(Bytes.toBytes(reference));
 			g.addFamily(TEST_FAMILY);
@@ -250,10 +247,9 @@ public class SimpleHBaseInjectorTest {
 			Assert.assertTrue("Day Gap is same", Bytes.equals(dayGap, dayGap2));
 			
 			List<Pair<byte[], byte[]>> keys = new ArrayList<Pair<byte[], byte[]>>();
+			
 		    keys.add(new Pair<byte[], byte[]>(
-		    		Bytes.toBytes("???????????????????"+SimpleHBaseInjector.DAY),
-		    		//new byte[] {52, 55, 55, 52, 51, 57, 53, 48, 52, 55, 54, 52, 48, 53, 54, 51, 55, 49, 50, 84},
-		    		//Bytes.toBytesBinary("\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00"+SimpleHBaseInjector.TICK),
+		    		Bytes.toBytes("???????????????????"+AtomHBaseHelper.DAY),
 		    		new byte[] { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0 }));
 		    Filter filter = new FuzzyRowFilter(keys);
 			
@@ -266,7 +262,7 @@ public class SimpleHBaseInjectorTest {
 				LOGGER.log(Level.INFO, "result "+ Bytes.toString(r.getRow()));
 				i++;
 			}
-			Assert.assertEquals("2 order books expected", i, obs.size());
+			Assert.assertEquals("2 order books expected", obs.size(), i);
 			
 		} catch (IOException e) {
 			LOGGER.log(Level.SEVERE, "IO Exception on testSendAgent", e);

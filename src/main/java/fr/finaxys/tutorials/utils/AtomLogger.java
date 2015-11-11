@@ -12,8 +12,6 @@ import v13.agents.Agent;
 
 import com.sun.istack.NotNull;
 
-import fr.finaxys.tutorials.utils.hbase.AgentReferentialLine;
-
 public class AtomLogger extends Logger {
 	
   private static final java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(AtomLogger.class.getName());
@@ -113,7 +111,7 @@ public class AtomLogger extends Logger {
 
   public void close() throws Exception {
     for (int i = 0; i < injectors.length; i++) {
-      injectors[i].close();
+      injectors[i].closeOutput();
     }
   }
 
