@@ -16,7 +16,7 @@ public interface AtomAnalysis {
 	 * @param date the trading date to analyse
 	 * @return k:v TraceType / Count
 	 */
-	public Map<TraceType, Integer> traceCount(Date date);
+	public Map<TraceType, Integer> traceCount(Date date, List<TraceType> types);
 	
 	/**
 	 * Example: ratio with join => on two distinct dataset: Exec and Order

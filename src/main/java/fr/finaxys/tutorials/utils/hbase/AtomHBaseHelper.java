@@ -1,6 +1,7 @@
 package fr.finaxys.tutorials.utils.hbase;
 
 import java.io.IOException;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.logging.Level;
 
 import org.apache.hadoop.conf.Configuration;
@@ -75,9 +76,10 @@ abstract class AtomHBaseHelper {
 	protected final HBaseDataTypeEncoder hbEncoder = new HBaseDataTypeEncoder();
 	protected byte[] columnFamily;
 	protected TableName tableName;
-	private Table table;
+	//private Table table;
 	protected Configuration hbaseConfiguration;
 	private boolean open = false;
+	private static AtomicLong idGen = new AtomicLong(1_000_000);
 	
 	public AtomHBaseHelper(byte[] columnFamily, TableName tableName) {
 		this.columnFamily = columnFamily;
@@ -114,18 +116,19 @@ abstract class AtomHBaseHelper {
 	}
 	
 	protected void closeTable() {
-		try {
-			table.close();
-			table = null;
+//		try {
+			//table.close();
+			//table = null;
 			// @TODO should be manage in a thread safe manner?
 			open = false;
-		} catch (IOException e) {
-			LOGGER.log(Level.SEVERE, "IO Exception while closing table", e);
-		}
+//		} catch (IOException e) {
+//			LOGGER.log(Level.SEVERE, "IO Exception while closing table", e);
+//		}
 	}
 	
 	protected void putTable(@NotNull Put p) {
 		try {
+			Table table = getTable();
 			table.put(p);
 		} catch (IOException e) {
 			LOGGER.severe("Failed to push data into queue : " + e.getMessage());
@@ -142,7 +145,7 @@ abstract class AtomHBaseHelper {
 	// @TODO can be handle more cleanly with callback to not expose Table 
 	protected ResultScanner scanTable(@NotNull Scan p) {
 		try {
-			ResultScanner results = getTable().getScanner(mkScan());
+			ResultScanner results = getTable().getScanner(p);
 			return results;
 		} catch (IOException e) {
 			LOGGER.severe("Failed to push data into queue : " + e.getMessage());
@@ -248,7 +251,7 @@ abstract class AtomHBaseHelper {
 		try {
 			connection = ConnectionFactory.createConnection(hbaseConfiguration);
 			createTable(connection);
-			this.table = createHTableConnexion(tableName, hbaseConfiguration);
+			//this.table = createHTableConnexion(tableName, hbaseConfiguration);
 			this.open = true;
 		} catch (IOException e) {
 			LOGGER.log(Level.SEVERE, "Could not create Connection", e);
@@ -280,23 +283,23 @@ abstract class AtomHBaseHelper {
 		return type; 
 	}
 
-	protected Put mkPutAgent(byte[] row, Agent a, Order o, PriceRecord pr) {
-		Put p = new Put(row);
-		p.addColumn(columnFamily, Bytes.toBytes(Q_AGENT_NAME),
+	protected Put mkPutAgent(byte[] row, long ts, Agent a, Order o, PriceRecord pr) {
+		Put p = new Put(row, ts);
+		p.addColumn(columnFamily, Bytes.toBytes(Q_AGENT_NAME), ts,
 				hbEncoder.encodeString(a.name));
-		p.addColumn(columnFamily, Bytes.toBytes(Q_OB_NAME),
+		p.addColumn(columnFamily, Bytes.toBytes(Q_OB_NAME), ts,
 				hbEncoder.encodeString(o.obName));
 		p.addColumn(columnFamily, Bytes.toBytes(Q_CASH), hbEncoder.encodeLong(a.cash));
-		p.addColumn(columnFamily, Bytes.toBytes(Q_EXECUTED_QUANTITY),
+		p.addColumn(columnFamily, Bytes.toBytes(Q_EXECUTED_QUANTITY), ts,
 				hbEncoder.encodeInt(pr.quantity));
-		p.addColumn(columnFamily, Bytes.toBytes(Q_PRICE),
+		p.addColumn(columnFamily, Bytes.toBytes(Q_PRICE), ts,
 				hbEncoder.encodeLong(pr.price));
 		if (o.getClass().equals(LimitOrder.class)) {
-			p.addColumn(columnFamily, Bytes.toBytes(Q_DIRECTION),
+			p.addColumn(columnFamily, Bytes.toBytes(Q_DIRECTION), ts,
 					hbEncoder.encodeChar(((LimitOrder) o).direction));
-			p.addColumn(columnFamily, Bytes.toBytes(Q_TIMESTAMP),
+			p.addColumn(columnFamily, Bytes.toBytes(Q_TIMESTAMP), ts,
 					hbEncoder.encodeLong(pr.timestamp)); // pr.timestamp
-			p.addColumn(columnFamily, Bytes.toBytes(Q_EXT_ORDER_ID),
+			p.addColumn(columnFamily, Bytes.toBytes(Q_EXT_ORDER_ID), ts,
 					hbEncoder.encodeString(o.extId));
 		}
 		return p;
@@ -306,66 +309,71 @@ abstract class AtomHBaseHelper {
 	protected Put mkPutAgentReferential(@NotNull AgentReferentialLine agent, @NotNull HBaseDataTypeEncoder encoder,
 			@NotNull byte[] columnF, long ts) {
 			    Put p = new Put(Bytes.toBytes(agent.agentRefId + "R"), ts);
-			    p.addColumn(columnF, Bytes.toBytes("agentRefId"), encoder.encodeInt(agent.agentRefId));
-			    p.addColumn(columnF, Bytes.toBytes("agentName"), encoder.encodeString(agent.agentName));
-			    p.addColumn(columnF, Bytes.toBytes("isMarketMaker"), encoder.encodeBoolean(agent.isMarketMaker));
-			    p.addColumn(columnF, Bytes.toBytes("details"), encoder.encodeString(agent.details));
+			    p.addColumn(columnF, Bytes.toBytes("agentRefId"), ts, encoder.encodeInt(agent.agentRefId));
+			    p.addColumn(columnF, Bytes.toBytes("agentName"), ts, encoder.encodeString(agent.agentName));
+			    p.addColumn(columnF, Bytes.toBytes("isMarketMaker"), ts, encoder.encodeBoolean(agent.isMarketMaker));
+			    p.addColumn(columnF, Bytes.toBytes("details"), ts, encoder.encodeString(agent.details));
+			    p.addColumn(columnFamily, Bytes.toBytes(Q_TIMESTAMP), ts, hbEncoder.encodeLong(ts));
 			    return p;
 			}
 
-	protected Put mkPutOrderBook(byte[] row, int dayGap, int nbDays, OrderBook ob) {
-		Put p = new Put(row);
-		p.addColumn(columnFamily, Bytes.toBytes(EXT_NUM_DAY),
+	protected Put mkPutOrderBook(byte[] row, long ts, int dayGap, int nbDays, OrderBook ob) {
+		Put p = new Put(row, ts);
+		p.addColumn(columnFamily, Bytes.toBytes(EXT_NUM_DAY), ts,
 				hbEncoder.encodeInt(nbDays + dayGap));
-		p.addColumn(columnFamily, Bytes.toBytes(Q_OB_NAME),
+		p.addColumn(columnFamily, Bytes.toBytes(Q_OB_NAME), ts,
 				hbEncoder.encodeString(ob.obName));
-		p.addColumn(columnFamily, Bytes.toBytes(Q_FIRST_FIXED_PRICE),
+		p.addColumn(columnFamily, Bytes.toBytes(Q_FIRST_FIXED_PRICE), ts,
 				hbEncoder.encodeLong(ob.firstPriceOfDay));
-		p.addColumn(columnFamily, Bytes.toBytes(Q_LOWEST_PRICE),
+		p.addColumn(columnFamily, Bytes.toBytes(Q_LOWEST_PRICE), ts,
 				hbEncoder.encodeLong(ob.lowestPriceOfDay));
-		p.addColumn(columnFamily, Bytes.toBytes(Q_HIGHEST_PRICE),
+		p.addColumn(columnFamily, Bytes.toBytes(Q_HIGHEST_PRICE), ts,
 				hbEncoder.encodeLong(ob.highestPriceOfDay));
 		long price = 0;
-		if (ob.lastFixedPrice != null)
+		if (ob.lastFixedPrice != null) {
 			price = ob.lastFixedPrice.price;
-		p.addColumn(columnFamily, Bytes.toBytes(Q_LAST_FIXED_PRICE),
+		}
+		p.addColumn(columnFamily, Bytes.toBytes(Q_LAST_FIXED_PRICE), ts,
 				hbEncoder.encodeLong(price));
-		p.addColumn(columnFamily, Bytes.toBytes(Q_NB_PRICES_FIXED),
+		p.addColumn(columnFamily, Bytes.toBytes(Q_NB_PRICES_FIXED), ts,
 				hbEncoder.encodeLong(ob.numberOfPricesFixed));
+		p.addColumn(columnFamily, Bytes.toBytes(Q_TIMESTAMP), ts,
+				hbEncoder.encodeLong(ts));
 		return p;
 	}
 
-	protected Put mkPutExec(byte[] row, Order o) {
-		Put p = new Put(row);
-		p.addColumn(columnFamily, Bytes.toBytes(Q_SENDER),
+	protected Put mkPutExec(byte[] row, long ts, Order o) {
+		Put p = new Put(row, ts);
+		p.addColumn(columnFamily, Bytes.toBytes(Q_SENDER), ts,
 				hbEncoder.encodeString(o.sender.name));
-		p.addColumn(columnFamily, Bytes.toBytes(Q_EXT_ID),
+		p.addColumn(columnFamily, Bytes.toBytes(Q_EXT_ID), ts,
 				hbEncoder.encodeString(o.extId));
+		p.addColumn(columnFamily, Bytes.toBytes(Q_TIMESTAMP), ts,
+				hbEncoder.encodeLong(ts));
 		return p;
 	}
 
 	protected Put mkPutOrder(byte[] row, long ts, Order o) {
 		Put p = new Put(row, ts);
-		p.addColumn(columnFamily, Bytes.toBytes(Q_OB_NAME),
+		p.addColumn(columnFamily, Bytes.toBytes(Q_OB_NAME), ts,
 				hbEncoder.encodeString(o.obName)); 
-		p.addColumn(columnFamily, Bytes.toBytes(Q_SENDER),
+		p.addColumn(columnFamily, Bytes.toBytes(Q_SENDER), ts,
 				hbEncoder.encodeString(o.sender.name));
-		p.addColumn(columnFamily, Bytes.toBytes(Q_EXT_ID), hbEncoder.encodeString(o.extId)); 
-		p.addColumn(columnFamily, Bytes.toBytes(Q_TYPE), hbEncoder.encodeChar(o.type));
-		p.addColumn(columnFamily, Bytes.toBytes(Q_ID), hbEncoder.encodeLong(o.id));
-		p.addColumn(columnFamily, Bytes.toBytes(Q_TIMESTAMP),
-				hbEncoder.encodeLong(o.timestamp)); // o.timestamp
+		p.addColumn(columnFamily, Bytes.toBytes(Q_EXT_ID), ts, hbEncoder.encodeString(o.extId)); 
+		p.addColumn(columnFamily, Bytes.toBytes(Q_TYPE), ts, hbEncoder.encodeChar(o.type));
+		p.addColumn(columnFamily, Bytes.toBytes(Q_ID), ts, hbEncoder.encodeLong(o.id));
+		p.addColumn(columnFamily, Bytes.toBytes(Q_TIMESTAMP), ts,
+				hbEncoder.encodeLong(o.timestamp));
 	
-		// Date d = new Date(tsb.getTimeStamp());
 		if (o.getClass().equals(LimitOrder.class)) {
 			LimitOrder lo = (LimitOrder) o;
-			p.addColumn(columnFamily, Bytes.toBytes(Q_QUANTITY),
+			p.addColumn(columnFamily, Bytes.toBytes(Q_QUANTITY), ts,
 					hbEncoder.encodeInt(lo.quantity));
-			p.addColumn(columnFamily, Bytes.toBytes(Q_DIRECTION),
+			p.addColumn(columnFamily, Bytes.toBytes(Q_DIRECTION), ts,
 					hbEncoder.encodeChar(lo.direction));
-			p.addColumn(columnFamily, Bytes.toBytes(Q_PRICE),
+			p.addColumn(columnFamily, Bytes.toBytes(Q_PRICE), ts,
 					hbEncoder.encodeLong(lo.price));
-			p.addColumn(columnFamily, Bytes.toBytes(Q_VALIDITY),
+			p.addColumn(columnFamily, Bytes.toBytes(Q_VALIDITY), ts,
 					hbEncoder.encodeLong(lo.validity));
 		}
 		return p;
@@ -391,34 +399,52 @@ abstract class AtomHBaseHelper {
 				p.addColumn(columnFamily, Bytes.toBytes(Q_BEST_BID), ts,
 						hbEncoder.encodeLong(bestBidPrice));
 				p.addColumn(columnFamily, Bytes.toBytes(Q_TIMESTAMP), ts,
-						hbEncoder.encodeLong((pr.timestamp > 0 ? pr.timestamp : ts))); // tsb.nextTimeStamp()
+						hbEncoder.encodeLong((pr.timestamp > 0 ? pr.timestamp : ts)));
 			
 				return p;
 			}
 
-	protected Put mkPutTick(byte[] row, int dayGap, Day day, OrderBook ob) {
-		Put p = new Put(row);
-		p.addColumn(columnFamily, Bytes.toBytes(Q_NUM_TICK),
+	protected Put mkPutTick(byte[] row, long ts, int dayGap, Day day, OrderBook ob) {
+		Put p = new Put(row, ts);
+		p.addColumn(columnFamily, Bytes.toBytes(Q_NUM_TICK), ts,
 				hbEncoder.encodeInt(day.currentTick()));
-		p.addColumn(columnFamily, Bytes.toBytes(Q_NUM_DAY),
+		p.addColumn(columnFamily, Bytes.toBytes(Q_NUM_DAY), ts,
 				hbEncoder.encodeInt(day.number + dayGap));
-		p.addColumn(columnFamily, Bytes.toBytes(Q_OB_NAME),
+		p.addColumn(columnFamily, Bytes.toBytes(Q_OB_NAME), ts,
 				hbEncoder.encodeString(ob.obName));
+		p.addColumn(columnFamily, Bytes.toBytes(Q_TIMESTAMP), ts,
+				hbEncoder.encodeLong(ts));
 		if (!ob.ask.isEmpty()) {
-			p.addColumn(columnFamily, Bytes.toBytes(Q_BEST_ASK),
+			p.addColumn(columnFamily, Bytes.toBytes(Q_BEST_ASK), ts,
 					hbEncoder.encodeLong(ob.ask.last().price));
 		}
 	
 		if (!ob.bid.isEmpty()) {
-			p.addColumn(columnFamily, Bytes.toBytes(Q_BEST_BID),
+			p.addColumn(columnFamily, Bytes.toBytes(Q_BEST_BID), ts,
 					hbEncoder.encodeLong(ob.bid.last().price));
 		}
 	
 		if (ob.lastFixedPrice != null) {
-			p.addColumn(columnFamily, Bytes.toBytes(Q_LAST_FIXED_PRICE),
+			p.addColumn(columnFamily, Bytes.toBytes(Q_LAST_FIXED_PRICE), ts,
 					hbEncoder.encodeLong(ob.lastFixedPrice.price));
 		}
 		return p;
+	}
+
+	@NotNull
+	protected byte[] createRequired(@NotNull char name) {
+		long rowKey = Long.reverseBytes(idGen.incrementAndGet());
+		return Bytes.toBytes(String.valueOf(rowKey) + name);
+	}
+
+	/**
+	 * Absolutely not thread safe. Only used for Unit test
+	 * @param name
+	 * @return
+	 */
+	protected byte[] getLastRequired(@NotNull char name) {
+		long rowKey = Long.reverseBytes(idGen.get());
+		return Bytes.toBytes(String.valueOf(rowKey) + name);
 	}
 
 }

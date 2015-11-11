@@ -6,6 +6,10 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class TimeStampBuilder {
+	public static final String TIME_FORMAT = "h:mm";
+
+	public static final String DATE_FORMAT = "MM/dd/yyyy";
+
 	private static final java.util.logging.Logger LOGGER = java.util.logging.Logger
 			.getLogger(TimeStampBuilder.class.getName());
 
@@ -87,7 +91,7 @@ public class TimeStampBuilder {
 			String closeHourStr) throws HadoopTutorialException {
 
 		try {
-			SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy");
+			SimpleDateFormat formatter = new SimpleDateFormat(DATE_FORMAT);
 			Date date = formatter.parse(dateBegin);
 
 			// LOGGER.info("date = " + date);
@@ -95,7 +99,7 @@ public class TimeStampBuilder {
 			// LOGGER.info("timestamp à partir du fichier de conf : " +
 			// dateToSeconds);
 
-			DateFormat dateFormatter = new SimpleDateFormat("h:mm");
+			DateFormat dateFormatter = new SimpleDateFormat(TIME_FORMAT);
 			Date openHour = null;
 			Date closeHour = null;
 			openHour = (Date) dateFormatter.parse(openHourStr);

@@ -55,6 +55,7 @@ public class SimpleHBaseInjectorTest {
 	final HBaseDataTypeEncoder hbEncoder = new HBaseDataTypeEncoder();
 
 	private SimpleHBaseInjector injector = new SimpleHBaseInjector();
+	private TimeStampBuilder tsb = null;
 
 	@BeforeClass
 	public static void setupBeforeClass() throws Exception {
@@ -72,7 +73,8 @@ public class SimpleHBaseInjectorTest {
 
 	@Before
 	public void setUp() {
-		TimeStampBuilder tsb = new TimeStampBuilder();
+		tsb = new TimeStampBuilder("09/13/1986", "9:00", "17:30", 3000, 2, 2);
+		tsb.init();
 		injector.setTimeStampBuilder(tsb);
 		injector.setHbaseConfiguration(CONF);
 		injector.setTableName(TEST_TABLE);

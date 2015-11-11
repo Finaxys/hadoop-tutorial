@@ -6,7 +6,6 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Put;
-import org.apache.hadoop.hbase.util.Bytes;
 
 import v13.Day;
 import v13.Order;
@@ -31,12 +30,11 @@ public class SimpleHBaseInjector extends AtomHBaseHelper implements AtomDataInje
 	
 	private TimeStampBuilder timeStampBuilder;
 
-	int dayGap;
+	private int dayGap;
 	private AtomConfiguration atomConfiguration;
 
 	private final AtomicLong globalCount = new AtomicLong(0L);
-	private AtomicLong idGen = new AtomicLong(1_000_000);
-
+	
 	public SimpleHBaseInjector(@NotNull AtomConfiguration conf) {
 		super(conf.getColumnFamily(), TableName.valueOf(conf.getTableName()));
 		
@@ -71,24 +69,10 @@ public class SimpleHBaseInjector extends AtomHBaseHelper implements AtomDataInje
 		openTable();
 	}
 
-	@NotNull byte[] createRequired(@NotNull char name) {
-		long rowKey = Long.reverseBytes(idGen.incrementAndGet());
-		return Bytes.toBytes(String.valueOf(rowKey) + name);
-	}
-	
-	/**
-	 * Absolutely not thread safe. Only used for Unit test
-	 * @param name
-	 * @return
-	 */
-	protected byte[] getLastRequired(@NotNull char name) {
-		long rowKey = Long.reverseBytes(idGen.get());
-		return Bytes.toBytes(String.valueOf(rowKey) + name);
-	}
-
 	@Override
 	public void sendAgent(Agent a, Order o, PriceRecord pr) {
-		Put p = mkPutAgent(createRequired(AGENT), a, o, pr);
+		long ts = timeStampBuilder.nextTimeStamp();
+		Put p = mkPutAgent(createRequired(AGENT), ts, a, o, pr);
 		putTable(p);
 	}
 	
@@ -103,45 +87,51 @@ public class SimpleHBaseInjector extends AtomHBaseHelper implements AtomDataInje
 	
 	@Override
 	public void sendDay(int nbDays, Collection<OrderBook> orderbooks) {
+		long ts = timeStampBuilder.nextTimeStamp();
 		for (OrderBook ob : orderbooks) {
-			Put p = mkPutOrderBook(createRequired(DAY), dayGap, nbDays, ob);
+			Put p = mkPutOrderBook(createRequired(DAY), ts, dayGap, nbDays, ob);
 			putTable(p);
 		}
 	}
 	
 	@Override
 	public void sendExec(Order o) {
-		Put p = mkPutExec(createRequired(EXEC), o);
+		long ts = timeStampBuilder.nextTimeStamp();
+		Put p = mkPutExec(createRequired(EXEC), ts, o);
 		putTable(p);
 	}
 	
 	@Override
 	public void sendOrder(Order o) {
+		
+		// hack for update on scaledrisk
+		// (does not manage put then
+		// update with same ts)
+		//long ts = System.currentTimeMillis(); 
 		o.timestamp = timeStampBuilder.nextTimeStamp();
-		long ts = System.currentTimeMillis(); // hack for update on scaledrisk
-												// (does not manage put then
-												// update with same ts)
-		Put p = mkPutOrder(createRequired(ORDER), ts, o);
+		Put p = mkPutOrder(createRequired(ORDER), o.timestamp, o);
 		putTable(p);
 	}
 	
 	@Override
 	public void sendPriceRecord(PriceRecord pr, long bestAskPrice,
 			long bestBidPrice) {
-		long ts = System.currentTimeMillis() + 2L; // hack for update on
-													// scaledrisk (does not
-													// manage put then update
-													// with same ts)
+		// hack for update on
+		// scaledrisk (does not
+		// manage put then update
+		// with same ts)
+		//long ts = System.currentTimeMillis() + 2L; 
 		pr.timestamp = timeStampBuilder.nextTimeStamp();
 
-		Put p = mkPutPriceRecord(createRequired(PRICE), ts, pr, bestAskPrice, bestBidPrice);
+		Put p = mkPutPriceRecord(createRequired(PRICE), pr.timestamp, pr, bestAskPrice, bestBidPrice);
 		putTable(p);
 	}
 	
 	@Override
 	public void sendTick(Day day, Collection<OrderBook> orderbooks) {
+		long ts = timeStampBuilder.nextTimeStamp();
 		for (OrderBook ob : orderbooks) {
-			Put p = mkPutTick(createRequired(TICK), dayGap, day, ob);
+			Put p = mkPutTick(createRequired(TICK), ts, dayGap, day, ob);
 			putTable(p);
 		}
 	}
