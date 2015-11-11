@@ -32,3 +32,6 @@ target/surefire-reports/fr.finaxys.AppTest.txt
 target/surefire-reports/TEST-fr.finaxys.AppTest.xml
 
 TestSuite.jav__.java
+
+target/surefire-reports/TEST-fr.finaxys.AppTest.xml
+target/*
