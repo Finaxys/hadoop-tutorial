@@ -36,33 +36,33 @@ import fr.univlille1.atom.trace.TraceType;
 
 abstract class AtomHBaseHelper {
 
-	public static final String Q_NUM_DAY = "NumDay";
-	public static final String Q_NUM_TICK = "NumTick";
-	public static final String Q_BEST_BID = "BestBid";
-	public static final String Q_BEST_ASK = "BestAsk";
-	public static final String Q_ORDER2 = "Order2";
-	public static final String Q_ORDER1 = "Order1";
-	public static final String Q_DIR = "Dir";
-	public static final String Q_OB_NAME = "ObName";
-	public static final String Q_VALIDITY = "Validity";
-	public static final String Q_QUANTITY = "Quantity";
-	public static final String Q_ID = "Id";
-	public static final String Q_TYPE = "Type";
-	public static final String Q_EXT_ID = "ExtId";
-	public static final String Q_SENDER = "Sender";
-	public static final String Q_NB_PRICES_FIXED = "NbPricesFixed";
-	public static final String Q_LAST_FIXED_PRICE = "LastFixedPrice";
-	public static final String Q_HIGHEST_PRICE = "HighestPrice";
-	public static final String Q_LOWEST_PRICE = "LowestPrice";
-	public static final String Q_FIRST_FIXED_PRICE = "FirstFixedPrice";
-	public static final String EXT_NUM_DAY = "NumDay";
-	public static final String Q_EXT_ORDER_ID = "OrderExtId";
-	public static final String Q_TIMESTAMP = "Timestamp";
-	public static final String Q_DIRECTION = "Direction";
-	public static final String Q_PRICE = "Price";
-	public static final String Q_EXECUTED_QUANTITY = "Executed";
-	public static final String Q_CASH = "Cash";
-	public static final String Q_AGENT_NAME = "AgentName";
+	public static final byte[] Q_NUM_DAY = Bytes.toBytes("NumDay");
+	public static final byte[] Q_NUM_TICK = Bytes.toBytes("NumTick");
+	public static final byte[] Q_BEST_BID = Bytes.toBytes("BestBid");
+	public static final byte[] Q_BEST_ASK = Bytes.toBytes("BestAsk");
+	public static final byte[] Q_ORDER2 = Bytes.toBytes("Order2");
+	public static final byte[] Q_ORDER1 = Bytes.toBytes("Order1");
+	public static final byte[] Q_DIR = Bytes.toBytes("Dir");
+	public static final byte[] Q_OB_NAME = Bytes.toBytes("ObName");
+	public static final byte[] Q_VALIDITY = Bytes.toBytes("Validity");
+	public static final byte[] Q_QUANTITY = Bytes.toBytes("Quantity");
+	public static final byte[] Q_ID = Bytes.toBytes("Id");
+	public static final byte[] Q_TYPE = Bytes.toBytes("Type");
+	public static final byte[] Q_EXT_ID = Bytes.toBytes("ExtId");
+	public static final byte[] Q_SENDER = Bytes.toBytes("Sender");
+	public static final byte[] Q_NB_PRICES_FIXED = Bytes.toBytes("NbPricesFixed");
+	public static final byte[] Q_LAST_FIXED_PRICE = Bytes.toBytes("LastFixedPrice");
+	public static final byte[] Q_HIGHEST_PRICE = Bytes.toBytes("HighestPrice");
+	public static final byte[] Q_LOWEST_PRICE = Bytes.toBytes("LowestPrice");
+	public static final byte[] Q_FIRST_FIXED_PRICE = Bytes.toBytes("FirstFixedPrice");
+	public static final byte[] EXT_NUM_DAY = Bytes.toBytes("NumDay");
+	public static final byte[] Q_EXT_ORDER_ID = Bytes.toBytes("OrderExtId");
+	public static final byte[] Q_TIMESTAMP = Bytes.toBytes("Timestamp");
+	public static final byte[] Q_DIRECTION = Bytes.toBytes("Direction");
+	public static final byte[] Q_PRICE = Bytes.toBytes("Price");
+	public static final byte[] Q_EXECUTED_QUANTITY = Bytes.toBytes("Executed");
+	public static final byte[] Q_CASH = Bytes.toBytes("Cash");
+	public static final byte[] Q_AGENT_NAME = Bytes.toBytes("AgentName");
 	public static final char TICK = 'T';
 	public static final char PRICE = 'P';
 	public static final char ORDER = 'O';
@@ -285,21 +285,21 @@ abstract class AtomHBaseHelper {
 
 	protected Put mkPutAgent(byte[] row, long ts, Agent a, Order o, PriceRecord pr) {
 		Put p = new Put(row, ts);
-		p.addColumn(columnFamily, Bytes.toBytes(Q_AGENT_NAME), ts,
+		p.addColumn(columnFamily, Q_AGENT_NAME, ts,
 				hbEncoder.encodeString(a.name));
-		p.addColumn(columnFamily, Bytes.toBytes(Q_OB_NAME), ts,
+		p.addColumn(columnFamily, Q_OB_NAME, ts,
 				hbEncoder.encodeString(o.obName));
-		p.addColumn(columnFamily, Bytes.toBytes(Q_CASH), hbEncoder.encodeLong(a.cash));
-		p.addColumn(columnFamily, Bytes.toBytes(Q_EXECUTED_QUANTITY), ts,
+		p.addColumn(columnFamily, Q_CASH, hbEncoder.encodeLong(a.cash));
+		p.addColumn(columnFamily, Q_EXECUTED_QUANTITY, ts,
 				hbEncoder.encodeInt(pr.quantity));
-		p.addColumn(columnFamily, Bytes.toBytes(Q_PRICE), ts,
+		p.addColumn(columnFamily, Q_PRICE, ts,
 				hbEncoder.encodeLong(pr.price));
 		if (o.getClass().equals(LimitOrder.class)) {
-			p.addColumn(columnFamily, Bytes.toBytes(Q_DIRECTION), ts,
+			p.addColumn(columnFamily, Q_DIRECTION, ts,
 					hbEncoder.encodeChar(((LimitOrder) o).direction));
-			p.addColumn(columnFamily, Bytes.toBytes(Q_TIMESTAMP), ts,
+			p.addColumn(columnFamily, Q_TIMESTAMP, ts,
 					hbEncoder.encodeLong(pr.timestamp)); // pr.timestamp
-			p.addColumn(columnFamily, Bytes.toBytes(Q_EXT_ORDER_ID), ts,
+			p.addColumn(columnFamily, Q_EXT_ORDER_ID, ts,
 					hbEncoder.encodeString(o.extId));
 		}
 		return p;
@@ -313,67 +313,67 @@ abstract class AtomHBaseHelper {
 			    p.addColumn(columnF, Bytes.toBytes("agentName"), ts, encoder.encodeString(agent.agentName));
 			    p.addColumn(columnF, Bytes.toBytes("isMarketMaker"), ts, encoder.encodeBoolean(agent.isMarketMaker));
 			    p.addColumn(columnF, Bytes.toBytes("details"), ts, encoder.encodeString(agent.details));
-			    p.addColumn(columnFamily, Bytes.toBytes(Q_TIMESTAMP), ts, hbEncoder.encodeLong(ts));
+			    p.addColumn(columnFamily, Q_TIMESTAMP, ts, hbEncoder.encodeLong(ts));
 			    return p;
 			}
 
 	protected Put mkPutOrderBook(byte[] row, long ts, int dayGap, int nbDays, OrderBook ob) {
 		Put p = new Put(row, ts);
-		p.addColumn(columnFamily, Bytes.toBytes(EXT_NUM_DAY), ts,
+		p.addColumn(columnFamily, EXT_NUM_DAY, ts,
 				hbEncoder.encodeInt(nbDays + dayGap));
-		p.addColumn(columnFamily, Bytes.toBytes(Q_OB_NAME), ts,
+		p.addColumn(columnFamily, Q_OB_NAME, ts,
 				hbEncoder.encodeString(ob.obName));
-		p.addColumn(columnFamily, Bytes.toBytes(Q_FIRST_FIXED_PRICE), ts,
+		p.addColumn(columnFamily, Q_FIRST_FIXED_PRICE, ts,
 				hbEncoder.encodeLong(ob.firstPriceOfDay));
-		p.addColumn(columnFamily, Bytes.toBytes(Q_LOWEST_PRICE), ts,
+		p.addColumn(columnFamily, Q_LOWEST_PRICE, ts,
 				hbEncoder.encodeLong(ob.lowestPriceOfDay));
-		p.addColumn(columnFamily, Bytes.toBytes(Q_HIGHEST_PRICE), ts,
+		p.addColumn(columnFamily, Q_HIGHEST_PRICE, ts,
 				hbEncoder.encodeLong(ob.highestPriceOfDay));
 		long price = 0;
 		if (ob.lastFixedPrice != null) {
 			price = ob.lastFixedPrice.price;
 		}
-		p.addColumn(columnFamily, Bytes.toBytes(Q_LAST_FIXED_PRICE), ts,
+		p.addColumn(columnFamily, Q_LAST_FIXED_PRICE, ts,
 				hbEncoder.encodeLong(price));
-		p.addColumn(columnFamily, Bytes.toBytes(Q_NB_PRICES_FIXED), ts,
+		p.addColumn(columnFamily, Q_NB_PRICES_FIXED, ts,
 				hbEncoder.encodeLong(ob.numberOfPricesFixed));
-		p.addColumn(columnFamily, Bytes.toBytes(Q_TIMESTAMP), ts,
+		p.addColumn(columnFamily, Q_TIMESTAMP, ts,
 				hbEncoder.encodeLong(ts));
 		return p;
 	}
 
 	protected Put mkPutExec(byte[] row, long ts, Order o) {
 		Put p = new Put(row, ts);
-		p.addColumn(columnFamily, Bytes.toBytes(Q_SENDER), ts,
+		p.addColumn(columnFamily, Q_SENDER, ts,
 				hbEncoder.encodeString(o.sender.name));
-		p.addColumn(columnFamily, Bytes.toBytes(Q_EXT_ID), ts,
+		p.addColumn(columnFamily, Q_EXT_ID, ts,
 				hbEncoder.encodeString(o.extId));
-		p.addColumn(columnFamily, Bytes.toBytes(Q_TIMESTAMP), ts,
+		p.addColumn(columnFamily, Q_TIMESTAMP, ts,
 				hbEncoder.encodeLong(ts));
 		return p;
 	}
 
 	protected Put mkPutOrder(byte[] row, long ts, Order o) {
 		Put p = new Put(row, ts);
-		p.addColumn(columnFamily, Bytes.toBytes(Q_OB_NAME), ts,
+		p.addColumn(columnFamily, Q_OB_NAME, ts,
 				hbEncoder.encodeString(o.obName)); 
-		p.addColumn(columnFamily, Bytes.toBytes(Q_SENDER), ts,
+		p.addColumn(columnFamily, Q_SENDER, ts,
 				hbEncoder.encodeString(o.sender.name));
-		p.addColumn(columnFamily, Bytes.toBytes(Q_EXT_ID), ts, hbEncoder.encodeString(o.extId)); 
-		p.addColumn(columnFamily, Bytes.toBytes(Q_TYPE), ts, hbEncoder.encodeChar(o.type));
-		p.addColumn(columnFamily, Bytes.toBytes(Q_ID), ts, hbEncoder.encodeLong(o.id));
-		p.addColumn(columnFamily, Bytes.toBytes(Q_TIMESTAMP), ts,
+		p.addColumn(columnFamily, Q_EXT_ID, ts, hbEncoder.encodeString(o.extId)); 
+		p.addColumn(columnFamily, Q_TYPE, ts, hbEncoder.encodeChar(o.type));
+		p.addColumn(columnFamily, Q_ID, ts, hbEncoder.encodeLong(o.id));
+		p.addColumn(columnFamily, Q_TIMESTAMP, ts,
 				hbEncoder.encodeLong(o.timestamp));
 	
 		if (o.getClass().equals(LimitOrder.class)) {
 			LimitOrder lo = (LimitOrder) o;
-			p.addColumn(columnFamily, Bytes.toBytes(Q_QUANTITY), ts,
+			p.addColumn(columnFamily, Q_QUANTITY, ts,
 					hbEncoder.encodeInt(lo.quantity));
-			p.addColumn(columnFamily, Bytes.toBytes(Q_DIRECTION), ts,
+			p.addColumn(columnFamily, Q_DIRECTION, ts,
 					hbEncoder.encodeChar(lo.direction));
-			p.addColumn(columnFamily, Bytes.toBytes(Q_PRICE), ts,
+			p.addColumn(columnFamily, Q_PRICE, ts,
 					hbEncoder.encodeLong(lo.price));
-			p.addColumn(columnFamily, Bytes.toBytes(Q_VALIDITY), ts,
+			p.addColumn(columnFamily, Q_VALIDITY, ts,
 					hbEncoder.encodeLong(lo.validity));
 		}
 		return p;
@@ -382,23 +382,23 @@ abstract class AtomHBaseHelper {
 	protected Put mkPutPriceRecord(byte[] row, long ts, PriceRecord pr, long bestAskPrice,
 			long bestBidPrice) {
 				Put p = new Put(row, ts);
-				p.addColumn(columnFamily, Bytes.toBytes(Q_OB_NAME), ts,
+				p.addColumn(columnFamily, Q_OB_NAME, ts,
 						hbEncoder.encodeString(pr.obName));
-				p.addColumn(columnFamily, Bytes.toBytes(Q_PRICE), ts,
+				p.addColumn(columnFamily, Q_PRICE, ts,
 						hbEncoder.encodeLong(pr.price));
-				p.addColumn(columnFamily, Bytes.toBytes(Q_EXECUTED_QUANTITY), ts,
+				p.addColumn(columnFamily, Q_EXECUTED_QUANTITY, ts,
 						hbEncoder.encodeInt(pr.quantity));
-				p.addColumn(columnFamily, Bytes.toBytes(Q_DIR), ts,
+				p.addColumn(columnFamily, Q_DIR, ts,
 						hbEncoder.encodeChar(pr.dir));
-				p.addColumn(columnFamily, Bytes.toBytes(Q_ORDER1), ts,
+				p.addColumn(columnFamily, Q_ORDER1, ts,
 						hbEncoder.encodeString(pr.extId1));
-				p.addColumn(columnFamily, Bytes.toBytes(Q_ORDER2), ts,
+				p.addColumn(columnFamily, Q_ORDER2, ts,
 						hbEncoder.encodeString(pr.extId2));
-				p.addColumn(columnFamily, Bytes.toBytes(Q_BEST_ASK), ts,
+				p.addColumn(columnFamily, Q_BEST_ASK, ts,
 						hbEncoder.encodeLong(bestAskPrice));
-				p.addColumn(columnFamily, Bytes.toBytes(Q_BEST_BID), ts,
+				p.addColumn(columnFamily, Q_BEST_BID, ts,
 						hbEncoder.encodeLong(bestBidPrice));
-				p.addColumn(columnFamily, Bytes.toBytes(Q_TIMESTAMP), ts,
+				p.addColumn(columnFamily, Q_TIMESTAMP, ts,
 						hbEncoder.encodeLong((pr.timestamp > 0 ? pr.timestamp : ts)));
 			
 				return p;
@@ -406,26 +406,26 @@ abstract class AtomHBaseHelper {
 
 	protected Put mkPutTick(byte[] row, long ts, int dayGap, Day day, OrderBook ob) {
 		Put p = new Put(row, ts);
-		p.addColumn(columnFamily, Bytes.toBytes(Q_NUM_TICK), ts,
+		p.addColumn(columnFamily, Q_NUM_TICK, ts,
 				hbEncoder.encodeInt(day.currentTick()));
-		p.addColumn(columnFamily, Bytes.toBytes(Q_NUM_DAY), ts,
+		p.addColumn(columnFamily, Q_NUM_DAY, ts,
 				hbEncoder.encodeInt(day.number + dayGap));
-		p.addColumn(columnFamily, Bytes.toBytes(Q_OB_NAME), ts,
+		p.addColumn(columnFamily, Q_OB_NAME, ts,
 				hbEncoder.encodeString(ob.obName));
-		p.addColumn(columnFamily, Bytes.toBytes(Q_TIMESTAMP), ts,
+		p.addColumn(columnFamily, Q_TIMESTAMP, ts,
 				hbEncoder.encodeLong(ts));
 		if (!ob.ask.isEmpty()) {
-			p.addColumn(columnFamily, Bytes.toBytes(Q_BEST_ASK), ts,
+			p.addColumn(columnFamily, Q_BEST_ASK, ts,
 					hbEncoder.encodeLong(ob.ask.last().price));
 		}
 	
 		if (!ob.bid.isEmpty()) {
-			p.addColumn(columnFamily, Bytes.toBytes(Q_BEST_BID), ts,
+			p.addColumn(columnFamily, Q_BEST_BID, ts,
 					hbEncoder.encodeLong(ob.bid.last().price));
 		}
 	
 		if (ob.lastFixedPrice != null) {
-			p.addColumn(columnFamily, Bytes.toBytes(Q_LAST_FIXED_PRICE), ts,
+			p.addColumn(columnFamily, Q_LAST_FIXED_PRICE, ts,
 					hbEncoder.encodeLong(ob.lastFixedPrice.price));
 		}
 		return p;
