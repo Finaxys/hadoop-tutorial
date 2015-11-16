@@ -19,6 +19,15 @@ public interface AtomAnalysis {
 	public Map<TraceType, Integer> traceCount(Date date, List<TraceType> types);
 	
 	/**
+	 * Example: agent position => filter and count
+	 * 
+	 * Return the rate of order/exec for a specific trading day for each agent .
+	 * @param date the trading date to analyse
+	 * @return k:v AgentName / Order-Exec Rate
+	 */
+	public Map<String, Integer> agentPosition(Date date);
+	
+	/**
 	 * Example: ratio with join => on two distinct dataset: Exec and Order
 	 * 
 	 * Return the rate of order/exec for a specific trading day for each agent .

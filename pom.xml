@@ -63,6 +63,7 @@
   	 <hadoop.version>2.7.1</hadoop.version>
   	 <hbase.version>1.1.2</hbase.version>
   	 <testng.version>6.4</testng.version>
+  	 <mockito-all.version>1.10.8</mockito-all.version>
    </properties>
   <dependencies>
     <!--<dependency>
@@ -94,6 +95,7 @@
         <artifactId>hadoop-common</artifactId>
         <version>${hadoop.version}</version>
     </dependency>
+
     <dependency>
         <groupId>org.apache.hadoop</groupId>
         <artifactId>hadoop-hdfs</artifactId>
@@ -106,6 +108,27 @@
         <version>${hadoop.version}</version>
     </dependency>
 	<!-- yarn -->
+	<dependency>
+        <groupId>org.apache.hadoop</groupId>
+        <artifactId>hadoop-yarn-api</artifactId>
+        <version>${hadoop.version}</version>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.hadoop</groupId>
+        <artifactId>hadoop-yarn-common</artifactId>
+        <version>${hadoop.version}</version>
+    </dependency>
+   <!-- <dependency>
+        <groupId>org.apache.hadoop</groupId>
+        <artifactId>hadoop-yarn-client</artifactId>
+        <version>${hadoop.version}</version>
+    </dependency>-->
+    <dependency>
+        <groupId>org.apache.hadoop</groupId>
+        <artifactId>hadoop-yarn-server-common</artifactId>
+        <version>${hadoop.version}</version>
+    </dependency>
+    <!-- map reduce -->
     <dependency>
         <groupId>org.apache.hadoop</groupId>
         <artifactId>hadoop-mapreduce-client-common</artifactId>
@@ -115,12 +138,12 @@
         <groupId>org.apache.hadoop</groupId>
         <artifactId>hadoop-mapreduce-client-jobclient</artifactId>
         <version>${hadoop.version}</version>
-        <type>test-jar</type>
     </dependency>
+    <!-- hbase -->
     <dependency>
-        <groupId>org.apache.hadoop</groupId>
-        <artifactId>hadoop-mapreduce-client-jobclient</artifactId>
-        <version>${hadoop.version}</version>
+      <groupId>org.apache.hbase</groupId>
+      <artifactId>hbase-server</artifactId>
+       <version>${hbase.version}</version>
     </dependency>
     <dependency>
     	<groupId>org.apache.hbase</groupId>
@@ -133,6 +156,12 @@
         <version>${hbase.version}</version>
         <scope>test</scope>
     </dependency>
+    <dependency>
+        <groupId>org.mockito</groupId>
+        <artifactId>mockito-all</artifactId>
+        <version>${mockito-all.version}</version>
+        <scope>test</scope>
+      </dependency>
     <!--<dependency>
             <groupId>org.testng</groupId>
             <artifactId>testng</artifactId>

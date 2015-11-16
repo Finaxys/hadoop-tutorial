@@ -89,7 +89,7 @@ public class SimpleHBaseInjector extends AtomHBaseHelper implements AtomDataInje
 	public void sendDay(int nbDays, Collection<OrderBook> orderbooks) {
 		long ts = timeStampBuilder.nextTimeStamp();
 		for (OrderBook ob : orderbooks) {
-			Put p = mkPutOrderBook(createRequired(DAY), ts, dayGap, nbDays, ob);
+			Put p = mkPutDay(createRequired(DAY), ts, dayGap, nbDays, ob);
 			putTable(p);
 		}
 	}

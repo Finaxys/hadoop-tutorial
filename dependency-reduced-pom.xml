@@ -80,38 +80,16 @@
       <scope>test</scope>
       <exclusions>
         <exclusion>
-          <artifactId>hbase-server</artifactId>
-          <groupId>org.apache.hbase</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>hbase-server</artifactId>
-          <groupId>org.apache.hbase</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>hbase-hadoop-compat</artifactId>
-          <groupId>org.apache.hbase</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>hbase-hadoop-compat</artifactId>
-          <groupId>org.apache.hbase</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>hbase-hadoop2-compat</artifactId>
-          <groupId>org.apache.hbase</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>hbase-hadoop2-compat</artifactId>
-          <groupId>org.apache.hbase</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>hadoop-client</artifactId>
-          <groupId>org.apache.hadoop</groupId>
-        </exclusion>
-        <exclusion>
           <artifactId>hadoop-minicluster</artifactId>
           <groupId>org.apache.hadoop</groupId>
         </exclusion>
       </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-all</artifactId>
+      <version>1.10.8</version>
+      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>junit</groupId>
@@ -135,6 +113,7 @@
   <properties>
     <testng.version>6.4</testng.version>
     <hbase.version>1.1.2</hbase.version>
+    <mockito-all.version>1.10.8</mockito-all.version>
     <log4j.version>2.3</log4j.version>
     <hadoop.version>2.7.1</hadoop.version>
     <junit.version>4.11</junit.version>

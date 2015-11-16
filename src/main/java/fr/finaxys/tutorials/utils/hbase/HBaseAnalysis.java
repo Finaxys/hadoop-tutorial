@@ -1,5 +1,6 @@
 package fr.finaxys.tutorials.utils.hbase;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -8,9 +9,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 
+import org.apache.hadoop.hbase.TableName;
+import org.apache.hadoop.hbase.client.Connection;
+import org.apache.hadoop.hbase.client.ConnectionFactory;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
 import org.apache.hadoop.hbase.client.Scan;
+import org.apache.hadoop.hbase.client.Table;
 import org.apache.hadoop.hbase.filter.CompareFilter.CompareOp;
 import org.apache.hadoop.hbase.filter.Filter;
 import org.apache.hadoop.hbase.filter.FilterList;
@@ -31,15 +36,18 @@ public class HBaseAnalysis extends AtomHBaseHelper implements AtomAnalysis {
 	public Map<TraceType, Integer> traceCount(Date date, List<TraceType> types) {
 		Map<TraceType, Integer> ret = new HashMap<TraceType, Integer>();
 //		try {
-			Scan scan = mkScan();
+			
 			Calendar cal = Calendar.getInstance();
 			cal.setTime(date);
 			long minStamp = cal.getTimeInMillis();
 			cal.add(Calendar.DAY_OF_YEAR, 1);
 			long maxStamp = cal.getTimeInMillis();
 			LOGGER.log(Level.INFO, "traceCount Date : " +date + ", Min TimeStamp : "+ minStamp + ", Max TimeStamp : "+ maxStamp);
+			
+			Scan scan = mkScan();
 			// @TODO is there better way ? Doesn't seems to work
 			//scan.setTimeRange(minStamp, maxStamp);
+			
 			List<Filter> myList = new ArrayList<Filter>();
 			// add a TraceType Filter
 //			for (TraceType type : types) {
@@ -59,17 +67,62 @@ public class HBaseAnalysis extends AtomHBaseHelper implements AtomAnalysis {
 			FilterList myFilterList =
 					new FilterList(FilterList.Operator.MUST_PASS_ALL, myList);
 			scan.setFilter(myFilterList);
-			ResultScanner results = scanTable(scan);
+			Table table = getTable();
+			ResultScanner results = scanTable(table, scan);
 			for (Result r : results) {
-				TraceType key = lookupType(r);
+				TraceType key = lookupType(r.getRow());
 				Integer count = ret.get(key);
 				if (count == null) count = new Integer(1);
 				else count = new Integer(count.intValue() + 1);
 				ret.put(key, count);
 			}
+			returnTable(table);
 //		} catch (IOException e) {
 //			throw new HadoopTutorialException("IOException while trace counting", e);
 //		}
+		return ret;
+	}
+	
+	@Override
+	public Map<String, Integer> agentPosition(Date date) {
+		
+		Map<String, Integer> ret = new HashMap<String, Integer>();
+		
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(date);
+		long minStamp = cal.getTimeInMillis();
+		cal.add(Calendar.DAY_OF_YEAR, 1);
+		long maxStamp = cal.getTimeInMillis();
+		LOGGER.log(Level.INFO, "agentPosition Date : " +date + ", Min TimeStamp : "+ minStamp + ", Max TimeStamp : "+ maxStamp);
+		
+		AgentPosition ag = new AgentPosition();
+		ag.setConf(configuration);
+		try {
+			String[] args = {Long.toString(minStamp),Long.toString(maxStamp),
+					this.tableName.getNameAsString(), Bytes.toString(this.columnFamily),
+					"AgentPosition", "cf"};
+			ag.run(args);
+		} catch (Exception e) {
+			LOGGER.log(Level.SEVERE,"Could not execute agent position", e);
+		}
+		
+		try {
+			Scan s = new Scan();
+			s.addFamily(Bytes.toBytes("cf"));
+			Connection connection = ConnectionFactory.createConnection(configuration);
+			Table table = connection.getTable(TableName.valueOf("AgentPosition"));
+			ResultScanner results = table.getScanner(s);
+			for (Result r : results) {
+				String key = Bytes.toString(r.getRow());
+				Integer l = Bytes.toInt(r.getValue(Bytes.toBytes("cf"), Bytes.toBytes("count")));
+				ret.put(key, l);
+			}
+			table.close();
+			connection.close();
+		} catch (IOException e) {
+			LOGGER.log(Level.SEVERE,"Could not parse result of agent position", e);
+		};
+		
 		return ret;
 	}
 

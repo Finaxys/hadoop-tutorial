@@ -1,17 +1,26 @@
 package fr.finaxys.tutorials.utils.hbase;
 
+import static fr.finaxys.tutorials.utils.hbase.AtomHBaseHelper.AGENT;
+import static fr.finaxys.tutorials.utils.hbase.AtomHBaseHelper.ORDER;
+
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Map;
+import java.util.Properties;
 import java.util.logging.Level;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HBaseTestingUtility;
+import org.apache.hadoop.hbase.MiniHBaseCluster;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Table;
 import org.apache.hadoop.hbase.util.Bytes;
+import org.apache.hadoop.mapred.MiniMRCluster;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -29,13 +38,12 @@ import fr.finaxys.tutorials.utils.HadoopTutorialException;
 import fr.finaxys.tutorials.utils.InjectorTests;
 import fr.finaxys.tutorials.utils.TimeStampBuilder;
 import fr.univlille1.atom.trace.TraceType;
-import static fr.finaxys.tutorials.utils.hbase.AtomHBaseHelper.*;
 
 @Category(InjectorTests.class)
 public class HBaseAnalysisTest {
 	
 	private static final java.util.logging.Logger LOGGER = java.util.logging.Logger
-			.getLogger(SimpleHBaseInjectorTest.class.getName());
+			.getLogger(HBaseAnalysisTest.class.getName());
 	
 	private static final TableName TEST_TABLE = TableName
 			.valueOf("testhbaseinjector");
@@ -57,14 +65,25 @@ public class HBaseAnalysisTest {
 	public static void setupBeforeClass() throws Exception {
 		TEST_UTIL = new HBaseTestingUtility();
 		CONF = TEST_UTIL.getConfiguration();
-
-		TEST_UTIL.startMiniCluster();
+		OutputStream os = new FileOutputStream("/tmp/configuration.xml");
+		CONF.writeXml(os);
+        os.close();
+//		Properties prop = new Properties();
+//		InputStream in =  HBaseAnalysisTest.class.getResourceAsStream("configuration.xml");
+//		prop.load(in);
+//		in.close();
+//		CONF.addResource(in);
+//		CONF.reloadConfiguration();
+		//Configuration conf = TEST_UTIL.getConfiguration();
+		/*MiniMRCluster mapReduceCluster = */TEST_UTIL.startMiniMapReduceCluster();
+		/*MiniHBaseCluster hbaseCluster = */TEST_UTIL.startMiniCluster();
 		table = TEST_UTIL.createTable(TEST_TABLE, new byte[][] { TEST_FAMILY });
 	}
 
 	@AfterClass
 	public static void tearDownAfterClass() throws Exception {
 		TEST_UTIL.shutdownMiniCluster();
+		TEST_UTIL.shutdownMiniMapReduceCluster();
 	}
 
 	@Before
@@ -78,6 +97,7 @@ public class HBaseAnalysisTest {
 			analysis.setHbaseConfiguration(CONF);
 			analysis.setTableName(TEST_TABLE);
 			analysis.setColumnFamily(TEST_FAMILY);
+			analysis.openTable();
 		} catch (ParseException e) {
 			LOGGER.log(Level.SEVERE, "Could not parse Date for Test:"+sDate+", expected format"+TimeStampBuilder.DATE_FORMAT);
 			throw new HadoopTutorialException("Could not init test", e);
@@ -86,6 +106,7 @@ public class HBaseAnalysisTest {
 
 	@After
 	public void tearDown() {
+		analysis.closeTable();
 		analysis = null;
 	}
 
@@ -119,5 +140,50 @@ public class HBaseAnalysisTest {
 		Assert.assertEquals("1 result should be return", r.size(), 1);
 		Assert.assertEquals("2 should have count 1", r.get(TraceType.Agent), new Integer(1));
 		Assert.assertEquals("Order should be null", r.get(TraceType.Order), null);
+	}
+	
+	 @SuppressWarnings("unchecked")
+	@Test
+	public void testZAgentPosition() throws Exception {
+		 
+		 long ts = tsb.nextTimeStamp();
+
+		Agent a = new DumbAgent("a1");
+		Order o = new LimitOrder("o", "1", LimitOrder.ASK, 1, 10);
+		o.sender = a;
+		PriceRecord pr = new PriceRecord("o", 10, 1, LimitOrder.ASK, "o-1", "o-2");
+		pr.timestamp = ts;
+		
+		LOGGER.log(Level.INFO, "Order 1 TimeStamp:"+ts);
+		Put p = analysis.mkPutAgent(analysis.createRequired(AGENT), ts, a, o , pr);
+		analysis.putTable(p);
+		
+		Map<String, Integer> r = analysis.agentPosition(testDate);
+		Assert.assertEquals("1 results return", r.size(), 1);
+		Assert.assertEquals("2 should have count 1", r.get("a1-o"), new Integer(1));
+		
+//		 TraceCountMap map = new TraceCountMap();
+//		 
+//		ImmutableBytesWritable rowKey = new ImmutableBytesWritable(Bytes.toBytes("test"));
+//	    Mapper<ImmutableBytesWritable, Result, Text, IntWritable>.Context ctx =
+//	        mock(Context.class);
+//	    when(ctx.getConfiguration()).thenReturn(CONF);
+//	    doAnswer(new Answer<Void>() {
+//
+//	      @Override
+//	      public Void answer(InvocationOnMock invocation) throws Throwable {
+//	        ImmutableBytesWritable writer = (ImmutableBytesWritable) invocation.getArguments()[0];
+//	        Put put = (Put) invocation.getArguments()[1];
+//	        assertEquals("tableName-column1", Bytes.toString(writer.get()));
+//	        assertEquals("test", Bytes.toString(put.getRow()));
+//	        return null;
+//	      }
+//	    }).when(ctx).write(any(ImmutableBytesWritable.class), any(Put.class));
+//	    Result result = mock(Result.class);
+//	    when(result.getValue(Bytes.toBytes("columnFamily"), Bytes.toBytes("column1"))).thenReturn(
+//	        Bytes.toBytes("test"));
+//	    
+//	    map.setup(ctx);
+//	    map.map(rowKey, result, ctx);
 	}
 }

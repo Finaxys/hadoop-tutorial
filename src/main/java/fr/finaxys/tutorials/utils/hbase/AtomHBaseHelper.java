@@ -36,6 +36,7 @@ import fr.univlille1.atom.trace.TraceType;
 
 abstract class AtomHBaseHelper {
 
+	public static final byte[] Q_TRACE_TYPE = Bytes.toBytes("Trace");
 	public static final byte[] Q_NUM_DAY = Bytes.toBytes("NumDay");
 	public static final byte[] Q_NUM_TICK = Bytes.toBytes("NumTick");
 	public static final byte[] Q_BEST_BID = Bytes.toBytes("BestBid");
@@ -77,14 +78,21 @@ abstract class AtomHBaseHelper {
 	protected byte[] columnFamily;
 	protected TableName tableName;
 	//private Table table;
-	protected Configuration hbaseConfiguration;
+	protected Configuration configuration;
 	private boolean open = false;
 	private static AtomicLong idGen = new AtomicLong(1_000_000);
+	private Connection connection; 
+	
+	public AtomHBaseHelper(byte[] columnFamily, TableName tableName, Configuration configuration) {
+		this.columnFamily = columnFamily;
+		this.tableName = tableName;
+		this.configuration = configuration;
+	}
 	
 	public AtomHBaseHelper(byte[] columnFamily, TableName tableName) {
 		this.columnFamily = columnFamily;
 		this.tableName = tableName;
-		this.hbaseConfiguration = createHbaseConfiguration();
+		this.configuration = createHbaseConfiguration();
 	}
 	
 	public AtomHBaseHelper() {
@@ -107,12 +115,12 @@ abstract class AtomHBaseHelper {
 	
 	
 	public Configuration getHbaseConfiguration() {
-		return hbaseConfiguration;
+		return configuration;
 	}
 	
 	public void setHbaseConfiguration(Configuration hbaseConfiguration) {
 		if (this.open) throw new HadoopTutorialException("hbaseConfiguration already set");
-		this.hbaseConfiguration = hbaseConfiguration;
+		this.configuration = hbaseConfiguration;
 	}
 	
 	protected void closeTable() {
@@ -120,7 +128,14 @@ abstract class AtomHBaseHelper {
 			//table.close();
 			//table = null;
 			// @TODO should be manage in a thread safe manner?
+		try {
+			connection.close();
 			open = false;
+		} catch (IOException e) {
+			LOGGER.severe("Failed to cloce connection " + e.getMessage() );
+			throw new HadoopTutorialException("Failed to push data into queue", e);
+		}
+			
 //		} catch (IOException e) {
 //			LOGGER.log(Level.SEVERE, "IO Exception while closing table", e);
 //		}
@@ -130,6 +145,7 @@ abstract class AtomHBaseHelper {
 		try {
 			Table table = getTable();
 			table.put(p);
+			returnTable(table);
 		} catch (IOException e) {
 			LOGGER.severe("Failed to push data into queue : " + e.getMessage());
 			throw new HadoopTutorialException("Failed to push data into queue", e);
@@ -143,9 +159,9 @@ abstract class AtomHBaseHelper {
 	}
 	
 	// @TODO can be handle more cleanly with callback to not expose Table 
-	protected ResultScanner scanTable(@NotNull Scan p) {
+	protected ResultScanner scanTable(@NotNull Table table, @NotNull Scan s) {
 		try {
-			ResultScanner results = getTable().getScanner(p);
+			ResultScanner results = table.getScanner(s);
 			return results;
 		} catch (IOException e) {
 			LOGGER.severe("Failed to push data into queue : " + e.getMessage());
@@ -153,13 +169,18 @@ abstract class AtomHBaseHelper {
 		}
 	}
 	
-	protected Table getTable() throws IOException {
-		Connection connection = ConnectionFactory.createConnection(hbaseConfiguration);;
-		return connection.getTable(tableName);
+	protected Table getTable() throws HadoopTutorialException {
+		try {
+			LOGGER.log(Level.FINEST,"Getting table "+ tableName.getQualifierAsString());
+			return connection.getTable(tableName);
+		} catch (IOException e) {
+			throw new HadoopTutorialException("cannot get table");
+		}	
 	}
 	
 	protected void returnTable(Table table) throws HadoopTutorialException {
 		try {
+			LOGGER.log(Level.FINEST,"Returning table "+ table.getName().getQualifierAsString());
 			table.close();
 		} catch (IOException e) {
 			throw new HadoopTutorialException("cannot close table");
@@ -231,12 +252,12 @@ abstract class AtomHBaseHelper {
 		return conf;
 	}
 
-	private Table createHTableConnexion(TableName tableName,
-			Configuration hbConf) throws IOException {
-		Connection connection = ConnectionFactory.createConnection(hbConf);
-		Table table = connection.getTable(tableName);
-		return table;
-	}
+//	private Table createHTableConnexion(TableName tableName,
+//			Configuration hbConf) throws IOException {
+//		Connection connection = ConnectionFactory.createConnection(hbConf);
+//		Table table = connection.getTable(tableName);
+//		return table;
+//	}
 	
 	final protected void openTable() {
 		assert !(tableName == null);
@@ -246,28 +267,25 @@ abstract class AtomHBaseHelper {
 //
 //		LOGGER.log(Level.INFO, "Try to connect to " + host + ":" + port);
 //		LOGGER.log(Level.INFO, "Configuration completed");
-		
-		Connection connection = null;
 		try {
-			connection = ConnectionFactory.createConnection(hbaseConfiguration);
+			connection = ConnectionFactory.createConnection(configuration);
 			createTable(connection);
 			//this.table = createHTableConnexion(tableName, hbaseConfiguration);
 			this.open = true;
 		} catch (IOException e) {
 			LOGGER.log(Level.SEVERE, "Could not create Connection", e);
 			throw new HadoopTutorialException("hbase connection", e);
-		} finally {
+		}/* finally {
 			if (connection != null)
 				try {
 					connection.close();
 				} catch (IOException e) {
 					// can't do anything here...
 				}
-		}
+		}*/
 	}
 	
-	public  TraceType lookupType(@NotNull Result r) {
-		byte[] row = r.getRow();
+	public static TraceType lookupType(@NotNull byte[] row) {
 		byte c = row[row.length-1];
 		LOGGER.log(Level.FINEST,"lookupType:" + c);
 		TraceType type;
@@ -285,6 +303,8 @@ abstract class AtomHBaseHelper {
 
 	protected Put mkPutAgent(byte[] row, long ts, Agent a, Order o, PriceRecord pr) {
 		Put p = new Put(row, ts);
+		p.addColumn(columnFamily, Q_TRACE_TYPE, ts,
+				hbEncoder.encodeString(TraceType.Agent.name()));
 		p.addColumn(columnFamily, Q_AGENT_NAME, ts,
 				hbEncoder.encodeString(a.name));
 		p.addColumn(columnFamily, Q_OB_NAME, ts,
@@ -307,18 +327,20 @@ abstract class AtomHBaseHelper {
 
 	@NotNull
 	protected Put mkPutAgentReferential(@NotNull AgentReferentialLine agent, @NotNull HBaseDataTypeEncoder encoder,
-			@NotNull byte[] columnF, long ts) {
-			    Put p = new Put(Bytes.toBytes(agent.agentRefId + "R"), ts);
-			    p.addColumn(columnF, Bytes.toBytes("agentRefId"), ts, encoder.encodeInt(agent.agentRefId));
-			    p.addColumn(columnF, Bytes.toBytes("agentName"), ts, encoder.encodeString(agent.agentName));
-			    p.addColumn(columnF, Bytes.toBytes("isMarketMaker"), ts, encoder.encodeBoolean(agent.isMarketMaker));
-			    p.addColumn(columnF, Bytes.toBytes("details"), ts, encoder.encodeString(agent.details));
-			    p.addColumn(columnFamily, Q_TIMESTAMP, ts, hbEncoder.encodeLong(ts));
-			    return p;
-			}
+		@NotNull byte[] columnF, long ts) {
+	    Put p = new Put(Bytes.toBytes(agent.agentRefId + "R"), ts);
+	    p.addColumn(columnF, Bytes.toBytes("agentRefId"), ts, encoder.encodeInt(agent.agentRefId));
+	    p.addColumn(columnF, Bytes.toBytes("agentName"), ts, encoder.encodeString(agent.agentName));
+	    p.addColumn(columnF, Bytes.toBytes("isMarketMaker"), ts, encoder.encodeBoolean(agent.isMarketMaker));
+	    p.addColumn(columnF, Bytes.toBytes("details"), ts, encoder.encodeString(agent.details));
+	    p.addColumn(columnFamily, Q_TIMESTAMP, ts, hbEncoder.encodeLong(ts));
+	    return p;
+	}
 
-	protected Put mkPutOrderBook(byte[] row, long ts, int dayGap, int nbDays, OrderBook ob) {
+	protected Put mkPutDay(byte[] row, long ts, int dayGap, int nbDays, OrderBook ob) {
 		Put p = new Put(row, ts);
+		p.addColumn(columnFamily, Q_TRACE_TYPE, ts,
+				hbEncoder.encodeString(TraceType.Day.name()));
 		p.addColumn(columnFamily, EXT_NUM_DAY, ts,
 				hbEncoder.encodeInt(nbDays + dayGap));
 		p.addColumn(columnFamily, Q_OB_NAME, ts,
@@ -344,6 +366,8 @@ abstract class AtomHBaseHelper {
 
 	protected Put mkPutExec(byte[] row, long ts, Order o) {
 		Put p = new Put(row, ts);
+		p.addColumn(columnFamily, Q_TRACE_TYPE, ts,
+				hbEncoder.encodeString(TraceType.Exec.name()));
 		p.addColumn(columnFamily, Q_SENDER, ts,
 				hbEncoder.encodeString(o.sender.name));
 		p.addColumn(columnFamily, Q_EXT_ID, ts,
@@ -355,6 +379,8 @@ abstract class AtomHBaseHelper {
 
 	protected Put mkPutOrder(byte[] row, long ts, Order o) {
 		Put p = new Put(row, ts);
+		p.addColumn(columnFamily, Q_TRACE_TYPE, ts,
+				hbEncoder.encodeString(TraceType.Order.name()));
 		p.addColumn(columnFamily, Q_OB_NAME, ts,
 				hbEncoder.encodeString(o.obName)); 
 		p.addColumn(columnFamily, Q_SENDER, ts,
@@ -382,6 +408,8 @@ abstract class AtomHBaseHelper {
 	protected Put mkPutPriceRecord(byte[] row, long ts, PriceRecord pr, long bestAskPrice,
 			long bestBidPrice) {
 				Put p = new Put(row, ts);
+				p.addColumn(columnFamily, Q_TRACE_TYPE, ts,
+						hbEncoder.encodeString(TraceType.Price.name()));
 				p.addColumn(columnFamily, Q_OB_NAME, ts,
 						hbEncoder.encodeString(pr.obName));
 				p.addColumn(columnFamily, Q_PRICE, ts,
@@ -406,6 +434,8 @@ abstract class AtomHBaseHelper {
 
 	protected Put mkPutTick(byte[] row, long ts, int dayGap, Day day, OrderBook ob) {
 		Put p = new Put(row, ts);
+		p.addColumn(columnFamily, Q_TRACE_TYPE, ts,
+				hbEncoder.encodeString(TraceType.Tick.name()));
 		p.addColumn(columnFamily, Q_NUM_TICK, ts,
 				hbEncoder.encodeInt(day.currentTick()));
 		p.addColumn(columnFamily, Q_NUM_DAY, ts,
