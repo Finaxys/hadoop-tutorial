@@ -65,9 +65,9 @@ public class HBaseAnalysisTest {
 	public static void setupBeforeClass() throws Exception {
 		TEST_UTIL = new HBaseTestingUtility();
 		CONF = TEST_UTIL.getConfiguration();
-		OutputStream os = new FileOutputStream("/tmp/configuration.xml");
-		CONF.writeXml(os);
-        os.close();
+//		OutputStream os = new FileOutputStream("/tmp/configuration.xml");
+//		CONF.writeXml(os);
+//        os.close();
 //		Properties prop = new Properties();
 //		InputStream in =  HBaseAnalysisTest.class.getResourceAsStream("configuration.xml");
 //		prop.load(in);
