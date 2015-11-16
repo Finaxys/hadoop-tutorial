@@ -103,7 +103,7 @@ public class AgentPosition extends Configured implements Tool {
 	public static class AgentPositionReducer extends TableReducer<Text, IntWritable, ImmutableBytesWritable>  {
 
 	 	public void reduce(Text key, Iterable<IntWritable> values, Context context) throws IOException, InterruptedException {
-	    		long i = 0;
+	    		int i = 0;
 	    		for (IntWritable val : values) {
 	    			i += val.get();
 	    		}
