@@ -29,6 +29,7 @@ import fr.univlille1.atom.trace.TraceType;
 
 public class HBaseAnalysis extends AtomHBaseHelper implements AtomAnalysis {
 	
+
 	private static final java.util.logging.Logger LOGGER = java.util.logging.Logger
 			.getLogger(HBaseAnalysis.class.getName());
 
@@ -99,8 +100,7 @@ public class HBaseAnalysis extends AtomHBaseHelper implements AtomAnalysis {
 		ag.setConf(configuration);
 		try {
 			String[] args = {Long.toString(minStamp),Long.toString(maxStamp),
-					this.tableName.getNameAsString(), Bytes.toString(this.columnFamily),
-					"AgentPosition", "cf"};
+					this.tableName.getNameAsString(), Bytes.toString(this.columnFamily)};
 			ag.run(args);
 		} catch (Exception e) {
 			LOGGER.log(Level.SEVERE,"Could not execute agent position", e);
@@ -108,13 +108,13 @@ public class HBaseAnalysis extends AtomHBaseHelper implements AtomAnalysis {
 		
 		try {
 			Scan s = new Scan();
-			s.addFamily(Bytes.toBytes("cf"));
+			s.addFamily(Bytes.toBytes(AgentPosition.AP_RESULT_CF));
 			Connection connection = ConnectionFactory.createConnection(configuration);
-			Table table = connection.getTable(TableName.valueOf("AgentPosition"));
+			Table table = connection.getTable(TableName.valueOf(AgentPosition.AP_RESULT_TABLE));
 			ResultScanner results = table.getScanner(s);
 			for (Result r : results) {
 				String key = Bytes.toString(r.getRow());
-				Integer l = Bytes.toInt(r.getValue(Bytes.toBytes("cf"), Bytes.toBytes("count")));
+				Integer l = Bytes.toInt(r.getValue(Bytes.toBytes(AgentPosition.AP_RESULT_CF), Bytes.toBytes(AgentPosition.AP_RESULT_QUAL)));
 				ret.put(key, l);
 			}
 			table.close();

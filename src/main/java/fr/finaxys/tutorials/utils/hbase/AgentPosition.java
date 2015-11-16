@@ -11,7 +11,6 @@ import java.util.logging.Level;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
-import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Result;
@@ -29,7 +28,6 @@ import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
-import org.apache.hadoop.util.GenericOptionsParser;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 
@@ -40,7 +38,9 @@ public class AgentPosition extends Configured implements Tool {
 	
 	private Configuration conf;
 	
-	
+	public static final String AP_RESULT_TABLE = "AgentPosition";
+	public static final String AP_RESULT_CF = "cf";
+	public static final String AP_RESULT_QUAL = "count";
 	
 	private static final java.util.logging.Logger LOGGER = java.util.logging.Logger
 			.getLogger(AgentPosition.class.getName());
@@ -62,7 +62,7 @@ public class AgentPosition extends Configured implements Tool {
 		@Override
 	       protected void setup(Context context)
 	         throws IOException, InterruptedException {
-	         String column = context.getConfiguration().get("conf.column");
+	         String column = context.getConfiguration().get("conf.trace.cf");
 	         byte[][] colkey = KeyValue.parseColumn(Bytes.toBytes(column));
 	         columnFamily = colkey[0];
 	         LOGGER.log(Level.INFO, "Column Family is "+columnFamily);
@@ -108,7 +108,7 @@ public class AgentPosition extends Configured implements Tool {
 	    			i += val.get();
 	    		}
 	    		Put put = new Put(Bytes.toBytes(key.toString()));
-	    		put.addColumn(Bytes.toBytes("cf"), Bytes.toBytes("count"), Bytes.toBytes(i));
+	    		put.addColumn(Bytes.toBytes(AP_RESULT_CF), Bytes.toBytes(AP_RESULT_QUAL), Bytes.toBytes(i));
 	    		context.write(null, put);
 	   	}
 	}
@@ -128,8 +128,7 @@ public class AgentPosition extends Configured implements Tool {
 		long maxStamp = cal.getTimeInMillis();
 		LOGGER.log(Level.INFO, "agentPosition Date : " +date + ", Min TimeStamp : "+ minStamp + ", Max TimeStamp : "+ maxStamp);
 		String[] args2 = {Long.toString(minStamp),Long.toString(maxStamp),
-				args[1], args[2],
-				"AgentPosition", "cf"};
+				args[1], args[2]};
 		
 	    ToolRunner.run(new AgentPosition(conf), args2);
 	 }
@@ -137,11 +136,13 @@ public class AgentPosition extends Configured implements Tool {
 	@Override
 	public int run(String[] arg0) throws Exception {
 		
+		assert (arg0.length == 4);
+		
 		LOGGER.log(Level.INFO, "Agent Position run args"+arg0);
 		
 		//Configuration conf = HBaseConfiguration.create();
 		
-		conf.set("conf.column", arg0[3]);
+		conf.set("conf.trace.cf", arg0[3]);
 		
 		Job job = Job.getInstance(conf, "Agent Position");
 		job.setJarByClass(AgentPosition.class);
@@ -172,7 +173,7 @@ public class AgentPosition extends Configured implements Tool {
 				job);
 
 		TableMapReduceUtil.initTableReducerJob(
-				arg0[4],        // output table
+				AP_RESULT_TABLE,        // output table
 				AgentPositionReducer.class,    // reducer class
 				job);
 		job.setNumReduceTasks(1);   // at least one, adjust as required

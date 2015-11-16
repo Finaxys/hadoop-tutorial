@@ -4,6 +4,7 @@ import static fr.finaxys.tutorials.utils.hbase.AtomHBaseHelper.AGENT;
 import static fr.finaxys.tutorials.utils.hbase.AtomHBaseHelper.ORDER;
 
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.text.ParseException;
@@ -48,12 +49,13 @@ public class HBaseAnalysisTest {
 	private static final TableName TEST_TABLE = TableName
 			.valueOf("testhbaseinjector");
 	
-	private static final byte[] TEST_FAMILY = Bytes.toBytes("f");
+	private static final byte[] TEST_FAMILY = Bytes.toBytes("cf");
 	
 
 	private static HBaseTestingUtility TEST_UTIL = null;
 	private static Configuration CONF = null;
 	private static Table table = null;
+	private static Table tbAgentPosition = null;
 	
 	final HBaseDataTypeEncoder hbEncoder = new HBaseDataTypeEncoder();
 
@@ -75,15 +77,16 @@ public class HBaseAnalysisTest {
 //		CONF.addResource(in);
 //		CONF.reloadConfiguration();
 		//Configuration conf = TEST_UTIL.getConfiguration();
-		/*MiniMRCluster mapReduceCluster = */TEST_UTIL.startMiniMapReduceCluster();
+		/*MiniMRCluster mapReduceCluster = *///TEST_UTIL.startMiniMapReduceCluster();
 		/*MiniHBaseCluster hbaseCluster = */TEST_UTIL.startMiniCluster();
 		table = TEST_UTIL.createTable(TEST_TABLE, new byte[][] { TEST_FAMILY });
+		tbAgentPosition = TEST_UTIL.createTable(Bytes.toBytes(AgentPosition.AP_RESULT_TABLE), new byte[][] { Bytes.toBytes(AgentPosition.AP_RESULT_CF) });
 	}
 
 	@AfterClass
 	public static void tearDownAfterClass() throws Exception {
 		TEST_UTIL.shutdownMiniCluster();
-		TEST_UTIL.shutdownMiniMapReduceCluster();
+		//TEST_UTIL.shutdownMiniMapReduceCluster();
 	}
 
 	@Before
@@ -106,8 +109,14 @@ public class HBaseAnalysisTest {
 
 	@After
 	public void tearDown() {
-		analysis.closeTable();
-		analysis = null;
+		try {
+			tbAgentPosition.close();
+			analysis.closeTable();
+			analysis = null;
+		} catch (IOException e) {
+			LOGGER.log(Level.SEVERE, "Could not parse Date for Test", e.getMessage());
+			throw new HadoopTutorialException("Could not close table", e);
+		}
 	}
 
 	
@@ -146,21 +155,38 @@ public class HBaseAnalysisTest {
 	@Test
 	public void testZAgentPosition() throws Exception {
 		 
-		 long ts = tsb.nextTimeStamp();
+		long ts = tsb.nextTimeStamp();
 
 		Agent a = new DumbAgent("a1");
-		Order o = new LimitOrder("o", "1", LimitOrder.ASK, 1, 10);
+		Order o = new LimitOrder("o", "1", LimitOrder.ASK, 10, 10);
 		o.sender = a;
-		PriceRecord pr = new PriceRecord("o", 10, 1, LimitOrder.ASK, "o-1", "o-2");
-		pr.timestamp = ts;
+		o.timestamp = ts;
 		
-		LOGGER.log(Level.INFO, "Order 1 TimeStamp:"+ts);
-		Put p = analysis.mkPutAgent(analysis.createRequired(AGENT), ts, a, o , pr);
-		analysis.putTable(p);
+		LOGGER.log(Level.INFO, "Order 1 TimeStamp:"+o.timestamp);
+		//Put p = analysis.mkPutOrder(analysis.createRequired(AGENT), ts, a, o , pr);
+		Put pOrder = analysis.mkPutOrder(analysis.createRequired(ORDER), ts, o);
+		analysis.putTable(pOrder);
+
+		LimitOrder o2 = new LimitOrder("o", "2", LimitOrder.ASK, 1, 11);
+		o2.sender = a;
+		o2.timestamp = ts;
+		
+		LOGGER.log(Level.INFO, "Order 2 TimeStamp:"+o2.timestamp);
+		Put pOrder2 = analysis.mkPutOrder(analysis.createRequired(ORDER), ts, o2);
+		analysis.putTable(pOrder2);
+		
+		long ts2 = System.currentTimeMillis();
+		LimitOrder o3 = new LimitOrder("o", "3", LimitOrder.ASK, 1, 1);
+		o3.sender = a;
+		o3.timestamp = ts2;
+		
+		LOGGER.log(Level.INFO, "Order 3 TimeStamp:"+o3.timestamp);
+		Put pOrder3 = analysis.mkPutOrder(analysis.createRequired(ORDER), ts2, o3);
+		analysis.putTable(pOrder3);
 		
 		Map<String, Integer> r = analysis.agentPosition(testDate);
 		Assert.assertEquals("1 results return", r.size(), 1);
-		Assert.assertEquals("2 should have count 1", r.get("a1-o"), new Integer(1));
+		Assert.assertEquals("Position should have count 11", new Integer(11), r.get("a1-o"));
 		
 //		 TraceCountMap map = new TraceCountMap();
 //		 
