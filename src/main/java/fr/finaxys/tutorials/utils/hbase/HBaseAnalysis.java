@@ -115,7 +115,7 @@ public class HBaseAnalysis extends AtomHBaseHelper implements AtomAnalysis {
 			for (Result r : results) {
 				String key = Bytes.toString(r.getRow());
 				Integer l = Bytes.toInt(r.getValue(Bytes.toBytes(AgentPosition.AP_RESULT_CF), Bytes.toBytes(AgentPosition.AP_RESULT_QUAL)));
-				ret.put(key, l);
+				ret.put(HBaseHelper.decodeStringRowKey(key), l);
 			}
 			table.close();
 			connection.close();
