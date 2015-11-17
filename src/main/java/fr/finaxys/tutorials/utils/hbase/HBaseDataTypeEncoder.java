@@ -1,16 +1,8 @@
 package fr.finaxys.tutorials.utils.hbase;
 
-import org.apache.hadoop.hbase.types.DataType;
-import org.apache.hadoop.hbase.types.OrderedBlobVar;
-import org.apache.hadoop.hbase.types.RawByte;
-import org.apache.hadoop.hbase.types.RawDouble;
-import org.apache.hadoop.hbase.types.RawInteger;
-import org.apache.hadoop.hbase.types.RawLong;
-import org.apache.hadoop.hbase.types.RawStringTerminated;
-import org.apache.hadoop.hbase.util.Bytes;
-import org.apache.hadoop.hbase.util.SimplePositionedMutableByteRange;
-
 import com.sun.istack.NotNull;
+import org.apache.hadoop.hbase.types.*;
+import org.apache.hadoop.hbase.util.SimplePositionedMutableByteRange;
 
 public class HBaseDataTypeEncoder
 {
@@ -84,35 +76,52 @@ public class HBaseDataTypeEncoder
 
 
     @NotNull
+    private <T> T decode(@NotNull DataType<T> dt, @NotNull byte[] value)
+    {
+        SimplePositionedMutableByteRange sbpr = new SimplePositionedMutableByteRange(value);
+        T result = dt.decode(sbpr) ;
+        return result ;
+
+    }
+
+    @NotNull
     public String decodeString(@NotNull byte[] value)
     {
-        String stringValue = Bytes.toString(value) ;
-        return stringValue.substring(0,stringValue.length()-1) ;
+        return decode(strDataType, value);
 
     }
 
     @NotNull
     public int decodeInt(@NotNull byte[] value)
     {
-        return Bytes.toInt(value);
+        return decode(intDataType, value);
     }
 
     @NotNull
-    public boolean decodeBoolean(@NotNull byte[] value)
+    public Boolean decodeBoolean(@NotNull byte[] value)
     {
-        return Bytes.toBoolean(value);
+        return decode(boolDataType, value) == 1;
+
     }
 
     @NotNull
     public long decodeLong(@NotNull byte[] value)
     {
-        return Bytes.toLong(value);
+       return decode(longDataType, value);
     }
 
     @NotNull
     public Number decodeDouble( @NotNull byte[] value)
     {
-        return Bytes.toDouble(value);
+        return decode(doubleDataType, value);
+
+    }
+
+    @NotNull
+    public char decodeChar( @NotNull byte[] value)
+    {
+        byte[] bytes =decode(charType, value);
+         return (char)(((bytes[0]&0x00FF)<<8) + (bytes[1]&0x00FF)) ;
 
     }
 

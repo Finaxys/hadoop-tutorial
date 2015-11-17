@@ -147,9 +147,8 @@ public class SimpleHBaseInjectorTest {
 			byte[] orderBookName = result.getValue(TEST_FAMILY, Q_OB_NAME);
 			byte[] orderBookName2 = hbEncoder.encodeString(o.obName);
 			Assert.assertTrue("orderBookName is same", Bytes.equals(orderBookName, orderBookName2));
-			byte[] dir = result.getValue(TEST_FAMILY, Q_DIRECTION);
-			byte[] dir2 = hbEncoder.encodeChar(o.direction);
-			Assert.assertTrue("orderBookName is same", Bytes.equals(dir, dir2));
+			char dir = hbEncoder.decodeChar(result.getValue(TEST_FAMILY, Q_DIRECTION));
+			Assert.assertTrue("orderBookName is same", dir == o.direction);
 		} catch (IOException e) {
 			LOGGER.log(Level.SEVERE, "IO Exception on testSendAgent", e);
 		}
