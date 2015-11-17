@@ -1,39 +1,27 @@
 package fr.finaxys.tutorials.utils.hbase;
 
+import fr.finaxys.tutorials.utils.InjectorTests;
+import fr.finaxys.tutorials.utils.TimeStampBuilder;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.hbase.HBaseTestingUtility;
+import org.apache.hadoop.hbase.TableName;
+import org.apache.hadoop.hbase.client.*;
+import org.apache.hadoop.hbase.filter.Filter;
+import org.apache.hadoop.hbase.filter.FuzzyRowFilter;
+import org.apache.hadoop.hbase.util.Bytes;
+import org.apache.hadoop.hbase.util.Pair;
+import org.junit.*;
+import org.junit.Test;
+import org.junit.experimental.categories.Category;
+import v13.*;
+import v13.agents.Agent;
+import v13.agents.DumbAgent;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.hbase.HBaseTestingUtility;
-import org.apache.hadoop.hbase.TableName;
-import org.apache.hadoop.hbase.client.Get;
-import org.apache.hadoop.hbase.client.Result;
-import org.apache.hadoop.hbase.client.ResultScanner;
-import org.apache.hadoop.hbase.client.Scan;
-import org.apache.hadoop.hbase.client.Table;
-import org.apache.hadoop.hbase.filter.Filter;
-import org.apache.hadoop.hbase.filter.FuzzyRowFilter;
-import org.apache.hadoop.hbase.util.Bytes;
-import org.apache.hadoop.hbase.util.Pair;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
-
-import v13.Day;
-import v13.LimitOrder;
-import v13.Order;
-import v13.OrderBook;
-import v13.PriceRecord;
-import v13.agents.Agent;
-import v13.agents.DumbAgent;
-import fr.finaxys.tutorials.utils.InjectorTests;
-import fr.finaxys.tutorials.utils.TimeStampBuilder;
 import static fr.finaxys.tutorials.utils.hbase.SimpleHBaseInjector.*;
 
 @Category(InjectorTests.class)
@@ -103,15 +91,12 @@ public class SimpleHBaseInjectorTest {
 			g.addFamily(TEST_FAMILY);
 			Result result = table.get(g);
 			Assert.assertTrue("Can retrieve agent by his reference", Bytes.equals(result.getRow(), Bytes.toBytes(reference)));
-			byte[] agentName = result.getValue(TEST_FAMILY, Q_AGENT_NAME);
-			byte[] agentName2 = hbEncoder.encodeString(a.name);
-			Assert.assertTrue("AgentName is same", Bytes.equals(agentName, agentName2));
-			byte[] orderBookName = result.getValue(TEST_FAMILY, Q_OB_NAME);
-			byte[] orderBookName2 = hbEncoder.encodeString(o.obName);
-			Assert.assertTrue("orderBookName is same", Bytes.equals(orderBookName, orderBookName2));
-			byte[] executedQuantity = result.getValue(TEST_FAMILY, Q_EXECUTED_QUANTITY);
-			byte[] executedQuantity2 = hbEncoder.encodeInt(pr.quantity);
-			Assert.assertTrue("executedQuantity is same", Bytes.equals(executedQuantity, executedQuantity2));
+			String agentName = hbEncoder.decodeString(result.getValue(TEST_FAMILY, Q_AGENT_NAME));
+			Assert.assertTrue("AgentName is same", agentName.equals(a.name));
+            String orderBookName = hbEncoder.decodeString(result.getValue(TEST_FAMILY, Q_OB_NAME));
+			Assert.assertTrue("orderBookName is same", orderBookName.equals(o.obName));
+			int executedQuantity = hbEncoder.decodeInt(result.getValue(TEST_FAMILY, Q_EXECUTED_QUANTITY));
+			Assert.assertTrue("executedQuantity is same", executedQuantity == pr.quantity);
 		} catch (IOException e) {
 			LOGGER.log(Level.SEVERE, "IO Exception on testSendAgent", e);
 		}
@@ -131,12 +116,10 @@ public class SimpleHBaseInjectorTest {
 			g.addFamily(TEST_FAMILY);
 			Result result = table.get(g);
 			Assert.assertTrue("Can retrieve pricerecord by his reference", Bytes.equals(result.getRow(), Bytes.toBytes(reference)));
-			byte[] orderBookName = result.getValue(TEST_FAMILY, Q_OB_NAME);
-			byte[] orderBookName2 = hbEncoder.encodeString(pr.obName);
-			Assert.assertTrue("orderBookName is same", Bytes.equals(orderBookName, orderBookName2));
-			byte[] bestAsk = result.getValue(TEST_FAMILY, Q_BEST_ASK);
-			byte[] bestAsk2 = hbEncoder.encodeLong(bestAskPrice);
-			Assert.assertTrue("executedQuantity is same", Bytes.equals(bestAsk, bestAsk2));
+			String orderBookName = hbEncoder.decodeString(result.getValue(TEST_FAMILY, Q_OB_NAME));
+			Assert.assertTrue("orderBookName is same", orderBookName.equals( pr.obName));
+			long bestAsk = hbEncoder.decodeLong(result.getValue(TEST_FAMILY, Q_BEST_ASK));
+			Assert.assertTrue("executedQuantity is same", bestAsk==bestAskPrice);
 		} catch (IOException e) {
 			LOGGER.log(Level.SEVERE, "IO Exception on testSendAgent", e);
 		}
@@ -193,16 +176,12 @@ public class SimpleHBaseInjectorTest {
 			g.addFamily(TEST_FAMILY);
 			Result result = table.get(g);
 			Assert.assertTrue("Can retrieve pricerecord by his reference", Bytes.equals(result.getRow(), Bytes.toBytes(reference)));
-			byte[] orderBookName = result.getValue(TEST_FAMILY, Q_OB_NAME);
-			byte[] orderBookName2 = hbEncoder.encodeString(ob2.obName);
-			Assert.assertTrue("orderBookName is same", Bytes.equals(orderBookName, orderBookName2));
-			byte[] dayGap = result.getValue(TEST_FAMILY, EXT_NUM_DAY);
-			byte[] dayGap2 = hbEncoder.encodeInt(day.number + DAY_GAP);
-			Assert.assertTrue("Day Gap is same", Bytes.equals(dayGap, dayGap2));
-			
-			byte[] tick = result.getValue(TEST_FAMILY, Q_NUM_TICK);
-			byte[] tick2 = hbEncoder.encodeInt(day.currentTick());
-			Assert.assertTrue("Tick is same", Bytes.equals(tick, tick2));
+			String orderBookName = hbEncoder.decodeString(result.getValue(TEST_FAMILY, Q_OB_NAME));
+			Assert.assertTrue("orderBookName is same", orderBookName.equals(ob2.obName));
+			int dayGap = hbEncoder.decodeInt(result.getValue(TEST_FAMILY, EXT_NUM_DAY));
+			Assert.assertTrue("Day Gap is same", dayGap ==  day.number + DAY_GAP);
+			int tick = hbEncoder.decodeInt(result.getValue(TEST_FAMILY, Q_NUM_TICK));
+			Assert.assertTrue("Tick is same", tick == day.currentTick());
 			
 			
 			List<Pair<byte[], byte[]>> keys = new ArrayList<Pair<byte[], byte[]>>();
@@ -241,12 +220,10 @@ public class SimpleHBaseInjectorTest {
 			g.addFamily(TEST_FAMILY);
 			Result result = table.get(g);
 			Assert.assertNotNull("Can retrieve pricerecord by his reference", Bytes.equals(result.getRow(), Bytes.toBytes(reference)));
-			byte[] orderBookName = result.getValue(TEST_FAMILY, Q_OB_NAME);
-			byte[] orderBookName2 = hbEncoder.encodeString(ob2.obName);
-			Assert.assertTrue("orderBookName is same", Bytes.equals(orderBookName, orderBookName2));
-			byte[] dayGap = result.getValue(TEST_FAMILY, EXT_NUM_DAY);
-			byte[] dayGap2 = hbEncoder.encodeInt(day + DAY_GAP);
-			Assert.assertTrue("Day Gap is same", Bytes.equals(dayGap, dayGap2));
+			String orderBookName = hbEncoder.decodeString(result.getValue(TEST_FAMILY, Q_OB_NAME));
+			Assert.assertTrue("orderBookName is same", orderBookName.equals(ob2.obName));
+			int dayGap = hbEncoder.decodeInt(result.getValue(TEST_FAMILY, EXT_NUM_DAY));
+			Assert.assertTrue("Day Gap is same", dayGap == day + DAY_GAP);
 			
 			List<Pair<byte[], byte[]>> keys = new ArrayList<Pair<byte[], byte[]>>();
 			
