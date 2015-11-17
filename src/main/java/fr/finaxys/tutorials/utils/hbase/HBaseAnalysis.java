@@ -1,21 +1,10 @@
 package fr.finaxys.tutorials.utils.hbase;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.logging.Level;
-
+import fr.finaxys.tutorials.utils.AtomAnalysis;
+import fr.univlille1.atom.trace.OrderTrace;
+import fr.univlille1.atom.trace.TraceType;
 import org.apache.hadoop.hbase.TableName;
-import org.apache.hadoop.hbase.client.Connection;
-import org.apache.hadoop.hbase.client.ConnectionFactory;
-import org.apache.hadoop.hbase.client.Result;
-import org.apache.hadoop.hbase.client.ResultScanner;
-import org.apache.hadoop.hbase.client.Scan;
-import org.apache.hadoop.hbase.client.Table;
+import org.apache.hadoop.hbase.client.*;
 import org.apache.hadoop.hbase.filter.CompareFilter.CompareOp;
 import org.apache.hadoop.hbase.filter.Filter;
 import org.apache.hadoop.hbase.filter.FilterList;
@@ -23,9 +12,9 @@ import org.apache.hadoop.hbase.filter.LongComparator;
 import org.apache.hadoop.hbase.filter.SingleColumnValueFilter;
 import org.apache.hadoop.hbase.util.Bytes;
 
-import fr.finaxys.tutorials.utils.AtomAnalysis;
-import fr.univlille1.atom.trace.OrderTrace;
-import fr.univlille1.atom.trace.TraceType;
+import java.io.IOException;
+import java.util.*;
+import java.util.logging.Level;
 
 public class HBaseAnalysis extends AtomHBaseHelper implements AtomAnalysis {
 	
@@ -115,7 +104,7 @@ public class HBaseAnalysis extends AtomHBaseHelper implements AtomAnalysis {
 			for (Result r : results) {
 				String key = Bytes.toString(r.getRow());
 				Integer l = Bytes.toInt(r.getValue(Bytes.toBytes(AgentPosition.AP_RESULT_CF), Bytes.toBytes(AgentPosition.AP_RESULT_QUAL)));
-				ret.put(HBaseHelper.decodeStringRowKey(key), l);
+				ret.put(key, l);
 			}
 			table.close();
 			connection.close();

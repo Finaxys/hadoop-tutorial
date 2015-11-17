@@ -1,25 +1,17 @@
 package fr.finaxys.tutorials.utils.hbase;
 
-import java.io.IOException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.logging.Level;
-
+import fr.univlille1.atom.trace.TraceType;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.Scan;
+import org.apache.hadoop.hbase.filter.CompareFilter.CompareOp;
 import org.apache.hadoop.hbase.filter.Filter;
 import org.apache.hadoop.hbase.filter.FilterList;
 import org.apache.hadoop.hbase.filter.LongComparator;
 import org.apache.hadoop.hbase.filter.SingleColumnValueFilter;
-import org.apache.hadoop.hbase.filter.CompareFilter.CompareOp;
 import org.apache.hadoop.hbase.io.ImmutableBytesWritable;
 import org.apache.hadoop.hbase.mapreduce.TableMapReduceUtil;
 import org.apache.hadoop.hbase.mapreduce.TableMapper;
@@ -31,7 +23,15 @@ import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 
-import fr.univlille1.atom.trace.TraceType;
+import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.logging.Level;
+
 import static fr.finaxys.tutorials.utils.hbase.AtomHBaseHelper.*;
 
 public class AgentPosition extends Configured implements Tool {
@@ -72,6 +72,7 @@ public class AgentPosition extends Configured implements Tool {
 		protected void map(ImmutableBytesWritable rowkey, Result result,
 				Context context) throws IOException, InterruptedException {
 
+            HBaseDataTypeEncoder encoder = new HBaseDataTypeEncoder() ;
 			byte[] rowKey = result.getRow();
 			
 			TraceType type = lookupType(rowKey);
@@ -85,9 +86,9 @@ public class AgentPosition extends Configured implements Tool {
 					LOGGER.log(Level.WARNING, "Agent Name for row "+rowKey + " is null");
 					return;
 				}
-				int quantity = Bytes.toInt(q);
-				String agentName = Bytes.toString(a);
-				String orderBook = Bytes.toString(ob);
+				int quantity = encoder.decodeInt(q);
+				String agentName = encoder.decodeString(a);
+				String orderBook = encoder.decodeString(ob);
 				if (quantity == 0) {
 					LOGGER.log(Level.FINE, "Quantity = 0 for "+rowKey);
 					return;

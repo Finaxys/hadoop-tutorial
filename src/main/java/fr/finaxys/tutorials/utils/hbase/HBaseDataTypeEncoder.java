@@ -7,6 +7,7 @@ import org.apache.hadoop.hbase.types.RawDouble;
 import org.apache.hadoop.hbase.types.RawInteger;
 import org.apache.hadoop.hbase.types.RawLong;
 import org.apache.hadoop.hbase.types.RawStringTerminated;
+import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.hadoop.hbase.util.SimplePositionedMutableByteRange;
 
 import com.sun.istack.NotNull;
@@ -80,4 +81,39 @@ public class HBaseDataTypeEncoder
         dt.encode(sbpr, value);
         return sbpr.getBytes();
     }
+
+
+    @NotNull
+    public String decodeString(@NotNull byte[] value)
+    {
+        String stringValue = Bytes.toString(value) ;
+        return stringValue.substring(0,stringValue.length()-1) ;
+
+    }
+
+    @NotNull
+    public int decodeInt(@NotNull byte[] value)
+    {
+        return Bytes.toInt(value);
+    }
+
+    @NotNull
+    public boolean decodeBoolean(@NotNull byte[] value)
+    {
+        return Bytes.toBoolean(value);
+    }
+
+    @NotNull
+    public long decodeLong(@NotNull byte[] value)
+    {
+        return Bytes.toLong(value);
+    }
+
+    @NotNull
+    public Number decodeDouble( @NotNull byte[] value)
+    {
+        return Bytes.toDouble(value);
+
+    }
+
 }
