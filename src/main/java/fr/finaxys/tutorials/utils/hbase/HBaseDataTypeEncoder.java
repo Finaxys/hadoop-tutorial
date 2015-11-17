@@ -88,7 +88,6 @@ public class HBaseDataTypeEncoder
     public String decodeString(@NotNull byte[] value)
     {
         return decode(strDataType, value);
-
     }
 
     @NotNull
@@ -101,7 +100,6 @@ public class HBaseDataTypeEncoder
     public Boolean decodeBoolean(@NotNull byte[] value)
     {
         return decode(boolDataType, value) == 1;
-
     }
 
     @NotNull
@@ -114,7 +112,6 @@ public class HBaseDataTypeEncoder
     public Number decodeDouble( @NotNull byte[] value)
     {
         return decode(doubleDataType, value);
-
     }
 
     @NotNull
@@ -122,7 +119,6 @@ public class HBaseDataTypeEncoder
     {
         byte[] bytes =decode(charType, value);
          return (char)(((bytes[0]&0x00FF)<<8) + (bytes[1]&0x00FF)) ;
-
     }
 
 }
