@@ -23,14 +23,14 @@ public class AvroReader {
         conf.addResource(new Path("/tmp/configuration.xml"));
         conf.reloadConfiguration();
         //FileSystem fileSystem = FileSystem.get(conf);
-        Schema schema = new Schema.Parser().parse(new File("/home/finaxys/dev/hadoop-tutorial/avro/price.avsc"));
+        Schema schema = new Schema.Parser().parse(new File("/home/finaxys/dev/hadoop-tutorial/avro/exec.avsc"));
         DatumReader<GenericRecord> datumReader = new GenericDatumReader<GenericRecord>(schema);
-        SeekableInput file = new FsInput(new Path("/priceFile"),conf);
+        SeekableInput file = new FsInput(new Path("/execFile"),conf);
         DataFileReader<GenericRecord> dataFileReader = new DataFileReader<GenericRecord>(file, datumReader);
-        GenericRecord user = null;
+        GenericRecord exec = null;
         while (dataFileReader.hasNext()) {
-            user = dataFileReader.next(user);
-            System.out.println(user);
+            exec = dataFileReader.next(exec);   
+            System.out.println(exec);
         }
     }
 }
