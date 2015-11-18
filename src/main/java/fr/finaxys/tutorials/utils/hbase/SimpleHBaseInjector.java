@@ -1,24 +1,21 @@
 package fr.finaxys.tutorials.utils.hbase;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicLong;
-
+import com.sun.istack.NotNull;
+import fr.finaxys.tutorials.utils.AgentReferentialLine;
+import fr.finaxys.tutorials.utils.AtomConfiguration;
+import fr.finaxys.tutorials.utils.AtomDataInjector;
+import fr.finaxys.tutorials.utils.TimeStampBuilder;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Put;
-
 import v13.Day;
 import v13.Order;
 import v13.OrderBook;
 import v13.PriceRecord;
 import v13.agents.Agent;
 
-import com.sun.istack.NotNull;
-
-import fr.finaxys.tutorials.utils.AgentReferentialLine;
-import fr.finaxys.tutorials.utils.AtomConfiguration;
-import fr.finaxys.tutorials.utils.AtomDataInjector;
-import fr.finaxys.tutorials.utils.TimeStampBuilder;
+import java.util.Collection;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  *
@@ -160,4 +157,5 @@ public class SimpleHBaseInjector extends AtomHBaseHelper implements AtomDataInje
 	public void setTimeStampBuilder(TimeStampBuilder tsb) {
 		this.timeStampBuilder = tsb;
 	}
+
 }

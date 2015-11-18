@@ -1,38 +1,19 @@
 package fr.finaxys.tutorials.utils.hbase;
 
-import java.io.IOException;
-import java.util.concurrent.atomic.AtomicLong;
-import java.util.logging.Level;
-
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.hbase.HBaseConfiguration;
-import org.apache.hadoop.hbase.HColumnDescriptor;
-import org.apache.hadoop.hbase.HTableDescriptor;
-import org.apache.hadoop.hbase.MasterNotRunningException;
-import org.apache.hadoop.hbase.TableName;
-import org.apache.hadoop.hbase.ZooKeeperConnectionException;
-import org.apache.hadoop.hbase.client.Admin;
-import org.apache.hadoop.hbase.client.Connection;
-import org.apache.hadoop.hbase.client.ConnectionFactory;
-import org.apache.hadoop.hbase.client.Put;
-import org.apache.hadoop.hbase.client.Result;
-import org.apache.hadoop.hbase.client.ResultScanner;
-import org.apache.hadoop.hbase.client.Scan;
-import org.apache.hadoop.hbase.client.Table;
-import org.apache.hadoop.hbase.util.Bytes;
-
-import v13.Day;
-import v13.LimitOrder;
-import v13.Order;
-import v13.OrderBook;
-import v13.PriceRecord;
-import v13.agents.Agent;
-
 import com.sun.istack.NotNull;
-
 import fr.finaxys.tutorials.utils.AgentReferentialLine;
 import fr.finaxys.tutorials.utils.HadoopTutorialException;
 import fr.univlille1.atom.trace.TraceType;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.hbase.*;
+import org.apache.hadoop.hbase.client.*;
+import org.apache.hadoop.hbase.util.Bytes;
+import v13.*;
+import v13.agents.Agent;
+
+import java.io.IOException;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.logging.Level;
 
 abstract class AtomHBaseHelper {
 

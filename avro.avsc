@@ -1,47 +1,36 @@
-{"type" : "enum",
- "name" : "TraceType", "namespace": "fr.tutorials.utils.avro", "symbols" : [ "Day", "Agent" , "Order", "Price", "Tick", "Exec" 
- ]
-}
-
-{"type" : "enum",
- "name" : "OrderDirection", "namespace": "fr.tutorials.utils.avro", "symbols" : [ "A", "B" 
- ]
-}
-
-{"type" : "enum",
- "name" : "OrderNature", "namespace": "fr.tutorials.utils.avro", "symbols" : [ "L", "C", "I", "M", "U" 
- ]
-}
-
 {"namespace": "fr.tutorials.utils.avro",
  "type": "record",
  "name": "Order",
  "fields": [
-     {"name" : "type", "type": "TraceType"},
-     {"name" : "orderBook",  "type": "String"},
-     {"name" : "sender", "type": "String"},
-     {"name" : "identifier", "type": "String"},
-     {"name" : "nature", "type": "OrderNature"},
-     {"name" : "direction", "type": "OrderDirection"},
-     {"name" : "price", "type": "long"},
-     {"name" : "quantity", "type": "long"},
-     {"name" : "validity", "type": "int"}
+     {"name" : "Trace", "type": "string"},
+     {"name" : "ObName",  "type": "string"},
+     {"name" : "Sender", "type": "string"},
+     {"name" : "ExtId", "type": "string"},
+     {"name" : "Type", "type": "string"},
+     {"name" : "Id", "type": "long"},
+     {"name" : "Timestamp", "type": "long"},
+     {"name" : "Quantity", "type": "int"},
+     {"name" : "Direction", "type": "string"},
+     {"name" : "Price", "type": "long"},
+     {"name" : "Validity", "type": "long"}
  ]
 }
+
 
 {"namespace": "fr.tutorials.utils.avro",
  "type": "record",
  "name": "Price",
  "fields": [
-     {"name" : "type", "type": "TraceType"},
-     {"name" : "orderBook",  "type": "String"},
-     {"name" : "price", "type": "long"},
-     {"name" : "quantity", "type": "long"},
-     {"name" : "direction", "type": "OrderDirection"},
-     {"name" : "initiatingOrderIdentifier", "type": "String"},
-     {"name" : "fullfillingOrderIdentifier", "type": "String"},
-     {"name" : "currentBestAsk", "type": "long"},
-     {"name" : "currentBestBid", "type": "long"}
+     {"name" : "Trace", "type": "string"},
+     {"name" : "ObName",  "type": "string"},
+     {"name" : "Price", "type": "long"},
+     {"name" : "Executed", "type": "int"},
+     {"name" : "Direction", "type": "string"},
+     {"name" : "Order1", "type": "string"},
+     {"name" : "Order2", "type": "string"},
+     {"name" : "BestAsk", "type": "long"},
+     {"name" : "BestBid", "type": "long"},
+     {"name" : "Timestamp", "type": "long"}
  ]
 }
 
@@ -49,8 +38,10 @@
  "type": "record",
  "name": "Exec",
  "fields": [
-     {"name": "type", "type": "TraceType"},
-     {"name": "orderIdentifier",  "type": "String"}
+     {"name" : "Trace", "type": "string"},
+     {"name" : "Sender", "type": "string"},
+     {"name" : "ExtId", "type": "string"},
+     {"name" : "Timestamp", "type": "long"}
  ]
 }
 
@@ -58,12 +49,13 @@
  "type": "record",
  "name": "Tick",
  "fields": [
-     {"name" : "type", "type": "TraceType"},
-     {"name" : "number",  "type": "long"},
-     {"name" : "orderBook", "type": "String"},
-     {"name" : "bestAsk", "type": "long"},
-     {"name" : "bestBid", "type": "long"},
-     {"name" : "lastFixedPrice", "type": "long"},
+     {"name" : "Trace", "type": "string"},
+     {"name" : "NumTick",  "type": "int"},
+     {"name" : "NumDay", "type": "int"},
+     {"name" : "ObName",  "type": "string"},
+     {"name" : "Timestamp", "type": "long"},
+     {"name" : "BestAsk", "type": "long"},
+     {"name" : "LastFixedPrice", "type": "long"}
  ]
 }
 
@@ -71,14 +63,15 @@
  "type": "record",
  "name": "Day",
  "fields": [
-     {"name" : "type", "type": "TraceType"},
-     {"name" : "number",  "type": "long"},
-     {"name" : "assetName", "type": "String"},
-     {"name" : "lastFixedPrice1", "type": "long"},
-     {"name" : "lastFixedPrice2", "type": "long"},
-     {"name" : "lastFixedPrice3", "type": "long"},
-     {"name" : "lastFixedPrice4", "type": "long"},
-     {"name" : "fixedPriceCount", "type": "long"}
+     {"name" : "Trace", "type": "string"},
+     {"name" : "NumDay",  "type": "int"},
+     {"name" : "ObName",  "type": "string"},
+     {"name" : "FirstFixedPrice", "type": "long"},
+     {"name" : "LowestPrice", "type": "long"},
+     {"name" : "HighestPrice", "type": "long"},
+     {"name" : "LastFixedPrice", "type": "long"},
+     {"name" : "Timestamp", "type": "long"},
+     {"name" : "NbPricesFixed", "type": "long"}
  ]
 }
 
@@ -86,11 +79,26 @@
  "type": "record",
  "name": "Agent",
  "fields": [
-     {"name" : "type", "type": "TraceType"},
-     {"name" : "name",  "type": "String"},
-     {"name" : "cash", "type": "long"},
-     {"name" : "assetName", "type": "String"},
-     {"name" : "assetQuantity", "type": "long"},
-     {"name" : "currentPrice", "type": "long"}
+     {"name" : "Trace", "type": "string"},
+     {"name" : "AgentName",  "type": "string"},
+     {"name" : "ObName",  "type": "string"},
+     {"name" : "Cash", "type": "long"},
+     {"name" : "Executed", "type": "int"},
+     {"name" : "Price", "type": "long"},
+     {"name" : "Direction", "type": "string"},
+     {"name" : "Timestamp", "type": "long"},
+     {"name" : "OrderExtId", "type": "long"}
+ ]
+}
+
+{"namespace": "fr.tutorials.utils.avro",
+ "type": "record",
+ "name": "AgentReferential",
+ "fields": [
+     {"name" : "agentRefId", "type": "int"},
+     {"name" : "agentName",  "type": "string"},
+     {"name" : "isMarketMaker",  "type": "string"},
+     {"name" : "details",  "type": "string"},
+     {"name" : "Timestamp", "type": "long"}
  ]
 }
