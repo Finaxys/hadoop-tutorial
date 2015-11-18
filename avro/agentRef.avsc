@@ -1,0 +1,11 @@
+{"namespace": "fr.tutorials.utils.avro",
+ "type": "record",
+ "name": "AgentReferential",
+ "fields": [
+     {"name" : "agentRefId", "type": "int"},
+     {"name" : "agentName",  "type": "string"},
+     {"name" : "isMarketMaker",  "type": "string"},
+     {"name" : "details",  "type": "string"},
+     {"name" : "Timestamp", "type": "long"}
+ ]
+}

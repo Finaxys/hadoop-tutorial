@@ -1,0 +1,17 @@
+{"namespace": "fr.tutorials.utils.avro",
+ "type": "record",
+ "name": "Order",
+ "fields": [
+     {"name" : "Trace", "type": "string"},
+     {"name" : "ObName",  "type": "string"},
+     {"name" : "Sender", "type": "string"},
+     {"name" : "ExtId", "type": "string"},
+     {"name" : "Type", "type": "string"},
+     {"name" : "Id", "type": "long"},
+     {"name" : "Timestamp", "type": "long"},
+     {"name" : "Quantity", "type": "int"},
+     {"name" : "Direction", "type": "string"},
+     {"name" : "Price", "type": "long"},
+     {"name" : "Validity", "type": "long"}
+ ]
+}

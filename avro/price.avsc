@@ -1,0 +1,16 @@
+{"namespace": "fr.tutorials.utils.avro",
+ "type": "record",
+ "name": "Price",
+ "fields": [
+     {"name" : "Trace", "type": "string"},
+     {"name" : "ObName",  "type": "string"},
+     {"name" : "Price", "type": "long"},
+     {"name" : "Executed", "type": "int"},
+     {"name" : "Order1", "type": "string"},
+     {"name" : "Order2", "type": "string"},
+     {"name" : "BestAsk", "type": "long"},
+     {"name" : "BestBid", "type": "long"},
+     {"name" : "Dir", "type": "string"},
+     {"name" : "Timestamp", "type": "long"}
+ ]
+}

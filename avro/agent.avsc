@@ -1,0 +1,15 @@
+{"namespace": "fr.tutorials.utils.avro",
+ "type": "record",
+ "name": "Agent",
+ "fields": [
+     {"name" : "Trace", "type": "string"},
+     {"name" : "AgentName",  "type": "string"},
+     {"name" : "ObName",  "type": "string"},
+     {"name" : "Cash", "type": "long"},
+     {"name" : "Executed", "type": "int"},
+     {"name" : "Price", "type": "long"},
+     {"name" : "Direction", "type": "string"},
+     {"name" : "Timestamp", "type": "long"},
+     {"name" : "OrderExtId", "type": "string"}
+ ]
+}

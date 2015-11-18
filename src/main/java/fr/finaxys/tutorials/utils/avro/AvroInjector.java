@@ -10,6 +10,7 @@ import org.apache.avro.generic.GenericDatumWriter;
 import org.apache.avro.generic.GenericRecord;
 import org.apache.avro.io.DatumWriter;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import v13.*;
@@ -55,20 +56,10 @@ public class AvroInjector implements AtomDataInjector {
 
 	private final AtomConfiguration atomConf;
 	private Configuration conf;
-	private Schema schema;
-    private Schema orderSchema;
-    private Schema priceSchema;
-    private Schema execSchema;
-    private Schema tickSchema;
-    private Schema daySchema;
-    private Schema agentSchema;
-    private Schema agentRefSchema;
 	private FileSystem fileSystem;
 	private String destHDFS;
 	private Path pathDestHDFS;
 	private String pathAvroFile;
-    private File file ;
-	private DataFileWriter<GenericRecord> dataFileWriter;
     private DataFileWriter<GenericRecord> orderFileWriter;
     private DataFileWriter<GenericRecord> priceFileWriter;
     private DataFileWriter<GenericRecord> execFileWriter;
@@ -76,7 +67,6 @@ public class AvroInjector implements AtomDataInjector {
     private DataFileWriter<GenericRecord> dayFileWriter;
     private DataFileWriter<GenericRecord> agentFileWriter;
     private DataFileWriter<GenericRecord> agentRefFileWriter;
-	private GenericRecord genericRecord;
     private GenericRecord orderRecord;
     private GenericRecord priceRecord;
     private GenericRecord execRecord;
@@ -86,12 +76,13 @@ public class AvroInjector implements AtomDataInjector {
     private GenericRecord agentRefRecord;
 	private TimeStampBuilder tsb;
     private int dayGap;
+    private String pathSchema ;
 
 	public AvroInjector(@NotNull AtomConfiguration atomConf) throws Exception {
 		this.atomConf = atomConf;
 		this.destHDFS = atomConf.getDestHDFS();
 		this.pathAvroFile = atomConf.getPathAvro();
-		String pathSchema = atomConf.getAvroSchema();
+		
 		// boolean isAvro = atomConf.isOutAvro();
 		this.conf = new Configuration();
 		this.conf.addResource(new Path(atomConf.getHadoopConfCore()));
@@ -100,21 +91,14 @@ public class AvroInjector implements AtomDataInjector {
 				org.apache.hadoop.hdfs.DistributedFileSystem.class.getName());
 		this.conf.set("fs.file.impl",
 				org.apache.hadoop.fs.LocalFileSystem.class.getName());
-		this.schema = new Schema.Parser().parse(new File(pathSchema));
         this.dayGap = atomConf.getDayGap();
+        this.pathSchema = atomConf.getAvroSchema();
 	}
 
-	public void sendToHDFS(Path path) throws IOException {
-		try {
-			fileSystem = FileSystem.get(conf);
-			pathDestHDFS = new Path(destHDFS);
-			fileSystem.copyFromLocalFile(false, true, path, pathDestHDFS);
-            System.out.println(" ");
-		} catch (Exception e) {
-			LOGGER.severe("Exception : " + e);
-		} finally {
-			fileSystem.close();
-		}
+	public GenericRecord createRecord(DataFileWriter<GenericRecord> dataFileWriter , String destFileName ,Schema schema) throws IOException {
+        FSDataOutputStream file = fileSystem.create(new Path(atomConf.getDestHDFS()+destFileName));
+        dataFileWriter.create(schema, file);
+        return new GenericData.Record(schema);
 	}
 
 	// one schema for each agent ?
@@ -123,12 +107,43 @@ public class AvroInjector implements AtomDataInjector {
 	public void createOutput() {
 		try {
 			LOGGER.info("Create output ...");
-			DatumWriter<GenericRecord> datumWriter = new GenericDatumWriter<GenericRecord>(
-					schema);
-			this.dataFileWriter = new DataFileWriter<GenericRecord>(datumWriter);
-			this.file = new File(pathAvroFile);
-			this.dataFileWriter.create(schema, file);
-			this.genericRecord = new GenericData.Record(schema);
+            fileSystem = FileSystem.get(conf);
+            
+            Schema orderSchema = new Schema.Parser().parse(new File(pathSchema+"/order.avsc"));
+            DatumWriter<GenericRecord> orderDatumWriter = new GenericDatumWriter<GenericRecord>(orderSchema);
+            orderFileWriter = new DataFileWriter<GenericRecord>(orderDatumWriter);
+            orderRecord = createRecord(orderFileWriter,"orderFile",orderSchema);
+
+            Schema priceSchema = new Schema.Parser().parse(new File(pathSchema+"/price.avsc"));
+            DatumWriter<GenericRecord> priceDatumWriter = new GenericDatumWriter<GenericRecord>(priceSchema);
+            priceFileWriter = new DataFileWriter<GenericRecord>(priceDatumWriter);
+            priceRecord = createRecord(priceFileWriter,"priceFile",priceSchema);
+
+            Schema tickSchema = new Schema.Parser().parse(new File(pathSchema+"/tick.avsc"));
+            DatumWriter<GenericRecord> tickDatumWriter = new GenericDatumWriter<GenericRecord>(tickSchema);
+            tickFileWriter = new DataFileWriter<GenericRecord>(tickDatumWriter);
+            tickRecord = createRecord(tickFileWriter,"tickFile",tickSchema);
+
+            Schema daySchema = new Schema.Parser().parse(new File(pathSchema+"/day.avsc"));
+            DatumWriter<GenericRecord> dayDatumWriter = new GenericDatumWriter<GenericRecord>(daySchema);
+            dayFileWriter = new DataFileWriter<GenericRecord>(dayDatumWriter);
+            dayRecord = createRecord(dayFileWriter,"dayFile",daySchema);
+
+            Schema agentSchema = new Schema.Parser().parse(new File(pathSchema+"/agent.avsc"));
+            DatumWriter<GenericRecord> agentDatumWriter = new GenericDatumWriter<GenericRecord>(agentSchema);
+            agentFileWriter = new DataFileWriter<GenericRecord>(agentDatumWriter);
+            agentRecord = createRecord(agentFileWriter,"agentFile",agentSchema);
+
+            Schema execSchema = new Schema.Parser().parse(new File(pathSchema+"/exec.avsc"));
+            DatumWriter<GenericRecord> execDatumWriter = new GenericDatumWriter<GenericRecord>(execSchema);
+            execFileWriter = new DataFileWriter<GenericRecord>(execDatumWriter);
+            execRecord = createRecord(execFileWriter,"execFile",execSchema);
+
+            Schema agentRefSchema = new Schema.Parser().parse(new File(pathSchema+"/agentRef.avsc"));
+            DatumWriter<GenericRecord> agentRefDatumWriter = new GenericDatumWriter<GenericRecord>(agentRefSchema);
+            agentRefFileWriter = new DataFileWriter<GenericRecord>(agentRefDatumWriter);
+            agentRefRecord = createRecord(agentRefFileWriter,"agentRefFile",agentRefSchema);
+
 		} catch (IOException e) {
 			throw new HadoopTutorialException("Cannot create Avro output", e);
 		}
@@ -136,92 +151,92 @@ public class AvroInjector implements AtomDataInjector {
 
 	@Override
 	public void sendAgent(Agent a, Order o, PriceRecord pr) {
-/*		try {
-            //put data fields 
-            genericRecord.put(Q_TRACE_TYPE,TraceType.Agent.name());
-            genericRecord.put(Q_AGENT_NAME,a.name);
-            genericRecord.put( Q_OB_NAME, o.obName);
-            genericRecord.put( Q_CASH, a.cash);
-            genericRecord.put(Q_EXECUTED_QUANTITY,pr.quantity);
-            genericRecord.put(Q_PRICE,pr.price);
+		try {
+            //put agent fields 
+            agentRecord.put(Q_TRACE_TYPE,TraceType.Agent.name());
+            agentRecord.put(Q_AGENT_NAME,a.name);
+            agentRecord.put( Q_OB_NAME, o.obName);
+            agentRecord.put( Q_CASH, a.cash);
+            agentRecord.put(Q_EXECUTED_QUANTITY,pr.quantity);
+            agentRecord.put(Q_PRICE,pr.price);
             if (o.getClass().equals(LimitOrder.class)) {
-                genericRecord.put(Q_DIRECTION,((LimitOrder) o).direction);
-                genericRecord.put(Q_TIMESTAMP, pr.timestamp); // pr.timestamp
-                genericRecord.put(Q_EXT_ORDER_ID,o.extId);
+                agentRecord.put(Q_DIRECTION,((LimitOrder) o).direction+"");
+                agentRecord.put(Q_TIMESTAMP, pr.timestamp); // pr.timestamp
+                agentRecord.put(Q_EXT_ORDER_ID,o.extId);
             }
-            //append data
-			dataFileWriter.append(genericRecord);
+            //append agent
+			agentFileWriter.append(agentRecord);
 		} catch (IOException e) {
 			throw new HadoopTutorialException("Cannot create Avro output", e);
-		}*/
+		}
 	}
 
 	@Override
 	public void sendPriceRecord(PriceRecord pr, long bestAskPrice,
 			long bestBidPrice) {
-/*		try {
+		try {
             long ts = tsb.nextTimeStamp();
-            //put data fields 
-            genericRecord.put(Q_TRACE_TYPE, TraceType.Price.name());
-            genericRecord.put(Q_OB_NAME, pr.obName);
-            genericRecord.put(Q_PRICE, pr.price);
-            genericRecord.put(Q_EXECUTED_QUANTITY, pr.quantity);
-            genericRecord.put( Q_DIR,pr.dir);
-            genericRecord.put( Q_ORDER1,pr.extId1);
-            genericRecord.put( Q_ORDER2, pr.extId2);
-            genericRecord.put(Q_BEST_ASK, bestAskPrice);
-            genericRecord.put( Q_BEST_BID,bestBidPrice);
-            genericRecord.put( Q_TIMESTAMP,(pr.timestamp > 0 ? pr.timestamp : ts));
-            //append data 
-			dataFileWriter.append(genericRecord);
+            //put price fields 
+            priceRecord.put(Q_TRACE_TYPE, TraceType.Price.name());
+            priceRecord.put(Q_OB_NAME, pr.obName);
+            priceRecord.put(Q_PRICE, pr.price);
+            priceRecord.put(Q_EXECUTED_QUANTITY, pr.quantity);
+            priceRecord.put( Q_DIR,pr.dir+"");
+            priceRecord.put( Q_ORDER1,pr.extId1);
+            priceRecord.put( Q_ORDER2, pr.extId2);
+            priceRecord.put(Q_BEST_ASK, bestAskPrice);
+            priceRecord.put( Q_BEST_BID,bestBidPrice);
+            priceRecord.put( Q_TIMESTAMP,(pr.timestamp > 0 ? pr.timestamp : ts));
+            //append price 
+			priceFileWriter.append(priceRecord);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}*/
+		}
 	}
 
 	@Override
 	public void sendAgentReferential(List<AgentReferentialLine> referencial) {
 
-/*        for (AgentReferentialLine agent : referencial) {
+        for (AgentReferentialLine agent : referencial) {
             long ts = tsb.nextTimeStamp();
-            //put data fields
-            genericRecord.put("agentRefId",agent.agentRefId);
-            genericRecord.put("agentName",agent.agentName);
-            genericRecord.put("isMarketMaker", agent.isMarketMaker);
-            genericRecord.put("details",agent.details);
-            genericRecord.put(Q_TIMESTAMP, ts);
-            //append data
+            //put agent fields
+            agentRefRecord.put("agentRefId",agent.agentRefId);
+            agentRefRecord.put("agentName",agent.agentName);
+            agentRefRecord.put("isMarketMaker", agent.isMarketMaker);
+            agentRefRecord.put("details",agent.details);
+            agentRefRecord.put(Q_TIMESTAMP, ts);
+            //append agent
             try {
-                dataFileWriter.append(genericRecord);
+                agentRefFileWriter.append(agentRefRecord);
             } catch (IOException e) {
                 e.printStackTrace();
             }
 
-        }*/
+        }
 	}
 
 	@Override
 	public void sendOrder(Order o) {
 		try {
             //put data fields 
-            genericRecord.put( Q_TRACE_TYPE,TraceType.Order.name());
-            genericRecord.put( Q_OB_NAME,o.obName);
-            genericRecord.put( Q_SENDER,o.sender.name);
-            genericRecord.put( Q_EXT_ID, o.extId);
-            genericRecord.put( Q_TYPE, o.type+"");
-            genericRecord.put( Q_ID,o.id);
-            genericRecord.put( Q_TIMESTAMP,o.timestamp);
+            orderRecord.put( Q_TRACE_TYPE,TraceType.Order.name());
+            orderRecord.put( Q_OB_NAME,o.obName);
+            orderRecord.put( Q_SENDER,o.sender.name);
+            orderRecord.put( Q_EXT_ID, o.extId);
+            orderRecord.put( Q_TYPE, o.type+"");
+            orderRecord.put( Q_ID,o.id);
+            orderRecord.put( Q_TIMESTAMP,o.timestamp);
 
             if (o.getClass().equals(LimitOrder.class)) {
                 LimitOrder lo = (LimitOrder) o;
-                genericRecord.put( Q_QUANTITY,lo.quantity);
-                genericRecord.put( Q_DIRECTION,lo.direction+"");
-                genericRecord.put( Q_PRICE,lo.price);
-                genericRecord.put( Q_VALIDITY,lo.validity);
+                orderRecord.put( Q_QUANTITY,lo.quantity);
+                orderRecord.put( Q_DIRECTION,lo.direction+"");
+                orderRecord.put( Q_PRICE,lo.price);
+                orderRecord.put( Q_VALIDITY,lo.validity);
             }
             //append data
-			dataFileWriter.append(genericRecord);
+			orderFileWriter.append(orderRecord);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -230,86 +245,27 @@ public class AvroInjector implements AtomDataInjector {
 
 	@Override
 	public void sendTick(Day day, Collection<OrderBook> orderbooks) {
-/*		try {
+		try {
             long ts = tsb.nextTimeStamp();
             for (OrderBook ob : orderbooks) {
-                //put data fields
-                genericRecord.put( Q_TRACE_TYPE, TraceType.Tick.name());
-                genericRecord.put( Q_NUM_TICK,day.currentTick());
-                genericRecord.put( Q_NUM_DAY,day.number + dayGap);
-                genericRecord.put( Q_OB_NAME,ob.obName);
-                genericRecord.put( Q_TIMESTAMP,ts);
+                //put tick fields
+                tickRecord.put( Q_TRACE_TYPE, TraceType.Tick.name());
+                tickRecord.put( Q_NUM_TICK,day.currentTick());
+                tickRecord.put( Q_NUM_DAY,day.number + dayGap);
+                tickRecord.put( Q_OB_NAME,ob.obName);
+                tickRecord.put( Q_TIMESTAMP,ts);
                 if (!ob.ask.isEmpty()) {
-                    genericRecord.put(Q_BEST_ASK,ob.ask.last().price);
+                    tickRecord.put(Q_BEST_ASK,ob.ask.last().price);
                 }
                 if (!ob.bid.isEmpty()) {
-                    genericRecord.put(Q_BEST_BID,ob.bid.last().price);
+                    tickRecord.put(Q_BEST_BID,ob.bid.last().price);
                 }
                 if (ob.lastFixedPrice != null) {
-                    genericRecord.put(Q_LAST_FIXED_PRICE,ob.lastFixedPrice.price);
+                    tickRecord.put(Q_LAST_FIXED_PRICE,ob.lastFixedPrice.price);
                 }
-                //append data
-                dataFileWriter.append(genericRecord);
+                //append tick
+                tickFileWriter.append(tickRecord);
             }
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}*/
-	}
-
-	@Override
-	public void sendDay(int nbDays, Collection<OrderBook> orderbooks) {
-/*		try {
-            long ts = tsb.nextTimeStamp();
-            for (OrderBook ob : orderbooks) {
-                //put data fields
-                genericRecord.put(Q_TRACE_TYPE, TraceType.Day.name());
-                genericRecord.put(EXT_NUM_DAY, nbDays + dayGap);
-                genericRecord.put( Q_OB_NAME, ob.obName);
-                genericRecord.put(Q_FIRST_FIXED_PRICE, ob.firstPriceOfDay);
-                genericRecord.put(Q_LOWEST_PRICE, ob.lowestPriceOfDay);
-                genericRecord.put( Q_HIGHEST_PRICE, ob.highestPriceOfDay);
-                long price = 0;
-                if (ob.lastFixedPrice != null) {
-                    price = ob.lastFixedPrice.price;
-                }
-                genericRecord.put( Q_LAST_FIXED_PRICE, price);
-                genericRecord.put( Q_NB_PRICES_FIXED, ob.numberOfPricesFixed);
-                genericRecord.put( Q_TIMESTAMP, ts);
-                //append data
-				dataFileWriter.append(genericRecord);
-			}
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}*/
-	}
-
-	@Override
-	public void sendExec(Order o) {
-/*		try {
-            long ts = tsb.nextTimeStamp();
-            //put data type
-			genericRecord.put("type", "Exec");
-            //put data fields
-            genericRecord.put(Q_TRACE_TYPE, TraceType.Exec.name());
-            genericRecord.put(Q_SENDER,  o.sender.name);
-            genericRecord.put( Q_EXT_ID,o.extId);
-            genericRecord.put( Q_TIMESTAMP,ts);
-            //append data
-			dataFileWriter.append(genericRecord);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}*/
-	}
-
-	@Override
-	public void closeOutput() {
-		try {
-            dataFileWriter.close();
-			Path pathAvro = new Path(pathAvroFile);
-			sendToHDFS(pathAvro);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -317,6 +273,79 @@ public class AvroInjector implements AtomDataInjector {
 	}
 
 	@Override
+	public void sendDay(int nbDays, Collection<OrderBook> orderbooks) {
+		try {
+            long ts = tsb.nextTimeStamp();
+            for (OrderBook ob : orderbooks) {
+                //put day fields
+                dayRecord.put(Q_TRACE_TYPE, TraceType.Day.name());
+                dayRecord.put(EXT_NUM_DAY, nbDays + dayGap);
+                dayRecord.put( Q_OB_NAME, ob.obName);
+                dayRecord.put(Q_FIRST_FIXED_PRICE, ob.firstPriceOfDay);
+                dayRecord.put(Q_LOWEST_PRICE, ob.lowestPriceOfDay);
+                dayRecord.put( Q_HIGHEST_PRICE, ob.highestPriceOfDay);
+                long price = 0;
+                if (ob.lastFixedPrice != null) {
+                    price = ob.lastFixedPrice.price;
+                }
+                dayRecord.put( Q_LAST_FIXED_PRICE, price);
+                dayRecord.put( Q_NB_PRICES_FIXED, ob.numberOfPricesFixed);
+                dayRecord.put( Q_TIMESTAMP, ts);
+                //append day
+				dayFileWriter.append(dayRecord);
+			}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	@Override
+	public void sendExec(Order o) {
+		try {
+            long ts = tsb.nextTimeStamp();
+            //put exec fields
+            execRecord.put(Q_TRACE_TYPE, TraceType.Exec.name());
+            execRecord.put(Q_SENDER,  o.sender.name);
+            execRecord.put( Q_EXT_ID,o.extId);
+            execRecord.put( Q_TIMESTAMP,ts);
+            //append exec
+			execFileWriter.append(execRecord);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	@Override
+	public void closeOutput() {
+		try {
+            orderFileWriter.close();
+            priceFileWriter.close();
+            tickFileWriter.close();
+            dayFileWriter.close();
+            execFileWriter.close();
+            tickFileWriter.close();
+            agentFileWriter.close();
+            agentRefFileWriter.close();
+
+/*            // to verify
+            BufferedReader br=new BufferedReader(new InputStreamReader(fileSystem.open(new Path("/priceFile"))));
+            String line;
+            line=br.readLine();
+            while (line != null){
+                System.out.println(line);
+                line=br.readLine();
+            }*/
+
+                fileSystem.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+        @Override
 	public void setTimeStampBuilder(TimeStampBuilder tsb) {
 		this.tsb = tsb;
 	}

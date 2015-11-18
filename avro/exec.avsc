@@ -1,0 +1,10 @@
+{"namespace": "fr.tutorials.utils.avro",
+ "type": "record",
+ "name": "Exec",
+ "fields": [
+     {"name" : "Trace", "type": "string"},
+     {"name" : "Sender", "type": "string"},
+     {"name" : "ExtId", "type": "string"},
+     {"name" : "Timestamp", "type": "long"}
+ ]
+}

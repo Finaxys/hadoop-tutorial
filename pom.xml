@@ -179,6 +179,11 @@
         <artifactId>junit-dataprovider</artifactId>
         <version>1.10.2</version>
         <scope>test</scope>
-</dependency>
+      </dependency>
+      <dependency>
+          <groupId>org.apache.avro</groupId>
+          <artifactId>avro-mapred</artifactId>
+          <version>1.7.7</version>
+      </dependency>
   </dependencies>
 </project>
