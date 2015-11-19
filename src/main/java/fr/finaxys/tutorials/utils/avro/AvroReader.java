@@ -4,10 +4,10 @@ import fr.finaxys.tutorials.utils.AtomConfiguration;
 import org.apache.avro.Schema;
 import org.apache.avro.file.DataFileReader;
 import org.apache.avro.file.SeekableInput;
-import org.apache.avro.generic.GenericDatumReader;
-import org.apache.avro.generic.GenericRecord;
 import org.apache.avro.io.DatumReader;
 import org.apache.avro.mapred.FsInput;
+import org.apache.avro.specific.SpecificDatumReader;
+import org.apache.avro.specific.SpecificRecordBase;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -45,14 +45,14 @@ public class AvroReader {
         this.avroExt = atomConf.getExtAvro() ;
     }
 
-    public List<GenericRecord> scanRecords(String type) {
+    public <T extends SpecificRecordBase> List<T> scanRecords(String type) {
         try {
-            List<GenericRecord> result = new ArrayList<GenericRecord>();
+            List<T> result = new ArrayList<T>();
             Schema schema = new Schema.Parser().parse(new File(pathSchema + "/" + type + "." + avroExt));
-            DatumReader<GenericRecord> datumReader = new GenericDatumReader<GenericRecord>(schema);
+            DatumReader<T> datumReader = new SpecificDatumReader<>(schema);
             SeekableInput file = new FsInput(new Path(destHDFS+type+"File"), conf);
-            DataFileReader<GenericRecord> dataFileReader = new DataFileReader<GenericRecord>(file, datumReader);
-            GenericRecord exec = null;
+            DataFileReader<T> dataFileReader = new DataFileReader<T>(file, datumReader);
+            T exec = null;
             while (dataFileReader.hasNext()) {
                 result.add(dataFileReader.next(exec));
             }

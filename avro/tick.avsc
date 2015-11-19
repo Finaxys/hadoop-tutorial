@@ -1,4 +1,4 @@
-{"namespace": "fr.tutorials.utils.avro",
+{"namespace": "fr.finaxys.tutorials.utils.avro.models",
  "type": "record",
  "name": "Tick",
  "fields": [

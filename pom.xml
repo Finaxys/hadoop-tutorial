@@ -185,5 +185,10 @@
           <artifactId>avro-mapred</artifactId>
           <version>1.7.7</version>
       </dependency>
+      <dependency>
+          <groupId>org.apache.avro</groupId>
+          <artifactId>avro-tools</artifactId>
+          <version>1.7.7</version>
+      </dependency>
   </dependencies>
 </project>
