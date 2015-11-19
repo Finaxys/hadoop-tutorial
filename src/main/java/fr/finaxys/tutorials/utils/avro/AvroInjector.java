@@ -60,6 +60,7 @@ public class AvroInjector implements AtomDataInjector {
 	private Configuration conf;
 	private FileSystem fileSystem;
 	private String destHDFS;
+    private String avroExt ;
     private GenericRecord orderRecord;
     private GenericRecord priceRecord;
     private GenericRecord execRecord;
@@ -86,16 +87,17 @@ public class AvroInjector implements AtomDataInjector {
 				org.apache.hadoop.fs.LocalFileSystem.class.getName());
         this.dayGap = atomConf.getDayGap();
         this.pathSchema = atomConf.getAvroSchema();
+        this.avroExt = atomConf.getExtAvro() ;
         this.fileWriters = new HashMap<String,DataFileWriter<GenericRecord>>() ;
 	}
 
-	public GenericRecord createRecord(String schemaPath,String hdfsDest,String key) throws IOException {
-        Schema schema = new Schema.Parser().parse(new File(schemaPath));
+	public GenericRecord createRecord(String type) throws IOException {
+        Schema schema = new Schema.Parser().parse(new File(pathSchema+"/"+type+"."+avroExt));
         DatumWriter<GenericRecord> orderDatumWriter = new GenericDatumWriter<GenericRecord>(schema);
         DataFileWriter<GenericRecord> dataFileWriter = new DataFileWriter<GenericRecord>(orderDatumWriter);
-        FSDataOutputStream file = fileSystem.create(new Path(hdfsDest));
+        FSDataOutputStream file = fileSystem.create(new Path(destHDFS+type+"File"));
         dataFileWriter.create(schema, file);
-        fileWriters.put(key, dataFileWriter);
+        fileWriters.put(type, dataFileWriter);
         return new GenericData.Record(schema);
 	}
 
@@ -106,14 +108,14 @@ public class AvroInjector implements AtomDataInjector {
 		try {
 			LOGGER.info("Create output ...");
             fileSystem = FileSystem.get(conf);
-
-            orderRecord = createRecord(pathSchema+"/order.avsc",destHDFS+"orderFile","order");
-            priceRecord = createRecord(pathSchema+"/price.avsc",destHDFS+"priceFile","price");
-            tickRecord = createRecord(pathSchema+"/tick.avsc",destHDFS+"tickFile","tick");
-            dayRecord = createRecord(pathSchema+"/day.avsc",destHDFS+"dayFile","day");
-            agentRecord = createRecord(pathSchema+"/agent.avsc",destHDFS+"agentFile","agent");
-            execRecord = createRecord(pathSchema+"/exec.avsc",destHDFS+"execFile","exec");
-            agentRefRecord = createRecord(pathSchema+"/agentRef.avsc",destHDFS+"agentRefFile","agentRef");
+            //construct dataRecords
+            orderRecord = createRecord("order");
+            priceRecord = createRecord("price");
+            tickRecord = createRecord("tick");
+            dayRecord = createRecord("day");
+            agentRecord = createRecord("agent");
+            execRecord = createRecord("exec");
+            agentRefRecord = createRecord("agentRef");
 
 		} catch (IOException e) {
 			throw new HadoopTutorialException("Cannot create Avro output", e);
@@ -291,18 +293,10 @@ public class AvroInjector implements AtomDataInjector {
 	@Override
 	public void closeOutput() {
 		try {
+            // destruct dataFileWriters
             for(Map.Entry<String, DataFileWriter<GenericRecord>> entry  : this.fileWriters.entrySet()){
                 entry.getValue().close();
             }
-/*            // to verify
-            BufferedReader br=new BufferedReader(new InputStreamReader(fileSystem.open(new Path("/priceFile"))));
-            String line;
-            line=br.readLine();
-            while (line != null){
-                System.out.println(line);
-                line=br.readLine();
-            }*/
-
                 fileSystem.close();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block

@@ -30,6 +30,7 @@ symbols.orderbooks.test2=AAPL,GOOG
 symbols.agents.basic=Paul,Anna,Nicolas,Gabriel,Pauline,Beatrice,Frank,Laurie,Adele,Alain
 symbols.agents.test2=Paul,Anna
 avro.schema=/home/finaxys/dev/hadoop-tutorial/avro
+avro.ext=avsc
 dest.hdfs=/
 hbase.table=trace
 hbase.cf=cf

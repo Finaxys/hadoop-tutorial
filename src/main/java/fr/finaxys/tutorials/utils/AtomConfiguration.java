@@ -4,12 +4,8 @@ import org.apache.hadoop.hbase.util.Bytes;
 
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 import java.util.logging.Level;
@@ -62,6 +58,7 @@ public class AtomConfiguration {
 	private String avroSchema;
 	private String destHDFS;
 	private String pathAvro;
+    private String extAvro;
 
 	private String hadoopConfCore;
 	private String hbaseConfHbase;
@@ -159,7 +156,7 @@ public class AtomConfiguration {
 			this.outAvro = System.getProperty("simul.output.avro", "true")
 					.equals("true");
 			this.avroSchema = System.getProperty("avro.schema");
-
+            this.extAvro = System.getProperty("avro.ext") ;
 			this.startTime = System.currentTimeMillis();
 			this.worker = Integer.parseInt(System.getProperty("simul.worker",
 					"10"));
@@ -403,5 +400,12 @@ public class AtomConfiguration {
 	public int getNbOrderBooks() {
 		return nbOrderBooks;
 	}
-	
+
+    public String getExtAvro() {
+        return extAvro;
+    }
+
+    public void setExtAvro(String extAvro) {
+        this.extAvro = extAvro;
+    }
 }
