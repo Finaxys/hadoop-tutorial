@@ -50,7 +50,7 @@ public class AvroReader {
             List<GenericRecord> result = new ArrayList<GenericRecord>();
             Schema schema = new Schema.Parser().parse(new File(pathSchema + "/" + type + "." + avroExt));
             DatumReader<GenericRecord> datumReader = new GenericDatumReader<GenericRecord>(schema);
-            SeekableInput file = new FsInput(new Path("/orderFile"), conf);
+            SeekableInput file = new FsInput(new Path(destHDFS+type+"File"), conf);
             DataFileReader<GenericRecord> dataFileReader = new DataFileReader<GenericRecord>(file, datumReader);
             GenericRecord exec = null;
             while (dataFileReader.hasNext()) {
