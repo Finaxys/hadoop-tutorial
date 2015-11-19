@@ -80,8 +80,6 @@ public class AvroInjector implements AtomDataInjector {
 	public AvroInjector(@NotNull AtomConfiguration atomConf) throws Exception {
 		this.atomConf = atomConf;
 		this.destHDFS = atomConf.getDestHDFS();
-		
-		// boolean isAvro = atomConf.isOutAvro();
 		this.conf = new Configuration();
 		this.conf.addResource(new Path(atomConf.getHadoopConfCore()));
 		this.conf.addResource(new Path(atomConf.getHadoopConfHdfs()));
@@ -95,7 +93,18 @@ public class AvroInjector implements AtomDataInjector {
         this.fileWriters = new HashMap<String,DataFileWriter<GenericRecord>>() ;
 	}
 
-	public GenericRecord createRecord(String type) throws IOException {
+    public AvroInjector(@NotNull AtomConfiguration atomConf,Configuration conf) throws Exception {
+        this.atomConf = atomConf;
+        this.destHDFS = atomConf.getDestHDFS();
+        this.conf = conf;
+        this.dayGap = atomConf.getDayGap();
+        this.pathSchema = atomConf.getAvroSchema();
+        this.avroExt = atomConf.getExtAvro() ;
+        this.fileWriters = new HashMap<String,DataFileWriter<GenericRecord>>() ;
+    }
+
+
+    public GenericRecord createRecord(String type) throws IOException {
         Schema schema = new Schema.Parser().parse(new File(pathSchema+"/"+type+"."+avroExt));
         DatumWriter<GenericRecord> orderDatumWriter = new GenericDatumWriter<GenericRecord>(schema);
         DataFileWriter<GenericRecord> dataFileWriter = new DataFileWriter<GenericRecord>(orderDatumWriter);
@@ -234,12 +243,15 @@ public class AvroInjector implements AtomDataInjector {
                 if (!ob.ask.isEmpty()) {
                     tickRecord.put(Q_BEST_ASK,ob.ask.last().price);
                 }
+                else tickRecord.put(Q_BEST_ASK,0l);
                 if (!ob.bid.isEmpty()) {
                     tickRecord.put(Q_BEST_BID,ob.bid.last().price);
                 }
+                else  tickRecord.put(Q_BEST_BID,0l);
                 if (ob.lastFixedPrice != null) {
                     tickRecord.put(Q_LAST_FIXED_PRICE,ob.lastFixedPrice.price);
                 }
+                else tickRecord.put(Q_LAST_FIXED_PRICE,0l);
                 //append tick
                 fileWriters.get("tick").append(tickRecord);
             }
@@ -317,4 +329,12 @@ public class AvroInjector implements AtomDataInjector {
 	public TimeStampBuilder getTimeStampBuilder() {
 		return tsb;
 	}
+
+    public int getDayGap() {
+        return dayGap;
+    }
+
+    public void setDayGap(int dayGap) {
+        this.dayGap = dayGap;
+    }
 }

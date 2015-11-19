@@ -9,7 +9,6 @@ import org.apache.avro.mapred.FsInput;
 import org.apache.avro.specific.SpecificDatumReader;
 import org.apache.avro.specific.SpecificRecordBase;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 
 import java.io.File;
@@ -24,7 +23,6 @@ public class AvroReader {
 
     private final AtomConfiguration atomConf;
     private Configuration conf;
-    private FileSystem fileSystem;
     private String destHDFS;
     private String avroExt ;
     private String pathSchema ;
@@ -45,6 +43,15 @@ public class AvroReader {
         this.avroExt = atomConf.getExtAvro() ;
     }
 
+    public AvroReader(AtomConfiguration atomConf,Configuration conf) {
+        this.atomConf = atomConf;
+        this.destHDFS = atomConf.getDestHDFS();
+        this.conf = conf ;
+        this.pathSchema = atomConf.getAvroSchema();
+        this.avroExt = atomConf.getExtAvro() ;
+    }
+
+
     public <T extends SpecificRecordBase> List<T> scanRecords(String type) {
         try {
             List<T> result = new ArrayList<T>();
@@ -56,6 +63,8 @@ public class AvroReader {
             while (dataFileReader.hasNext()) {
                 result.add(dataFileReader.next(exec));
             }
+            file.close();
+            dataFileReader.close();
             return result;
         } catch (IOException e) {
             e.printStackTrace();
