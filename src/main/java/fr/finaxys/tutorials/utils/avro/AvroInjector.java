@@ -55,12 +55,16 @@ public class AvroInjector implements AtomDataInjector {
     public static final String Q_EXECUTED_QUANTITY ="Executed";
     public static final String Q_CASH ="Cash";
     public static final String Q_AGENT_NAME ="AgentName";
+    public static final String Q_AGENT_REF_ID ="AgentRefId";
+    public static final String Q_IS_MARKET_MAKER ="IsMarketMaker";
+    public static final String Q_DETAILS ="Details";
 
 	private final AtomConfiguration atomConf;
 	private Configuration conf;
 	private FileSystem fileSystem;
 	private String destHDFS;
     private String avroExt ;
+    private String pathSchema ;
     private GenericRecord orderRecord;
     private GenericRecord priceRecord;
     private GenericRecord execRecord;
@@ -70,7 +74,7 @@ public class AvroInjector implements AtomDataInjector {
     private GenericRecord agentRefRecord;
 	private TimeStampBuilder tsb;
     private int dayGap;
-    private String pathSchema ;
+
     private Map<String,DataFileWriter<GenericRecord>> fileWriters ;
 
 	public AvroInjector(@NotNull AtomConfiguration atomConf) throws Exception {
@@ -174,10 +178,10 @@ public class AvroInjector implements AtomDataInjector {
         for (AgentReferentialLine agent : referencial) {
             long ts = tsb.nextTimeStamp();
             //put agent fields
-            agentRefRecord.put("agentRefId",agent.agentRefId);
-            agentRefRecord.put("agentName",agent.agentName);
-            agentRefRecord.put("isMarketMaker", agent.isMarketMaker);
-            agentRefRecord.put("details",agent.details);
+            agentRefRecord.put(Q_AGENT_REF_ID,agent.agentRefId);
+            agentRefRecord.put(Q_AGENT_NAME,agent.agentName);
+            agentRefRecord.put(Q_IS_MARKET_MAKER, agent.isMarketMaker);
+            agentRefRecord.put(Q_DETAILS,agent.details);
             agentRefRecord.put(Q_TIMESTAMP, ts);
             //append agent
             try {

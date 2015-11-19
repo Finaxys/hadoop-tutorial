@@ -2,10 +2,10 @@
  "type": "record",
  "name": "AgentReferential",
  "fields": [
-     {"name" : "agentRefId", "type": "int"},
-     {"name" : "agentName",  "type": "string"},
-     {"name" : "isMarketMaker",  "type": "string"},
-     {"name" : "details",  "type": "string"},
+     {"name" : "AgentRefId", "type": "int"},
+     {"name" : "AgentName",  "type": "string"},
+     {"name" : "IsMarketMaker",  "type": "string"},
+     {"name" : "Details",  "type": "string"},
      {"name" : "Timestamp", "type": "long"}
  ]
 }
