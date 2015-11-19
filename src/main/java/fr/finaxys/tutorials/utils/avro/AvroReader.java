@@ -29,7 +29,7 @@ public class AvroReader {
         DataFileReader<GenericRecord> dataFileReader = new DataFileReader<GenericRecord>(file, datumReader);
         GenericRecord exec = null;
         while (dataFileReader.hasNext()) {
-            exec = dataFileReader.next(exec);   
+            exec = dataFileReader.next(exec);
             System.out.println(exec);
         }
     }

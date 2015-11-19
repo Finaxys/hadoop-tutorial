@@ -19,7 +19,9 @@ import v13.agents.Agent;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class AvroInjector implements AtomDataInjector {
 	private static final java.util.logging.Logger LOGGER = java.util.logging.Logger
@@ -58,15 +60,6 @@ public class AvroInjector implements AtomDataInjector {
 	private Configuration conf;
 	private FileSystem fileSystem;
 	private String destHDFS;
-	private Path pathDestHDFS;
-	private String pathAvroFile;
-    private DataFileWriter<GenericRecord> orderFileWriter;
-    private DataFileWriter<GenericRecord> priceFileWriter;
-    private DataFileWriter<GenericRecord> execFileWriter;
-    private DataFileWriter<GenericRecord> tickFileWriter;
-    private DataFileWriter<GenericRecord> dayFileWriter;
-    private DataFileWriter<GenericRecord> agentFileWriter;
-    private DataFileWriter<GenericRecord> agentRefFileWriter;
     private GenericRecord orderRecord;
     private GenericRecord priceRecord;
     private GenericRecord execRecord;
@@ -77,11 +70,11 @@ public class AvroInjector implements AtomDataInjector {
 	private TimeStampBuilder tsb;
     private int dayGap;
     private String pathSchema ;
+    private Map<String,DataFileWriter<GenericRecord>> fileWriters ;
 
 	public AvroInjector(@NotNull AtomConfiguration atomConf) throws Exception {
 		this.atomConf = atomConf;
 		this.destHDFS = atomConf.getDestHDFS();
-		this.pathAvroFile = atomConf.getPathAvro();
 		
 		// boolean isAvro = atomConf.isOutAvro();
 		this.conf = new Configuration();
@@ -93,11 +86,16 @@ public class AvroInjector implements AtomDataInjector {
 				org.apache.hadoop.fs.LocalFileSystem.class.getName());
         this.dayGap = atomConf.getDayGap();
         this.pathSchema = atomConf.getAvroSchema();
+        this.fileWriters = new HashMap<String,DataFileWriter<GenericRecord>>() ;
 	}
 
-	public GenericRecord createRecord(DataFileWriter<GenericRecord> dataFileWriter , String destFileName ,Schema schema) throws IOException {
-        FSDataOutputStream file = fileSystem.create(new Path(atomConf.getDestHDFS()+destFileName));
+	public GenericRecord createRecord(String schemaPath,String hdfsDest,String key) throws IOException {
+        Schema schema = new Schema.Parser().parse(new File(schemaPath));
+        DatumWriter<GenericRecord> orderDatumWriter = new GenericDatumWriter<GenericRecord>(schema);
+        DataFileWriter<GenericRecord> dataFileWriter = new DataFileWriter<GenericRecord>(orderDatumWriter);
+        FSDataOutputStream file = fileSystem.create(new Path(hdfsDest));
         dataFileWriter.create(schema, file);
+        fileWriters.put(key, dataFileWriter);
         return new GenericData.Record(schema);
 	}
 
@@ -108,41 +106,14 @@ public class AvroInjector implements AtomDataInjector {
 		try {
 			LOGGER.info("Create output ...");
             fileSystem = FileSystem.get(conf);
-            
-            Schema orderSchema = new Schema.Parser().parse(new File(pathSchema+"/order.avsc"));
-            DatumWriter<GenericRecord> orderDatumWriter = new GenericDatumWriter<GenericRecord>(orderSchema);
-            orderFileWriter = new DataFileWriter<GenericRecord>(orderDatumWriter);
-            orderRecord = createRecord(orderFileWriter,"orderFile",orderSchema);
 
-            Schema priceSchema = new Schema.Parser().parse(new File(pathSchema+"/price.avsc"));
-            DatumWriter<GenericRecord> priceDatumWriter = new GenericDatumWriter<GenericRecord>(priceSchema);
-            priceFileWriter = new DataFileWriter<GenericRecord>(priceDatumWriter);
-            priceRecord = createRecord(priceFileWriter,"priceFile",priceSchema);
-
-            Schema tickSchema = new Schema.Parser().parse(new File(pathSchema+"/tick.avsc"));
-            DatumWriter<GenericRecord> tickDatumWriter = new GenericDatumWriter<GenericRecord>(tickSchema);
-            tickFileWriter = new DataFileWriter<GenericRecord>(tickDatumWriter);
-            tickRecord = createRecord(tickFileWriter,"tickFile",tickSchema);
-
-            Schema daySchema = new Schema.Parser().parse(new File(pathSchema+"/day.avsc"));
-            DatumWriter<GenericRecord> dayDatumWriter = new GenericDatumWriter<GenericRecord>(daySchema);
-            dayFileWriter = new DataFileWriter<GenericRecord>(dayDatumWriter);
-            dayRecord = createRecord(dayFileWriter,"dayFile",daySchema);
-
-            Schema agentSchema = new Schema.Parser().parse(new File(pathSchema+"/agent.avsc"));
-            DatumWriter<GenericRecord> agentDatumWriter = new GenericDatumWriter<GenericRecord>(agentSchema);
-            agentFileWriter = new DataFileWriter<GenericRecord>(agentDatumWriter);
-            agentRecord = createRecord(agentFileWriter,"agentFile",agentSchema);
-
-            Schema execSchema = new Schema.Parser().parse(new File(pathSchema+"/exec.avsc"));
-            DatumWriter<GenericRecord> execDatumWriter = new GenericDatumWriter<GenericRecord>(execSchema);
-            execFileWriter = new DataFileWriter<GenericRecord>(execDatumWriter);
-            execRecord = createRecord(execFileWriter,"execFile",execSchema);
-
-            Schema agentRefSchema = new Schema.Parser().parse(new File(pathSchema+"/agentRef.avsc"));
-            DatumWriter<GenericRecord> agentRefDatumWriter = new GenericDatumWriter<GenericRecord>(agentRefSchema);
-            agentRefFileWriter = new DataFileWriter<GenericRecord>(agentRefDatumWriter);
-            agentRefRecord = createRecord(agentRefFileWriter,"agentRefFile",agentRefSchema);
+            orderRecord = createRecord(pathSchema+"/order.avsc",destHDFS+"orderFile","order");
+            priceRecord = createRecord(pathSchema+"/price.avsc",destHDFS+"priceFile","price");
+            tickRecord = createRecord(pathSchema+"/tick.avsc",destHDFS+"tickFile","tick");
+            dayRecord = createRecord(pathSchema+"/day.avsc",destHDFS+"dayFile","day");
+            agentRecord = createRecord(pathSchema+"/agent.avsc",destHDFS+"agentFile","agent");
+            execRecord = createRecord(pathSchema+"/exec.avsc",destHDFS+"execFile","exec");
+            agentRefRecord = createRecord(pathSchema+"/agentRef.avsc",destHDFS+"agentRefFile","agentRef");
 
 		} catch (IOException e) {
 			throw new HadoopTutorialException("Cannot create Avro output", e);
@@ -165,7 +136,7 @@ public class AvroInjector implements AtomDataInjector {
                 agentRecord.put(Q_EXT_ORDER_ID,o.extId);
             }
             //append agent
-			agentFileWriter.append(agentRecord);
+			fileWriters.get("agent").append(agentRecord);
 		} catch (IOException e) {
 			throw new HadoopTutorialException("Cannot create Avro output", e);
 		}
@@ -188,7 +159,7 @@ public class AvroInjector implements AtomDataInjector {
             priceRecord.put( Q_BEST_BID,bestBidPrice);
             priceRecord.put( Q_TIMESTAMP,(pr.timestamp > 0 ? pr.timestamp : ts));
             //append price 
-			priceFileWriter.append(priceRecord);
+            fileWriters.get("price").append(priceRecord);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -208,7 +179,7 @@ public class AvroInjector implements AtomDataInjector {
             agentRefRecord.put(Q_TIMESTAMP, ts);
             //append agent
             try {
-                agentRefFileWriter.append(agentRefRecord);
+                fileWriters.get("agentRef").append(agentRefRecord);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -236,7 +207,7 @@ public class AvroInjector implements AtomDataInjector {
                 orderRecord.put( Q_VALIDITY,lo.validity);
             }
             //append data
-			orderFileWriter.append(orderRecord);
+            fileWriters.get("order").append(orderRecord);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -264,7 +235,7 @@ public class AvroInjector implements AtomDataInjector {
                     tickRecord.put(Q_LAST_FIXED_PRICE,ob.lastFixedPrice.price);
                 }
                 //append tick
-                tickFileWriter.append(tickRecord);
+                fileWriters.get("tick").append(tickRecord);
             }
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -292,7 +263,7 @@ public class AvroInjector implements AtomDataInjector {
                 dayRecord.put( Q_NB_PRICES_FIXED, ob.numberOfPricesFixed);
                 dayRecord.put( Q_TIMESTAMP, ts);
                 //append day
-				dayFileWriter.append(dayRecord);
+                fileWriters.get("day").append(dayRecord);
 			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -310,7 +281,7 @@ public class AvroInjector implements AtomDataInjector {
             execRecord.put( Q_EXT_ID,o.extId);
             execRecord.put( Q_TIMESTAMP,ts);
             //append exec
-			execFileWriter.append(execRecord);
+            fileWriters.get("exec").append(execRecord);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -320,15 +291,9 @@ public class AvroInjector implements AtomDataInjector {
 	@Override
 	public void closeOutput() {
 		try {
-            orderFileWriter.close();
-            priceFileWriter.close();
-            tickFileWriter.close();
-            dayFileWriter.close();
-            execFileWriter.close();
-            tickFileWriter.close();
-            agentFileWriter.close();
-            agentRefFileWriter.close();
-
+            for(Map.Entry<String, DataFileWriter<GenericRecord>> entry  : this.fileWriters.entrySet()){
+                entry.getValue().close();
+            }
 /*            // to verify
             BufferedReader br=new BufferedReader(new InputStreamReader(fileSystem.open(new Path("/priceFile"))));
             String line;
