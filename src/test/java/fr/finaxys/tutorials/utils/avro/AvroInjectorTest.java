@@ -163,7 +163,7 @@ public class AvroInjectorTest {
             int dayGap = avroDay.getNumDay();
             Assert.assertTrue("Day Gap is same", dayGap == day + DAY_GAP);
     }
-    
+
     @Test
     public void testSendExec() {
         // Order o
