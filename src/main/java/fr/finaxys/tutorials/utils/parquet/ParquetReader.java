@@ -37,7 +37,6 @@ public class ParquetReader extends Configured implements Tool {
         @Override
         public void map(LongWritable key, Group value, Context context) throws IOException, InterruptedException {
             NullWritable outKey = NullWritable.get();
-            //System.out.println(new Text(value.toString()));
             context.write(outKey, new Text(value.toString()));
         }
     }

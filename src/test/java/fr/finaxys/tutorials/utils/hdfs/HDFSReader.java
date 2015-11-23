@@ -2,6 +2,7 @@ package fr.finaxys.tutorials.utils.hdfs;
 
 import fr.finaxys.tutorials.utils.AtomConfiguration;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 
@@ -18,7 +19,7 @@ public class HDFSReader {
     private Configuration conf ;
     private FileSystem fs ;
 
-    public void HDFSReader(AtomConfiguration atomConf){
+    public HDFSReader(AtomConfiguration atomConf){
         this.conf = new Configuration();
         this.conf.addResource(new Path(atomConf.getHadoopConfHdfs()));
         this.conf.reloadConfiguration();
@@ -31,16 +32,25 @@ public class HDFSReader {
     }
 
     public  void showHDFSFile (String filePath) throws Exception{
-        try{
-            Path pt=new Path(filePath);
-            BufferedReader br=new BufferedReader(new InputStreamReader(fs.open(pt)));
-            String line;
+        Path pt=new Path(filePath);
+        BufferedReader br=new BufferedReader(new InputStreamReader(fs.open(pt)));
+        String line;
+        line=br.readLine();
+        while (line != null){
+            System.out.println(line);
             line=br.readLine();
-            while (line != null){
-                System.out.println(line);
-                line=br.readLine();
-            }
-        }catch(Exception e){
         }
+        br.close();
+    }
+
+    public void lsDirectory(String dirPath) throws IOException {
+        FileStatus[] fst = fs.listStatus(new Path(dirPath)) ;
+        for(FileStatus f : fst){
+            System.out.println(f.toString());
+        }
+    }
+
+    public void close() throws IOException {
+        fs.close();
     }
 }

@@ -131,8 +131,8 @@ public class AvroInjector implements AtomDataInjector {
             agentRefRecord = createRecord("agentRef");
 
 		} catch (IOException e) {
-			throw new HadoopTutorialException("Cannot create Avro output", e);
-		}
+            throw new HadoopTutorialException("Cannot create Avro output , verify if hdfs-site.xml path is good (check properties.txt)", e);
+        }
 	}
 
 	@Override
@@ -176,7 +176,7 @@ public class AvroInjector implements AtomDataInjector {
             //append price 
             fileWriters.get("price").append(priceRecord);
 		} catch (IOException e) {
-            LOGGER.severe( "failed write Price..." + e.getMessage());
+            throw new HadoopTutorialException("failed write Price...", e);
 		}
 	}
 
@@ -195,7 +195,7 @@ public class AvroInjector implements AtomDataInjector {
             try {
                 fileWriters.get("agentRef").append(agentRefRecord);
             } catch (IOException e) {
-                LOGGER.severe("failed write Agent Ref..." + e.getMessage());
+                throw new HadoopTutorialException("failed write agentRef...", e);
             }
 
         }
@@ -223,7 +223,7 @@ public class AvroInjector implements AtomDataInjector {
             //append data
             fileWriters.get("order").append(orderRecord);
 		} catch (IOException e) {
-            LOGGER.severe( "failed write Order..." + e.getMessage());
+            throw new HadoopTutorialException("failed write order...", e);
 		}
 	}
 
@@ -254,7 +254,7 @@ public class AvroInjector implements AtomDataInjector {
                 fileWriters.get("tick").append(tickRecord);
             }
 		} catch (IOException e) {
-            LOGGER.severe("failed write Tick..." + e.getMessage());
+            throw new HadoopTutorialException("failed write Tick...", e);
 		}
 	}
 
@@ -281,7 +281,7 @@ public class AvroInjector implements AtomDataInjector {
                 fileWriters.get("day").append(dayRecord);
 			}
 		} catch (IOException e) {
-            LOGGER.severe("failed write Day ..." + e.getMessage());
+            throw new HadoopTutorialException("failed write Day...", e);
 		}
 	}
 
@@ -297,7 +297,7 @@ public class AvroInjector implements AtomDataInjector {
             //append exec
             fileWriters.get("exec").append(execRecord);
 		} catch (IOException e) {
-            LOGGER.severe("failed write Exec..." + e.getMessage());
+            throw new HadoopTutorialException("failed write exec...", e);
 		}
 	}
 
@@ -309,8 +309,10 @@ public class AvroInjector implements AtomDataInjector {
                 entry.getValue().close();
             }
                 fileSystem.close();
+            LOGGER.info("Data imported ");
+            LOGGER.info("Close connection ");
 		} catch (IOException e) {
-            LOGGER.severe( "failed write close fileSystem..." + e.getMessage());
+            throw new HadoopTutorialException("failed close fileSystem...", e);
 		}
 	}
 
