@@ -68,6 +68,7 @@ public class SimpleHBaseInjectorTest {
 		injector.setTableName(TEST_TABLE);
 		injector.setColumnFamily(TEST_FAMILY);
 		injector.setDayGap(DAY_GAP);
+		injector.setUseBuffer(true);
 		injector.createOutput();
 	}
 
@@ -85,6 +86,7 @@ public class SimpleHBaseInjectorTest {
 			o.sender = a;
 			PriceRecord pr = new PriceRecord("o", 10, 1, LimitOrder.ASK, "o-1", "o-2");
 			injector.sendAgent(a, o, pr);
+			injector.flushIfNeeded();
 			String reference = Bytes.toString(injector.getLastRequired(AtomHBaseHelper.AGENT));
 			LOGGER.log(Level.INFO, "Agent reference :"+reference);
 			Get g = new Get(Bytes.toBytes(reference));
@@ -110,6 +112,7 @@ public class SimpleHBaseInjectorTest {
 			long bestAskPrice = 1;
 			long bestBidPrice = 2;
 			injector.sendPriceRecord(pr, bestAskPrice, bestBidPrice);
+			injector.flushIfNeeded();
 			String reference = Bytes.toString(injector.getLastRequired(AtomHBaseHelper.PRICE));
 			LOGGER.log(Level.INFO, "Price Record reference :"+reference);
 			Get g = new Get(Bytes.toBytes(reference));
@@ -138,6 +141,7 @@ public class SimpleHBaseInjectorTest {
 			LimitOrder o = new LimitOrder("o", "1", LimitOrder.ASK, 1, 10);
 			o.sender = new DumbAgent("a");
 			injector.sendOrder(o);
+			injector.flushIfNeeded();
 			String reference = Bytes.toString(injector.getLastRequired(AtomHBaseHelper.ORDER));
 			LOGGER.log(Level.INFO, "Order reference :"+reference);
 			Get g = new Get(Bytes.toBytes(reference));
@@ -168,6 +172,7 @@ public class SimpleHBaseInjectorTest {
 			obs.add(ob);
 			obs.add(ob2);
 			injector.sendTick(day, obs);
+			injector.flushIfNeeded();
 			String reference = Bytes.toString(injector.getLastRequired(AtomHBaseHelper.TICK));
 			LOGGER.log(Level.INFO, "Tick reference :"+reference);
 			// WILL RETRIEVE LAST TICK ONLY
@@ -213,6 +218,7 @@ public class SimpleHBaseInjectorTest {
 			obs.add(ob);
 			obs.add(ob2);
 			injector.sendDay(day, obs);
+			injector.flushIfNeeded();
 			String reference = Bytes.toString(injector.getLastRequired(AtomHBaseHelper.DAY));
 			// WILL RETRIEVE LAST DAY ONLY
 			Get g = new Get(Bytes.toBytes(reference));

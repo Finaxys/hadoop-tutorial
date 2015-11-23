@@ -58,11 +58,13 @@ abstract class AtomHBaseHelper {
 	protected final HBaseDataTypeEncoder hbEncoder = new HBaseDataTypeEncoder();
 	protected byte[] columnFamily;
 	protected TableName tableName;
-	//private Table table;
+	private Table table;
+	private BufferedMutator mutator;
 	protected Configuration configuration;
 	private boolean open = false;
 	private static AtomicLong idGen = new AtomicLong(1_000_000);
-	private Connection connection; 
+	private Connection connection;
+	private boolean useBuffer = true;
 	
 	public AtomHBaseHelper(byte[] columnFamily, TableName tableName, Configuration configuration) {
 		this.columnFamily = columnFamily;
@@ -110,7 +112,14 @@ abstract class AtomHBaseHelper {
 			//table = null;
 			// @TODO should be manage in a thread safe manner?
 		try {
+			if (useBuffer) {
+				mutator.close();
+				table.close();
+				mutator = null;
+				table = null;
+			}
 			connection.close();
+			connection = null;
 			open = false;
 		} catch (IOException e) {
 			LOGGER.severe("Failed to cloce connection " + e.getMessage() );
@@ -122,7 +131,33 @@ abstract class AtomHBaseHelper {
 //		}
 	}
 	
+	protected void flushIfNeeded() {
+		try {
+			if (useBuffer) {
+				mutator.flush();
+			}
+		} catch (IOException e) {
+			LOGGER.severe("Failed to flush mutator " + e.getMessage() );
+			throw new HadoopTutorialException("Failed to flush mutator", e);
+		}
+	}
+	
 	protected void putTable(@NotNull Put p) {
+		try {
+			Table table = getTable();
+			if (useBuffer) {
+				mutator.mutate(p);
+			} else {
+				table.put(p);
+			}
+			returnTable(table);
+		} catch (IOException e) {
+			LOGGER.severe("Failed to push data into queue : " + e.getMessage());
+			throw new HadoopTutorialException("Failed to push data into queue", e);
+		}
+	}
+	
+	protected void directPutTable(@NotNull Put p) {
 		try {
 			Table table = getTable();
 			table.put(p);
@@ -153,7 +188,14 @@ abstract class AtomHBaseHelper {
 	protected Table getTable() throws HadoopTutorialException {
 		try {
 			LOGGER.log(Level.FINEST,"Getting table "+ tableName.getQualifierAsString());
-			return connection.getTable(tableName);
+			if (useBuffer) {
+				if (!open) {
+					openTable();
+				}
+				return table;
+			} else {
+				return connection.getTable(tableName);
+			}
 		} catch (IOException e) {
 			throw new HadoopTutorialException("cannot get table");
 		}	
@@ -162,7 +204,9 @@ abstract class AtomHBaseHelper {
 	protected void returnTable(Table table) throws HadoopTutorialException {
 		try {
 			LOGGER.log(Level.FINEST,"Returning table "+ table.getName().getQualifierAsString());
-			table.close();
+			if (!useBuffer) {
+				table.close();
+			}
 		} catch (IOException e) {
 			throw new HadoopTutorialException("cannot close table");
 		}
@@ -252,6 +296,10 @@ abstract class AtomHBaseHelper {
 			connection = ConnectionFactory.createConnection(configuration);
 			createTable(connection);
 			//this.table = createHTableConnexion(tableName, hbaseConfiguration);
+			if (useBuffer) {
+				this.table = connection.getTable(tableName);
+			    this.mutator = connection.getBufferedMutator(tableName);
+			}
 			this.open = true;
 		} catch (IOException e) {
 			LOGGER.log(Level.SEVERE, "Could not create Connection", e);
@@ -456,6 +504,15 @@ abstract class AtomHBaseHelper {
 	protected byte[] getLastRequired(@NotNull char name) {
 		long rowKey = Long.reverseBytes(idGen.get());
 		return Bytes.toBytes(String.valueOf(rowKey) + name);
+	}
+
+	public boolean isUseBuffer() {
+		return useBuffer;
+	}
+
+	public void setUseBuffer(boolean useBuffer) {
+		if (this.open) throw new HadoopTutorialException("TableName already open "+this.tableName);
+		this.useBuffer = useBuffer;
 	}
 
 }

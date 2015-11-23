@@ -132,7 +132,7 @@ public class HBaseAnalysisTest {
 		
 		LOGGER.log(Level.INFO, "Order 1 TimeStamp:"+ts);
 		Put p = analysis.mkPutAgent(analysis.createRequired(AGENT), ts, a, o , pr);
-		analysis.putTable(p);
+		analysis.directPutTable(p);
 		Map<TraceType, Integer> r = analysis.traceCount(testDate, null);
 		Assert.assertEquals("1 results return", r.size(), 1);
 		Assert.assertEquals("2 should have count 1", r.get(TraceType.Agent), new Integer(1));
@@ -144,7 +144,7 @@ public class HBaseAnalysisTest {
 		
 		LOGGER.log(Level.INFO, "Order 2 TimeStamp:"+ts2);
 		Put pOrder = analysis.mkPutOrder(analysis.createRequired(ORDER), ts2, o2);
-		analysis.putTable(pOrder);
+		analysis.directPutTable(pOrder);
 		r = analysis.traceCount(testDate, null);
 		Assert.assertEquals("1 result should be return", r.size(), 1);
 		Assert.assertEquals("2 should have count 1", r.get(TraceType.Agent), new Integer(1));
@@ -165,7 +165,7 @@ public class HBaseAnalysisTest {
 		LOGGER.log(Level.INFO, "Order 1 TimeStamp:"+o.timestamp);
 		//Put p = analysis.mkPutOrder(analysis.createRequired(AGENT), ts, a, o , pr);
 		Put pOrder = analysis.mkPutOrder(analysis.createRequired(ORDER), ts, o);
-		analysis.putTable(pOrder);
+		analysis.directPutTable(pOrder);
 
 		LimitOrder o2 = new LimitOrder("o", "2", LimitOrder.ASK, 1, 11);
 		o2.sender = a;
@@ -173,7 +173,7 @@ public class HBaseAnalysisTest {
 		
 		LOGGER.log(Level.INFO, "Order 2 TimeStamp:"+o2.timestamp);
 		Put pOrder2 = analysis.mkPutOrder(analysis.createRequired(ORDER), ts, o2);
-		analysis.putTable(pOrder2);
+		analysis.directPutTable(pOrder2);
 		
 		long ts2 = System.currentTimeMillis();
 		LimitOrder o3 = new LimitOrder("o", "3", LimitOrder.ASK, 1, 1);
@@ -182,7 +182,7 @@ public class HBaseAnalysisTest {
 		
 		LOGGER.log(Level.INFO, "Order 3 TimeStamp:"+o3.timestamp);
 		Put pOrder3 = analysis.mkPutOrder(analysis.createRequired(ORDER), ts2, o3);
-		analysis.putTable(pOrder3);
+		analysis.directPutTable(pOrder3);
 		
 		Map<String, Integer> r = analysis.agentPosition(testDate);
 		Assert.assertEquals("1 results return", r.size(), 1);
