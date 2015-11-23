@@ -23,7 +23,8 @@ public class AvroParquetConverter extends Configured implements Tool {
     public int run(String[] args) throws Exception {
         AtomConfiguration atom = new AtomConfiguration() ;
         //Path schemaPath = new Path(args[0]);
-        Path inputPath = new Path(atom.getDestHDFS()+"priceFile");
+        String type = args[1];
+        Path inputPath = new Path(atom.getDestHDFS()+type+"File");
         Path outputPath = new Path(args[0]);
         Configuration conf = new Configuration();
         conf.addResource(new Path(atom.getHadoopConfHdfs()));
@@ -35,7 +36,7 @@ public class AvroParquetConverter extends Configured implements Tool {
 
         //FileSystem fs = FileSystem.get(conf);
         //InputStream in = fs.open(schemaPath);
-        Schema avroSchema = new Schema.Parser().parse(new File(atom.getAvroSchema()+"/"+"price"+"."+atom.getExtAvro()));
+        Schema avroSchema = new Schema.Parser().parse(new File(atom.getAvroSchema()+"/"+type+"."+atom.getExtAvro()));
 
         System.out.println(new AvroSchemaConverter().convert(avroSchema).toString());
 
@@ -65,7 +66,7 @@ public class AvroParquetConverter extends Configured implements Tool {
 
     public static void main(String[] args) throws Exception {
 
-        String[] otherArgs = {"/priceParquetp"} ;
+        String[] otherArgs = {"/priceParquet","price"} ; // args[0]=ParquetOutPutDir args[1]=ModelType
         int exitCode = ToolRunner.run(new AvroParquetConverter(), otherArgs);
         System.exit(exitCode);
     }

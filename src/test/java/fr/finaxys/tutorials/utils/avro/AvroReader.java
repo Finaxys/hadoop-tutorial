@@ -1,6 +1,8 @@
 package fr.finaxys.tutorials.utils.avro;
 
 import fr.finaxys.tutorials.utils.AtomConfiguration;
+import fr.finaxys.tutorials.utils.AtomDataInjector;
+import fr.finaxys.tutorials.utils.avro.models.*;
 import org.apache.avro.Schema;
 import org.apache.avro.file.DataFileReader;
 import org.apache.avro.file.SeekableInput;
@@ -26,6 +28,8 @@ public class AvroReader {
     private String destHDFS;
     private String avroExt ;
     private String pathSchema ;
+    private static final java.util.logging.Logger LOGGER = java.util.logging.Logger
+            .getLogger(AtomDataInjector.class.getName());
 
     public AvroReader(AtomConfiguration atomConf) {
         this.atomConf = atomConf;
@@ -51,6 +55,41 @@ public class AvroReader {
         this.avroExt = atomConf.getExtAvro() ;
     }
 
+    public List<Price> scanPrices(){
+        List<Price> result = scanRecords("price") ;
+        return result ;
+    }
+
+    public List<Order> scanOrders(){
+        List<Order> result = scanRecords("order") ;
+        return result ;
+    }
+
+    public List<Tick> scanTicks(){
+        List<Tick> result = scanRecords("tick") ;
+        return result ;
+    }
+
+    public List<Agent> scanAgents(){
+        List<Agent> result = scanRecords("agent") ;
+        return result ;
+    }
+
+    public List<Day> scanDays(){
+        List<Day> result = scanRecords("day") ;
+        return result ;
+    }
+
+    public List<Exec> scanExecs(){
+        List<Exec> result = scanRecords("exec") ;
+        return result ;
+    }
+
+    public List<AgentReferential> scanAgentRefs(){
+        List<AgentReferential> result = scanRecords("agentRef") ;
+        return result ;
+    }
+
 
     public <T extends SpecificRecordBase> List<T> scanRecords(String type) {
         try {
@@ -67,7 +106,7 @@ public class AvroReader {
             dataFileReader.close();
             return result;
         } catch (IOException e) {
-            e.printStackTrace();
+            LOGGER.severe( "failed read Records..." + e.getMessage());
             return null ;
         }
     }

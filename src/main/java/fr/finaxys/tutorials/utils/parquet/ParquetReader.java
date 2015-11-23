@@ -1,5 +1,7 @@
 package fr.finaxys.tutorials.utils.parquet;
 
+import fr.finaxys.tutorials.utils.AtomConfiguration;
+import fr.finaxys.tutorials.utils.AtomDataInjector;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.Path;
@@ -25,7 +27,8 @@ import java.io.IOException;
  * Created by finaxys on 11/20/15.
  */
 public class ParquetReader extends Configured implements Tool {
-
+    private static final java.util.logging.Logger LOGGER = java.util.logging.Logger
+            .getLogger(AtomDataInjector.class.getName());
 
     /*
      * Read a Parquet record, write a CSV record
@@ -34,15 +37,13 @@ public class ParquetReader extends Configured implements Tool {
         @Override
         public void map(LongWritable key, Group value, Context context) throws IOException, InterruptedException {
             NullWritable outKey = NullWritable.get();
-            System.out.println(new Text(value.toString()));
+            //System.out.println(new Text(value.toString()));
             context.write(outKey, new Text(value.toString()));
         }
     }
 
     public int run(String[] args) throws Exception {
-        Configuration conf = new Configuration() ;
-        conf.addResource("/tmp/configuration.xml");
-        conf.reloadConfiguration();
+        Configuration conf = getConf() ;
         Path inputPath = new Path("hdfs://localhost:52896"+args[0]);
         Path outputPath = new Path(args[1]);
 
@@ -64,20 +65,21 @@ public class ParquetReader extends Configured implements Tool {
         FileOutputFormat.setOutputPath(job, outputPath);
 
         job.waitForCompletion(true);
-
         return 0;
     }
 
+
     public static void main(String[] args) throws Exception {
         try {
-            String[] otherArgs = {"/priceParquetp/part-m-00000.snappy.parquet","/tmp/newg"} ;
+            AtomConfiguration atomConfiguration = new AtomConfiguration() ;
+            String[] otherArgs = {"/priceParquet/part-m-00000.snappy.parquet","/tmp/new"} ; // parquet file path into hdfs , output file
             Configuration conf = new Configuration() ;
-            conf.addResource("/tmp/configuration.xml");
+            conf.addResource(atomConfiguration.getHadoopConfHdfs());
             conf.reloadConfiguration();
             int res = ToolRunner.run(conf, new ParquetReader(), otherArgs);
             System.exit(res);
         } catch (Exception e) {
-            e.printStackTrace();
+            LOGGER.severe("failed to load hdfs conf..." + e.getMessage());
             System.exit(255);
         }
     }

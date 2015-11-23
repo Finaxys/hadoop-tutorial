@@ -74,7 +74,7 @@ public class AvroInjectorTest {
             PriceRecord pr = new PriceRecord("o", 10, 1, LimitOrder.ASK, "o-1", "o-2");
             injector.sendAgent(a, o, pr);
             injector.closeOutput();
-            fr.finaxys.tutorials.utils.avro.models.Agent agent = (fr.finaxys.tutorials.utils.avro.models.Agent) reader.scanRecords("agent").get(0);
+            fr.finaxys.tutorials.utils.avro.models.Agent agent = reader.scanAgents().get(0);
             String agentName = agent.getAgentName().toString();
             Assert.assertTrue("AgentName is same", agentName.equals(a.name));
             String orderBookName = agent.getObName().toString() ;
@@ -94,7 +94,7 @@ public class AvroInjectorTest {
             long bestBidPrice = 2;
             injector.sendPriceRecord(pr, bestAskPrice, bestBidPrice);
             injector.closeOutput();
-            fr.finaxys.tutorials.utils.avro.models.Price price = (fr.finaxys.tutorials.utils.avro.models.Price) reader.scanRecords("price").get(0);
+            fr.finaxys.tutorials.utils.avro.models.Price price = reader.scanPrices().get(0);
             String orderBookName = price.getObName().toString();
             Assert.assertTrue("orderBookName is same", orderBookName.equals( pr.obName));
             long bestAsk = price.getBestAsk();
@@ -115,7 +115,7 @@ public class AvroInjectorTest {
             o.sender = new DumbAgent("a");
             injector.sendOrder(o);
             injector.closeOutput();
-            fr.finaxys.tutorials.utils.avro.models.Order order = (fr.finaxys.tutorials.utils.avro.models.Order) reader.scanRecords("order").get(0);
+            fr.finaxys.tutorials.utils.avro.models.Order order =  reader.scanOrders().get(0);
             String orderBookName = order.getObName().toString();
             String orderBookName2 = o.obName;
             Assert.assertTrue("orderBookName is same", orderBookName.equals(orderBookName2));
@@ -136,7 +136,7 @@ public class AvroInjectorTest {
             obs.add(ob2);
             injector.sendTick(day, obs);
             injector.closeOutput();
-            Tick tick = (Tick) reader.scanRecords("tick").get(1);
+            Tick tick = reader.scanTicks().get(1);
             String orderBookName = tick.getObName().toString();
             Assert.assertTrue("orderBookName is same", orderBookName.equals(ob2.obName));
             int dayGap = tick.getNumDay();
@@ -157,7 +157,7 @@ public class AvroInjectorTest {
             obs.add(ob2);
             injector.sendDay(day, obs);
             injector.closeOutput();
-            fr.finaxys.tutorials.utils.avro.models.Day avroDay = (fr.finaxys.tutorials.utils.avro.models.Day) reader.scanRecords("day").get(1);
+            fr.finaxys.tutorials.utils.avro.models.Day avroDay = reader.scanDays().get(1);
             String orderBookName = avroDay.getObName().toString() ;
             Assert.assertTrue("orderBookName is same", orderBookName.equals(ob2.obName));
             int dayGap = avroDay.getNumDay();

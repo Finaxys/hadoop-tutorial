@@ -176,8 +176,7 @@ public class AvroInjector implements AtomDataInjector {
             //append price 
             fileWriters.get("price").append(priceRecord);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+            LOGGER.severe( "failed write Price..." + e.getMessage());
 		}
 	}
 
@@ -196,7 +195,7 @@ public class AvroInjector implements AtomDataInjector {
             try {
                 fileWriters.get("agentRef").append(agentRefRecord);
             } catch (IOException e) {
-                e.printStackTrace();
+                LOGGER.severe("failed write Agent Ref..." + e.getMessage());
             }
 
         }
@@ -224,8 +223,7 @@ public class AvroInjector implements AtomDataInjector {
             //append data
             fileWriters.get("order").append(orderRecord);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+            LOGGER.severe( "failed write Order..." + e.getMessage());
 		}
 	}
 
@@ -256,8 +254,7 @@ public class AvroInjector implements AtomDataInjector {
                 fileWriters.get("tick").append(tickRecord);
             }
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+            LOGGER.severe("failed write Tick..." + e.getMessage());
 		}
 	}
 
@@ -284,8 +281,7 @@ public class AvroInjector implements AtomDataInjector {
                 fileWriters.get("day").append(dayRecord);
 			}
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+            LOGGER.severe("failed write Day ..." + e.getMessage());
 		}
 	}
 
@@ -301,8 +297,7 @@ public class AvroInjector implements AtomDataInjector {
             //append exec
             fileWriters.get("exec").append(execRecord);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+            LOGGER.severe("failed write Exec..." + e.getMessage());
 		}
 	}
 
@@ -315,8 +310,7 @@ public class AvroInjector implements AtomDataInjector {
             }
                 fileSystem.close();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+            LOGGER.severe( "failed write close fileSystem..." + e.getMessage());
 		}
 	}
 
