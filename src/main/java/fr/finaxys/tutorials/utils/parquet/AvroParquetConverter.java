@@ -29,17 +29,12 @@ public class AvroParquetConverter extends Configured implements Tool {
         Configuration conf = new Configuration();
         conf.addResource(new Path(atom.getHadoopConfHdfs()));
         conf.reloadConfiguration();
-
         Job job = Job.getInstance(conf, "Parquet Conversion");
         job.setJarByClass(getClass());
-
-
         //FileSystem fs = FileSystem.get(conf);
         //InputStream in = fs.open(schemaPath);
         Schema avroSchema = new Schema.Parser().parse(new File(atom.getAvroSchema()+"/"+type+"."+atom.getExtAvro()));
-
         System.out.println(new AvroSchemaConverter().convert(avroSchema).toString());
-
         FileInputFormat.addInputPath(job, inputPath);
         job.setInputFormatClass(AvroKeyInputFormat.class);
         job.setOutputFormatClass(AvroParquetOutputFormat.class);
@@ -66,7 +61,7 @@ public class AvroParquetConverter extends Configured implements Tool {
 
     public static void main(String[] args) throws Exception {
 
-        String[] otherArgs = {"/priceParquet","price"} ; // args[0]=ParquetOutPutDir args[1]=ModelType
+        String[] otherArgs = {"/pricePqt","price"} ; // args[0]=ParquetOutPutDir args[1]=ModelType
         int exitCode = ToolRunner.run(new AvroParquetConverter(), otherArgs);
         System.exit(exitCode);
     }

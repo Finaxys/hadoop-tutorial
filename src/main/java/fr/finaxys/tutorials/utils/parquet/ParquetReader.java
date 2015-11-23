@@ -21,8 +21,6 @@ import org.apache.parquet.hadoop.example.ExampleInputFormat;
 import java.io.IOException;
 
 
-
-
 /**
  * Created by finaxys on 11/20/15.
  */
@@ -42,8 +40,11 @@ public class ParquetReader extends Configured implements Tool {
     }
 
     public int run(String[] args) throws Exception {
-        Configuration conf = getConf() ;
-        Path inputPath = new Path("hdfs://localhost:52896"+args[0]);
+        AtomConfiguration atom = new AtomConfiguration() ;
+        Configuration conf = new Configuration();
+        conf.addResource(new Path(atom.getHadoopConfHdfs()));
+        conf.reloadConfiguration();
+        Path inputPath = new Path(args[0]);
         Path outputPath = new Path(args[1]);
 
         Job job = Job.getInstance(conf, "Parquet reader");
@@ -71,7 +72,7 @@ public class ParquetReader extends Configured implements Tool {
     public static void main(String[] args) throws Exception {
         try {
             AtomConfiguration atomConfiguration = new AtomConfiguration() ;
-            String[] otherArgs = {"/priceParquet/part-m-00000.snappy.parquet","/tmp/new"} ; // parquet file path into hdfs , output file
+            String[] otherArgs = {"/pricePqt/part-m-00000.snappy.parquet","/result-pqt"} ; // parquet file path into hdfs , output file
             Configuration conf = new Configuration() ;
             conf.addResource(atomConfiguration.getHadoopConfHdfs());
             conf.reloadConfiguration();
