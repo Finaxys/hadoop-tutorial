@@ -44,7 +44,7 @@ public class ParquetReader extends Configured implements Tool {
         Configuration conf = new Configuration();
         conf.addResource(new Path(atom.getHadoopConfHdfs()));
         conf.reloadConfiguration();
-        Path inputPath = new Path(args[0]);
+        Path inputPath = new Path(args[0]+"/part-m-00000.snappy.parquet");
         Path outputPath = new Path(args[1]);
 
         Job job = Job.getInstance(conf, "Parquet reader");
@@ -72,7 +72,7 @@ public class ParquetReader extends Configured implements Tool {
     public static void main(String[] args) throws Exception {
         try {
             AtomConfiguration atomConfiguration = new AtomConfiguration() ;
-            String[] otherArgs = {"/pricePqt/part-m-00000.snappy.parquet","/result-pqt"} ; // parquet file path into hdfs , output file
+            String[] otherArgs = {"/pricePqt","/result-pqt"} ; // parquet file path into hdfs , output file
             Configuration conf = new Configuration() ;
             conf.addResource(atomConfiguration.getHadoopConfHdfs());
             conf.reloadConfiguration();
