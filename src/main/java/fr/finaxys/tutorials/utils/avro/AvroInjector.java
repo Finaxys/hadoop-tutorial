@@ -186,6 +186,7 @@ public class AvroInjector implements AtomDataInjector {
         for (AgentReferentialLine agent : referencial) {
             long ts = tsb.nextTimeStamp();
             //put agent fields
+            agentRefRecord.put(Q_TRACE_TYPE,"AgentReferential");
             agentRefRecord.put(Q_AGENT_REF_ID,agent.agentRefId);
             agentRefRecord.put(Q_AGENT_NAME,agent.agentName);
             agentRefRecord.put(Q_IS_MARKET_MAKER, agent.isMarketMaker);

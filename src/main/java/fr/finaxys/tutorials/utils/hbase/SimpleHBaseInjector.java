@@ -33,7 +33,7 @@ public class SimpleHBaseInjector extends AtomHBaseHelper implements AtomDataInje
 	private final AtomicLong globalCount = new AtomicLong(0L);
 	
 	public SimpleHBaseInjector(@NotNull AtomConfiguration conf) {
-		super(conf.getColumnFamily(), TableName.valueOf(conf.getTableName()));
+		super(conf.getColumnFamily(), TableName.valueOf(conf.getTableName()),conf);
 		
 		this.atomConfiguration = conf;
 		this.dayGap = atomConfiguration.getDayGap();

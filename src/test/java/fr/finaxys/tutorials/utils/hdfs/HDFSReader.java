@@ -1,6 +1,7 @@
 package fr.finaxys.tutorials.utils.hdfs;
 
 import fr.finaxys.tutorials.utils.AtomConfiguration;
+import fr.finaxys.tutorials.utils.HadoopTutorialException;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
@@ -26,7 +27,7 @@ public class HDFSReader {
         try {
             this.fs = FileSystem.get(this.conf);
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new HadoopTutorialException("hdfs-site.xml can't be loade",e) ;
         }
 
     }

@@ -2,6 +2,7 @@ package fr.finaxys.tutorials.utils.hbase;
 
 import com.sun.istack.NotNull;
 import fr.finaxys.tutorials.utils.AgentReferentialLine;
+import fr.finaxys.tutorials.utils.AtomConfiguration;
 import fr.finaxys.tutorials.utils.HadoopTutorialException;
 import fr.univlille1.atom.trace.TraceType;
 import org.apache.hadoop.conf.Configuration;
@@ -11,7 +12,9 @@ import org.apache.hadoop.hbase.util.Bytes;
 import v13.*;
 import v13.agents.Agent;
 
+import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.logging.Level;
 
@@ -72,10 +75,10 @@ abstract class AtomHBaseHelper {
 		this.configuration = configuration;
 	}
 	
-	public AtomHBaseHelper(byte[] columnFamily, TableName tableName) {
+	public AtomHBaseHelper(byte[] columnFamily, TableName tableName,AtomConfiguration atomConf) {
 		this.columnFamily = columnFamily;
 		this.tableName = tableName;
-		this.configuration = createHbaseConfiguration();
+		this.configuration = createHbaseConfiguration(atomConf);
 	}
 	
 	public AtomHBaseHelper() {
@@ -259,21 +262,20 @@ abstract class AtomHBaseHelper {
 		open = true;
 	}
 	
-	private Configuration createHbaseConfiguration() {
+	private Configuration createHbaseConfiguration(AtomConfiguration atomConf) {
 		Configuration conf = HBaseConfiguration.create();
-		// try {
-		// conf.addResource(new
-		// File(atomConf.getHadoopConfCore()).getAbsoluteFile().toURI().toURL());
-		// conf.addResource(new
-		// File(atomConf.getHbaseConfHbase()).getAbsoluteFile().toURI().toURL());
-		// conf.addResource(new
-		// File(atomConf.getHadoopConfHdfs()).getAbsoluteFile().toURI().toURL());
-		// } catch (MalformedURLException e) {
-		// LOGGER.log(Level.SEVERE, "Could not get hbase configuration files",
-		// e);
-		// throw new Exception("hbase", e);
-		// }
-		// conf.reloadConfiguration();
+		try {
+		conf.addResource(new File(atomConf.getHadoopConfCore()).getAbsoluteFile().toURI().toURL());
+		conf.addResource(new
+		File(atomConf.getHbaseConfHbase()).getAbsoluteFile().toURI().toURL());
+            conf.addResource(new
+		File(atomConf.getHadoopConfHdfs()).getAbsoluteFile().toURI().toURL());
+		} catch (MalformedURLException e) {
+		LOGGER.log(Level.SEVERE, "Could not get hbase configuration files",
+		e);
+		throw new HadoopTutorialException("hbase", e);
+		}
+		conf.reloadConfiguration();
 		return conf;
 	}
 

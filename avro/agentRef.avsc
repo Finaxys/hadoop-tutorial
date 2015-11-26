@@ -2,6 +2,7 @@
  "type": "record",
  "name": "AgentReferential",
  "fields": [
+     {"name" : "Trace", "type": "string"},
      {"name" : "AgentRefId", "type": "int"},
      {"name" : "AgentName",  "type": "string"},
      {"name" : "IsMarketMaker",  "type": "string"},
