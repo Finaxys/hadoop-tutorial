@@ -1,27 +1,22 @@
 package fr.finaxys.tutorials.hadoop;
 
+import fr.finaxys.tutorials.utils.*;
+import fr.finaxys.tutorials.utils.avro.AvroInjector;
+import fr.finaxys.tutorials.utils.file.FileDataInjector;
+import fr.finaxys.tutorials.utils.hbase.SimpleHBaseInjector;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import v13.Day;
+import v13.MonothreadedSimulation;
+import v13.Simulation;
+import v13.agents.ZIT;
+
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
-import org.apache.logging.log4j.Level;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
-import v13.Day;
-import v13.MonothreadedSimulation;
-import v13.Simulation;
-import v13.agents.ZIT;
-import fr.finaxys.tutorials.utils.AtomConfiguration;
-import fr.finaxys.tutorials.utils.AtomDataInjector;
-import fr.finaxys.tutorials.utils.AtomLogger;
-import fr.finaxys.tutorials.utils.HadoopTutorialException;
-import fr.finaxys.tutorials.utils.LoggerStream;
-import fr.finaxys.tutorials.utils.avro.AvroInjector;
-import fr.finaxys.tutorials.utils.file.FileDataInjector;
-import fr.finaxys.tutorials.utils.hbase.SimpleHBaseInjector;
 
 public class AtomGenerate {
 
@@ -63,7 +58,7 @@ public class AtomGenerate {
 			if (parseArgs.contains("-file") || atomConf.isOutFile()) {
 				PrintStream out = new PrintStream(new LoggerStream(
 						LogManager.getLogger("atom"), Level.INFO));
-				injectors.add(new FileDataInjector(out)); // new
+				injectors.add(new FileDataInjector(atomConf.getOutFilePath())); // new
 															// AtomLogger(atomConf);
 			}
 
