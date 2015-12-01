@@ -1,0 +1,15 @@
+{"namespace": "fr.finaxys.tutorials.utils.avro.models",
+ "type": "record",
+ "name": "VRecord",
+ "imports": ["agent.avsc"] ,
+ "fields": [
+     {"name" : "type", "type": [ "null", "string" ]},
+     {"name" : "agent",  "type": [ "null", "Agent"]},
+     {"name" : "agentRef",  "type": [ "null", "AgentReferential"]},
+     {"name" : "day",  "type": [ "null", "Day"]},
+     {"name" : "exec",  "type": [ "null", "Exec"]},
+     {"name" : "order",  "type": [ "null", "Order"]},
+     {"name" : "price",  "type": [ "null", "Price"]},
+     {"name" : "tick",  "type": [ "null", "Tick"]}
+ ]
+}

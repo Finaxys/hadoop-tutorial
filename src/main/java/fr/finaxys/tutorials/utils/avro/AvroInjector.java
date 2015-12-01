@@ -2,80 +2,35 @@ package fr.finaxys.tutorials.utils.avro;
 
 import com.sun.istack.NotNull;
 import fr.finaxys.tutorials.utils.*;
+import fr.finaxys.tutorials.utils.avro.models.*;
 import fr.univlille1.atom.trace.TraceType;
 import org.apache.avro.Schema;
 import org.apache.avro.file.DataFileWriter;
-import org.apache.avro.generic.GenericData;
-import org.apache.avro.generic.GenericDatumWriter;
-import org.apache.avro.generic.GenericRecord;
 import org.apache.avro.io.DatumWriter;
+import org.apache.avro.specific.SpecificDatumWriter;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import v13.*;
+import v13.Day;
+import v13.Order;
 import v13.agents.Agent;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class AvroInjector implements AtomDataInjector {
 	private static final java.util.logging.Logger LOGGER = java.util.logging.Logger
 			.getLogger(AtomDataInjector.class.getName());
-
-    public static final String Q_TRACE_TYPE = "Trace";
-    public static final String Q_NUM_DAY ="NumDay";
-    public static final String Q_NUM_TICK ="NumTick";
-    public static final String Q_BEST_BID ="BestBid";
-    public static final String Q_BEST_ASK ="BestAsk";
-    public static final String Q_ORDER2 ="Order2";
-    public static final String Q_ORDER1 ="Order1";
-    public static final String Q_DIR ="Dir";
-    public static final String Q_OB_NAME ="ObName";
-    public static final String Q_VALIDITY ="Validity";
-    public static final String Q_QUANTITY ="Quantity";
-    public static final String Q_ID ="Id";
-    public static final String Q_TYPE ="Type";
-    public static final String Q_EXT_ID ="ExtId";
-    public static final String Q_SENDER ="Sender";
-    public static final String Q_NB_PRICES_FIXED ="NbPricesFixed";
-    public static final String Q_LAST_FIXED_PRICE ="LastFixedPrice";
-    public static final String Q_HIGHEST_PRICE ="HighestPrice";
-    public static final String Q_LOWEST_PRICE ="LowestPrice";
-    public static final String Q_FIRST_FIXED_PRICE ="FirstFixedPrice";
-    public static final String EXT_NUM_DAY ="NumDay";
-    public static final String Q_EXT_ORDER_ID ="OrderExtId";
-    public static final String Q_TIMESTAMP ="Timestamp";
-    public static final String Q_DIRECTION ="Direction";
-    public static final String Q_PRICE ="Price";
-    public static final String Q_EXECUTED_QUANTITY ="Executed";
-    public static final String Q_CASH ="Cash";
-    public static final String Q_AGENT_NAME ="AgentName";
-    public static final String Q_AGENT_REF_ID ="AgentRefId";
-    public static final String Q_IS_MARKET_MAKER ="IsMarketMaker";
-    public static final String Q_DETAILS ="Details";
-
 	private final AtomConfiguration atomConf;
 	private Configuration conf;
 	private FileSystem fileSystem;
 	private String destHDFS;
-    private String avroExt ;
-    private String pathSchema ;
-    private GenericRecord orderRecord;
-    private GenericRecord priceRecord;
-    private GenericRecord execRecord;
-    private GenericRecord tickRecord;
-    private GenericRecord dayRecord;
-    private GenericRecord agentRecord;
-    private GenericRecord agentRefRecord;
 	private TimeStampBuilder tsb;
     private int dayGap;
-
-    private Map<String,DataFileWriter<GenericRecord>> fileWriters ;
+    private DataFileWriter<VRecord> fileWriter ;
 
 	public AvroInjector(@NotNull AtomConfiguration atomConf) throws Exception {
 		this.atomConf = atomConf;
@@ -88,9 +43,6 @@ public class AvroInjector implements AtomDataInjector {
 		this.conf.set("fs.file.impl",
 				org.apache.hadoop.fs.LocalFileSystem.class.getName());
         this.dayGap = atomConf.getDayGap();
-        this.pathSchema = atomConf.getAvroSchema();
-        this.avroExt = atomConf.getExtAvro() ;
-        this.fileWriters = new HashMap<String,DataFileWriter<GenericRecord>>() ;
 	}
 
     public AvroInjector(@NotNull AtomConfiguration atomConf,Configuration conf) throws Exception {
@@ -98,20 +50,15 @@ public class AvroInjector implements AtomDataInjector {
         this.destHDFS = atomConf.getDestHDFS();
         this.conf = conf;
         this.dayGap = atomConf.getDayGap();
-        this.pathSchema = atomConf.getAvroSchema();
-        this.avroExt = atomConf.getExtAvro() ;
-        this.fileWriters = new HashMap<String,DataFileWriter<GenericRecord>>() ;
     }
 
 
-    public GenericRecord createRecord(String type) throws IOException {
-        Schema schema = new Schema.Parser().parse(new File(pathSchema+"/"+type+"."+avroExt));
-        DatumWriter<GenericRecord> orderDatumWriter = new GenericDatumWriter<GenericRecord>(schema);
-        DataFileWriter<GenericRecord> dataFileWriter = new DataFileWriter<GenericRecord>(orderDatumWriter);
-        FSDataOutputStream file = fileSystem.create(new Path(destHDFS+type+"File"));
-        dataFileWriter.create(schema, file);
-        fileWriters.put(type, dataFileWriter);
-        return new GenericData.Record(schema);
+    public void createRecord() throws IOException {
+        Schema schema = VRecord.getClassSchema() ;
+        DatumWriter<VRecord> orderDatumWriter = new SpecificDatumWriter<>(schema) ;
+        fileWriter = new DataFileWriter<VRecord>(orderDatumWriter);
+        FSDataOutputStream file = fileSystem.create(new Path(destHDFS));
+        fileWriter.create(schema, file);
 	}
 
 	// one schema for each agent ?
@@ -122,14 +69,7 @@ public class AvroInjector implements AtomDataInjector {
 			LOGGER.info("Create output ...");
             fileSystem = FileSystem.get(conf);
             //construct dataRecords
-            orderRecord = createRecord("order");
-            priceRecord = createRecord("price");
-            tickRecord = createRecord("tick");
-            dayRecord = createRecord("day");
-            agentRecord = createRecord("agent");
-            execRecord = createRecord("exec");
-            agentRefRecord = createRecord("agentRef");
-
+            createRecord();
 		} catch (IOException e) {
             throw new HadoopTutorialException("Cannot create Avro output , verify if hdfs-site.xml path is good (check properties.txt)", e);
         }
@@ -138,20 +78,24 @@ public class AvroInjector implements AtomDataInjector {
 	@Override
 	public void sendAgent(Agent a, Order o, PriceRecord pr) {
 		try {
-            //put agent fields 
-            agentRecord.put(Q_TRACE_TYPE,TraceType.Agent.name());
-            agentRecord.put(Q_AGENT_NAME,a.name);
-            agentRecord.put( Q_OB_NAME, o.obName);
-            agentRecord.put( Q_CASH, a.cash);
-            agentRecord.put(Q_EXECUTED_QUANTITY,pr.quantity);
-            agentRecord.put(Q_PRICE,pr.price);
+            //put agent fields
+            VRecord record = new VRecord() ;
+            record.setType(TraceType.Agent.name());
+            fr.finaxys.tutorials.utils.avro.models.Agent agent = new fr.finaxys.tutorials.utils.avro.models.Agent() ;
+            agent.setTrace(TraceType.Agent.name());
+            agent.setAgentName(a.name);
+            agent.setObName(o.obName);
+            agent.setCash( a.cash);
+            agent.setExecuted(pr.quantity);
+            agent.setPrice(pr.price);
             if (o.getClass().equals(LimitOrder.class)) {
-                agentRecord.put(Q_DIRECTION,((LimitOrder) o).direction+"");
-                agentRecord.put(Q_TIMESTAMP, pr.timestamp); // pr.timestamp
-                agentRecord.put(Q_EXT_ORDER_ID,o.extId);
+                agent.setDirection(((LimitOrder) o).direction+"");
+                agent.setTimestamp( pr.timestamp); // pr.timestamp
+                agent.setOrderExtId(o.extId);
             }
             //append agent
-			fileWriters.get("agent").append(agentRecord);
+            record.setAgent(agent);
+			fileWriter.append(record);
 		} catch (IOException e) {
 			throw new HadoopTutorialException("Cannot create Avro output", e);
 		}
@@ -162,19 +106,23 @@ public class AvroInjector implements AtomDataInjector {
 			long bestBidPrice) {
 		try {
             long ts = tsb.nextTimeStamp();
+            VRecord record = new VRecord() ;
             //put price fields 
-            priceRecord.put(Q_TRACE_TYPE, TraceType.Price.name());
-            priceRecord.put(Q_OB_NAME, pr.obName);
-            priceRecord.put(Q_PRICE, pr.price);
-            priceRecord.put(Q_EXECUTED_QUANTITY, pr.quantity);
-            priceRecord.put( Q_DIR,pr.dir+"");
-            priceRecord.put( Q_ORDER1,pr.extId1);
-            priceRecord.put( Q_ORDER2, pr.extId2);
-            priceRecord.put(Q_BEST_ASK, bestAskPrice);
-            priceRecord.put( Q_BEST_BID,bestBidPrice);
-            priceRecord.put( Q_TIMESTAMP,(pr.timestamp > 0 ? pr.timestamp : ts));
+            record.setType(TraceType.Price.name());
+            Price price = new Price();
+            price.setTrace(TraceType.Price.name());
+            price.setObName(pr.obName);
+            price.setPrice(pr.price);
+            price.setExecuted(pr.quantity);
+            price.setDir(pr.dir+"");
+            price.setOrder1(pr.extId1);
+            price.setOrder2(pr.extId2);
+            price.setBestAsk(bestAskPrice);
+            price.setBestBid(bestBidPrice);
+            price.setTimestamp((pr.timestamp > 0 ? pr.timestamp : ts));
+            record.setPrice(price);
             //append price 
-            fileWriters.get("price").append(priceRecord);
+            fileWriter.append(record);
 		} catch (IOException e) {
             throw new HadoopTutorialException("failed write Price...", e);
 		}
@@ -182,47 +130,52 @@ public class AvroInjector implements AtomDataInjector {
 
 	@Override
 	public void sendAgentReferential(List<AgentReferentialLine> referencial) {
-
         for (AgentReferentialLine agent : referencial) {
             long ts = tsb.nextTimeStamp();
+            VRecord record = new VRecord();
+            record.setType("AgentReferential");
             //put agent fields
-            agentRefRecord.put(Q_TRACE_TYPE,"AgentReferential");
-            agentRefRecord.put(Q_AGENT_REF_ID,agent.agentRefId);
-            agentRefRecord.put(Q_AGENT_NAME,agent.agentName);
-            agentRefRecord.put(Q_IS_MARKET_MAKER, agent.isMarketMaker);
-            agentRefRecord.put(Q_DETAILS,agent.details);
-            agentRefRecord.put(Q_TIMESTAMP, ts);
+            AgentReferential agentRef = new AgentReferential();
+            agentRef.setTrace("AgentReferential");
+            agentRef.setAgentRefId(agent.agentRefId);
+            agentRef.setAgentName(agent.agentName);
+            agentRef.setIsMarketMaker(Boolean.toString(agent.isMarketMaker));
+            agentRef.setDetails(agent.details);
+            agentRef.setTimestamp(ts);
+            record.setAgentRef(agentRef);
             //append agent
             try {
-                fileWriters.get("agentRef").append(agentRefRecord);
+                fileWriter.append(record);
             } catch (IOException e) {
                 throw new HadoopTutorialException("failed write agentRef...", e);
             }
-
         }
 	}
 
 	@Override
 	public void sendOrder(Order o) {
 		try {
-            //put data fields 
-            orderRecord.put( Q_TRACE_TYPE,TraceType.Order.name());
-            orderRecord.put( Q_OB_NAME,o.obName);
-            orderRecord.put( Q_SENDER,o.sender.name);
-            orderRecord.put( Q_EXT_ID, o.extId);
-            orderRecord.put( Q_TYPE, o.type+"");
-            orderRecord.put( Q_ID,o.id);
-            orderRecord.put( Q_TIMESTAMP,o.timestamp);
-
+            VRecord record = new VRecord();
+            record.setType(TraceType.Order.name());
+            //put data fields
+            fr.finaxys.tutorials.utils.avro.models.Order order = new fr.finaxys.tutorials.utils.avro.models.Order();
+            order.setTrace(TraceType.Order.name());
+            order.setObName(o.obName);
+            order.setSender(o.sender.name);
+            order.setExtId(o.extId);
+            order.setType(o.type + "");
+            order.setId(o.id);
+            order.setTimestamp(o.timestamp);
             if (o.getClass().equals(LimitOrder.class)) {
                 LimitOrder lo = (LimitOrder) o;
-                orderRecord.put( Q_QUANTITY,lo.quantity);
-                orderRecord.put( Q_DIRECTION,lo.direction+"");
-                orderRecord.put( Q_PRICE,lo.price);
-                orderRecord.put( Q_VALIDITY,lo.validity);
+                order.setQuantity(lo.quantity);
+                order.setDirection(lo.direction + "");
+                order.setPrice(lo.price);
+                order.setValidity(lo.validity);
             }
+            record.setOrder(order);
             //append data
-            fileWriters.get("order").append(orderRecord);
+            fileWriter.append(record);
 		} catch (IOException e) {
             throw new HadoopTutorialException("failed write order...", e);
 		}
@@ -233,26 +186,30 @@ public class AvroInjector implements AtomDataInjector {
 		try {
             long ts = tsb.nextTimeStamp();
             for (OrderBook ob : orderbooks) {
+                VRecord record = new VRecord();
+                record.setType(TraceType.Tick.name());
                 //put tick fields
-                tickRecord.put( Q_TRACE_TYPE, TraceType.Tick.name());
-                tickRecord.put( Q_NUM_TICK,day.currentTick());
-                tickRecord.put( Q_NUM_DAY,day.number + dayGap);
-                tickRecord.put( Q_OB_NAME,ob.obName);
-                tickRecord.put( Q_TIMESTAMP,ts);
+                Tick tick = new Tick();
+                tick.setTrace(TraceType.Tick.name());
+                tick.setNumTick(day.currentTick());
+                tick.setNumDay(day.number + dayGap);
+                tick.setObName(ob.obName);
+                tick.setTimestamp(ts);
                 if (!ob.ask.isEmpty()) {
-                    tickRecord.put(Q_BEST_ASK,ob.ask.last().price);
+                    tick.setBestAsk(ob.ask.last().price);
                 }
-                else tickRecord.put(Q_BEST_ASK,0l);
+                else tick.setBestAsk(0l);
                 if (!ob.bid.isEmpty()) {
-                    tickRecord.put(Q_BEST_BID,ob.bid.last().price);
+                    tick.setBestBid( ob.bid.last().price);
                 }
-                else  tickRecord.put(Q_BEST_BID,0l);
+                else  tick.setBestBid(0l);
                 if (ob.lastFixedPrice != null) {
-                    tickRecord.put(Q_LAST_FIXED_PRICE,ob.lastFixedPrice.price);
+                    tick.setLastFixedPrice(ob.lastFixedPrice.price);
                 }
-                else tickRecord.put(Q_LAST_FIXED_PRICE,0l);
+                else tick.setLastFixedPrice(0l);
                 //append tick
-                fileWriters.get("tick").append(tickRecord);
+                record.setTick(tick);
+                fileWriter.append(record);
             }
 		} catch (IOException e) {
             throw new HadoopTutorialException("failed write Tick...", e);
@@ -264,22 +221,26 @@ public class AvroInjector implements AtomDataInjector {
 		try {
             long ts = tsb.nextTimeStamp();
             for (OrderBook ob : orderbooks) {
+                VRecord record = new VRecord();
+                record.setType(TraceType.Day.name());
                 //put day fields
-                dayRecord.put(Q_TRACE_TYPE, TraceType.Day.name());
-                dayRecord.put(EXT_NUM_DAY, nbDays + dayGap);
-                dayRecord.put( Q_OB_NAME, ob.obName);
-                dayRecord.put(Q_FIRST_FIXED_PRICE, ob.firstPriceOfDay);
-                dayRecord.put(Q_LOWEST_PRICE, ob.lowestPriceOfDay);
-                dayRecord.put( Q_HIGHEST_PRICE, ob.highestPriceOfDay);
+                fr.finaxys.tutorials.utils.avro.models.Day day = new fr.finaxys.tutorials.utils.avro.models.Day() ;
+                day.setTrace(TraceType.Day.name());
+                day.setNumDay(nbDays + dayGap);
+                day.setObName(ob.obName);
+                day.setFirstFixedPrice(ob.firstPriceOfDay);
+                day.setLowestPrice(ob.lowestPriceOfDay);
+                day.setHighestPrice(ob.highestPriceOfDay);
                 long price = 0;
                 if (ob.lastFixedPrice != null) {
                     price = ob.lastFixedPrice.price;
                 }
-                dayRecord.put( Q_LAST_FIXED_PRICE, price);
-                dayRecord.put( Q_NB_PRICES_FIXED, ob.numberOfPricesFixed);
-                dayRecord.put( Q_TIMESTAMP, ts);
+                day.setLastFixedPrice(price);
+                day.setNbPricesFixed(ob.numberOfPricesFixed);
+                day.setTimestamp(ts);
+                record.setDay(day);
                 //append day
-                fileWriters.get("day").append(dayRecord);
+                fileWriter.append(record);
 			}
 		} catch (IOException e) {
             throw new HadoopTutorialException("failed write Day...", e);
@@ -290,13 +251,17 @@ public class AvroInjector implements AtomDataInjector {
 	public void sendExec(Order o) {
 		try {
             long ts = tsb.nextTimeStamp();
+            VRecord record = new VRecord();
+            record.setType(TraceType.Exec.name());
             //put exec fields
-            execRecord.put(Q_TRACE_TYPE, TraceType.Exec.name());
-            execRecord.put(Q_SENDER,  o.sender.name);
-            execRecord.put( Q_EXT_ID,o.extId);
-            execRecord.put( Q_TIMESTAMP,ts);
+            Exec exec = new Exec();
+            exec.setTrace(TraceType.Exec.name());
+            exec.setSender(o.sender.name);
+            exec.setExtId(o.extId);
+            exec.setTimestamp(ts);
+            record.setExec(exec);
             //append exec
-            fileWriters.get("exec").append(execRecord);
+            fileWriter.append(record);
 		} catch (IOException e) {
             throw new HadoopTutorialException("failed write exec...", e);
 		}
@@ -306,12 +271,10 @@ public class AvroInjector implements AtomDataInjector {
 	public void closeOutput() {
 		try {
             // destruct dataFileWriters
-            for(Map.Entry<String, DataFileWriter<GenericRecord>> entry  : this.fileWriters.entrySet()){
-                entry.getValue().close();
-            }
-                fileSystem.close();
-            LOGGER.info("Data imported ");
+            fileWriter.close();
+            fileSystem.close();
             LOGGER.info("Close connection ");
+            LOGGER.info("Data imported ");
 		} catch (IOException e) {
             throw new HadoopTutorialException("failed close fileSystem...", e);
 		}

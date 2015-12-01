@@ -72,7 +72,7 @@ public class ParquetReader extends Configured implements Tool {
     public static void main(String[] args) throws Exception {
         try {
             AtomConfiguration atomConfiguration = new AtomConfiguration() ;
-            String[] otherArgs = {"/pricePqt","/result-pqt"} ; // parquet file path into hdfs , output file
+            String[] otherArgs = {"/ParquetFile","/readParquetFile"} ; // parquet file path into hdfs , output file
             Configuration conf = new Configuration() ;
             conf.addResource(atomConfiguration.getHadoopConfHdfs());
             conf.reloadConfiguration();

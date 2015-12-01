@@ -7,8 +7,9 @@ package fr.finaxys.tutorials.utils.avro.models;
 @SuppressWarnings("all")
 @org.apache.avro.specific.AvroGenerated
 public class AgentReferential extends org.apache.avro.specific.SpecificRecordBase implements org.apache.avro.specific.SpecificRecord {
-  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"AgentReferential\",\"namespace\":\"fr.finaxys.tutorials.utils.avro.models\",\"fields\":[{\"name\":\"AgentRefId\",\"type\":\"int\"},{\"name\":\"AgentName\",\"type\":\"string\"},{\"name\":\"IsMarketMaker\",\"type\":\"string\"},{\"name\":\"Details\",\"type\":\"string\"},{\"name\":\"Timestamp\",\"type\":\"long\"}]}");
+  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"AgentReferential\",\"namespace\":\"fr.finaxys.tutorials.utils.avro.models\",\"fields\":[{\"name\":\"Trace\",\"type\":\"string\"},{\"name\":\"AgentRefId\",\"type\":\"int\"},{\"name\":\"AgentName\",\"type\":\"string\"},{\"name\":\"IsMarketMaker\",\"type\":\"string\"},{\"name\":\"Details\",\"type\":\"string\"},{\"name\":\"Timestamp\",\"type\":\"long\"}]}");
   public static org.apache.avro.Schema getClassSchema() { return SCHEMA$; }
+  @Deprecated public java.lang.CharSequence Trace;
   @Deprecated public int AgentRefId;
   @Deprecated public java.lang.CharSequence AgentName;
   @Deprecated public java.lang.CharSequence IsMarketMaker;
@@ -25,7 +26,8 @@ public class AgentReferential extends org.apache.avro.specific.SpecificRecordBas
   /**
    * All-args constructor.
    */
-  public AgentReferential(java.lang.Integer AgentRefId, java.lang.CharSequence AgentName, java.lang.CharSequence IsMarketMaker, java.lang.CharSequence Details, java.lang.Long Timestamp) {
+  public AgentReferential(java.lang.CharSequence Trace, java.lang.Integer AgentRefId, java.lang.CharSequence AgentName, java.lang.CharSequence IsMarketMaker, java.lang.CharSequence Details, java.lang.Long Timestamp) {
+    this.Trace = Trace;
     this.AgentRefId = AgentRefId;
     this.AgentName = AgentName;
     this.IsMarketMaker = IsMarketMaker;
@@ -37,11 +39,12 @@ public class AgentReferential extends org.apache.avro.specific.SpecificRecordBas
   // Used by DatumWriter.  Applications should not call. 
   public java.lang.Object get(int field$) {
     switch (field$) {
-    case 0: return AgentRefId;
-    case 1: return AgentName;
-    case 2: return IsMarketMaker;
-    case 3: return Details;
-    case 4: return Timestamp;
+    case 0: return Trace;
+    case 1: return AgentRefId;
+    case 2: return AgentName;
+    case 3: return IsMarketMaker;
+    case 4: return Details;
+    case 5: return Timestamp;
     default: throw new org.apache.avro.AvroRuntimeException("Bad index");
     }
   }
@@ -49,13 +52,29 @@ public class AgentReferential extends org.apache.avro.specific.SpecificRecordBas
   @SuppressWarnings(value="unchecked")
   public void put(int field$, java.lang.Object value$) {
     switch (field$) {
-    case 0: AgentRefId = (java.lang.Integer)value$; break;
-    case 1: AgentName = (java.lang.CharSequence)value$; break;
-    case 2: IsMarketMaker = (java.lang.CharSequence)value$; break;
-    case 3: Details = (java.lang.CharSequence)value$; break;
-    case 4: Timestamp = (java.lang.Long)value$; break;
+    case 0: Trace = (java.lang.CharSequence)value$; break;
+    case 1: AgentRefId = (java.lang.Integer)value$; break;
+    case 2: AgentName = (java.lang.CharSequence)value$; break;
+    case 3: IsMarketMaker = (java.lang.CharSequence)value$; break;
+    case 4: Details = (java.lang.CharSequence)value$; break;
+    case 5: Timestamp = (java.lang.Long)value$; break;
     default: throw new org.apache.avro.AvroRuntimeException("Bad index");
     }
+  }
+
+  /**
+   * Gets the value of the 'Trace' field.
+   */
+  public java.lang.CharSequence getTrace() {
+    return Trace;
+  }
+
+  /**
+   * Sets the value of the 'Trace' field.
+   * @param value the value to set.
+   */
+  public void setTrace(java.lang.CharSequence value) {
+    this.Trace = value;
   }
 
   /**
@@ -154,6 +173,7 @@ public class AgentReferential extends org.apache.avro.specific.SpecificRecordBas
   public static class Builder extends org.apache.avro.specific.SpecificRecordBuilderBase<AgentReferential>
     implements org.apache.avro.data.RecordBuilder<AgentReferential> {
 
+    private java.lang.CharSequence Trace;
     private int AgentRefId;
     private java.lang.CharSequence AgentName;
     private java.lang.CharSequence IsMarketMaker;
@@ -168,51 +188,84 @@ public class AgentReferential extends org.apache.avro.specific.SpecificRecordBas
     /** Creates a Builder by copying an existing Builder */
     private Builder(fr.finaxys.tutorials.utils.avro.models.AgentReferential.Builder other) {
       super(other);
-      if (isValidValue(fields()[0], other.AgentRefId)) {
-        this.AgentRefId = data().deepCopy(fields()[0].schema(), other.AgentRefId);
+      if (isValidValue(fields()[0], other.Trace)) {
+        this.Trace = data().deepCopy(fields()[0].schema(), other.Trace);
         fieldSetFlags()[0] = true;
       }
-      if (isValidValue(fields()[1], other.AgentName)) {
-        this.AgentName = data().deepCopy(fields()[1].schema(), other.AgentName);
+      if (isValidValue(fields()[1], other.AgentRefId)) {
+        this.AgentRefId = data().deepCopy(fields()[1].schema(), other.AgentRefId);
         fieldSetFlags()[1] = true;
       }
-      if (isValidValue(fields()[2], other.IsMarketMaker)) {
-        this.IsMarketMaker = data().deepCopy(fields()[2].schema(), other.IsMarketMaker);
+      if (isValidValue(fields()[2], other.AgentName)) {
+        this.AgentName = data().deepCopy(fields()[2].schema(), other.AgentName);
         fieldSetFlags()[2] = true;
       }
-      if (isValidValue(fields()[3], other.Details)) {
-        this.Details = data().deepCopy(fields()[3].schema(), other.Details);
+      if (isValidValue(fields()[3], other.IsMarketMaker)) {
+        this.IsMarketMaker = data().deepCopy(fields()[3].schema(), other.IsMarketMaker);
         fieldSetFlags()[3] = true;
       }
-      if (isValidValue(fields()[4], other.Timestamp)) {
-        this.Timestamp = data().deepCopy(fields()[4].schema(), other.Timestamp);
+      if (isValidValue(fields()[4], other.Details)) {
+        this.Details = data().deepCopy(fields()[4].schema(), other.Details);
         fieldSetFlags()[4] = true;
+      }
+      if (isValidValue(fields()[5], other.Timestamp)) {
+        this.Timestamp = data().deepCopy(fields()[5].schema(), other.Timestamp);
+        fieldSetFlags()[5] = true;
       }
     }
     
     /** Creates a Builder by copying an existing AgentReferential instance */
     private Builder(fr.finaxys.tutorials.utils.avro.models.AgentReferential other) {
             super(fr.finaxys.tutorials.utils.avro.models.AgentReferential.SCHEMA$);
-      if (isValidValue(fields()[0], other.AgentRefId)) {
-        this.AgentRefId = data().deepCopy(fields()[0].schema(), other.AgentRefId);
+      if (isValidValue(fields()[0], other.Trace)) {
+        this.Trace = data().deepCopy(fields()[0].schema(), other.Trace);
         fieldSetFlags()[0] = true;
       }
-      if (isValidValue(fields()[1], other.AgentName)) {
-        this.AgentName = data().deepCopy(fields()[1].schema(), other.AgentName);
+      if (isValidValue(fields()[1], other.AgentRefId)) {
+        this.AgentRefId = data().deepCopy(fields()[1].schema(), other.AgentRefId);
         fieldSetFlags()[1] = true;
       }
-      if (isValidValue(fields()[2], other.IsMarketMaker)) {
-        this.IsMarketMaker = data().deepCopy(fields()[2].schema(), other.IsMarketMaker);
+      if (isValidValue(fields()[2], other.AgentName)) {
+        this.AgentName = data().deepCopy(fields()[2].schema(), other.AgentName);
         fieldSetFlags()[2] = true;
       }
-      if (isValidValue(fields()[3], other.Details)) {
-        this.Details = data().deepCopy(fields()[3].schema(), other.Details);
+      if (isValidValue(fields()[3], other.IsMarketMaker)) {
+        this.IsMarketMaker = data().deepCopy(fields()[3].schema(), other.IsMarketMaker);
         fieldSetFlags()[3] = true;
       }
-      if (isValidValue(fields()[4], other.Timestamp)) {
-        this.Timestamp = data().deepCopy(fields()[4].schema(), other.Timestamp);
+      if (isValidValue(fields()[4], other.Details)) {
+        this.Details = data().deepCopy(fields()[4].schema(), other.Details);
         fieldSetFlags()[4] = true;
       }
+      if (isValidValue(fields()[5], other.Timestamp)) {
+        this.Timestamp = data().deepCopy(fields()[5].schema(), other.Timestamp);
+        fieldSetFlags()[5] = true;
+      }
+    }
+
+    /** Gets the value of the 'Trace' field */
+    public java.lang.CharSequence getTrace() {
+      return Trace;
+    }
+    
+    /** Sets the value of the 'Trace' field */
+    public fr.finaxys.tutorials.utils.avro.models.AgentReferential.Builder setTrace(java.lang.CharSequence value) {
+      validate(fields()[0], value);
+      this.Trace = value;
+      fieldSetFlags()[0] = true;
+      return this; 
+    }
+    
+    /** Checks whether the 'Trace' field has been set */
+    public boolean hasTrace() {
+      return fieldSetFlags()[0];
+    }
+    
+    /** Clears the value of the 'Trace' field */
+    public fr.finaxys.tutorials.utils.avro.models.AgentReferential.Builder clearTrace() {
+      Trace = null;
+      fieldSetFlags()[0] = false;
+      return this;
     }
 
     /** Gets the value of the 'AgentRefId' field */
@@ -222,20 +275,20 @@ public class AgentReferential extends org.apache.avro.specific.SpecificRecordBas
     
     /** Sets the value of the 'AgentRefId' field */
     public fr.finaxys.tutorials.utils.avro.models.AgentReferential.Builder setAgentRefId(int value) {
-      validate(fields()[0], value);
+      validate(fields()[1], value);
       this.AgentRefId = value;
-      fieldSetFlags()[0] = true;
+      fieldSetFlags()[1] = true;
       return this; 
     }
     
     /** Checks whether the 'AgentRefId' field has been set */
     public boolean hasAgentRefId() {
-      return fieldSetFlags()[0];
+      return fieldSetFlags()[1];
     }
     
     /** Clears the value of the 'AgentRefId' field */
     public fr.finaxys.tutorials.utils.avro.models.AgentReferential.Builder clearAgentRefId() {
-      fieldSetFlags()[0] = false;
+      fieldSetFlags()[1] = false;
       return this;
     }
 
@@ -246,21 +299,21 @@ public class AgentReferential extends org.apache.avro.specific.SpecificRecordBas
     
     /** Sets the value of the 'AgentName' field */
     public fr.finaxys.tutorials.utils.avro.models.AgentReferential.Builder setAgentName(java.lang.CharSequence value) {
-      validate(fields()[1], value);
+      validate(fields()[2], value);
       this.AgentName = value;
-      fieldSetFlags()[1] = true;
+      fieldSetFlags()[2] = true;
       return this; 
     }
     
     /** Checks whether the 'AgentName' field has been set */
     public boolean hasAgentName() {
-      return fieldSetFlags()[1];
+      return fieldSetFlags()[2];
     }
     
     /** Clears the value of the 'AgentName' field */
     public fr.finaxys.tutorials.utils.avro.models.AgentReferential.Builder clearAgentName() {
       AgentName = null;
-      fieldSetFlags()[1] = false;
+      fieldSetFlags()[2] = false;
       return this;
     }
 
@@ -271,21 +324,21 @@ public class AgentReferential extends org.apache.avro.specific.SpecificRecordBas
     
     /** Sets the value of the 'IsMarketMaker' field */
     public fr.finaxys.tutorials.utils.avro.models.AgentReferential.Builder setIsMarketMaker(java.lang.CharSequence value) {
-      validate(fields()[2], value);
+      validate(fields()[3], value);
       this.IsMarketMaker = value;
-      fieldSetFlags()[2] = true;
+      fieldSetFlags()[3] = true;
       return this; 
     }
     
     /** Checks whether the 'IsMarketMaker' field has been set */
     public boolean hasIsMarketMaker() {
-      return fieldSetFlags()[2];
+      return fieldSetFlags()[3];
     }
     
     /** Clears the value of the 'IsMarketMaker' field */
     public fr.finaxys.tutorials.utils.avro.models.AgentReferential.Builder clearIsMarketMaker() {
       IsMarketMaker = null;
-      fieldSetFlags()[2] = false;
+      fieldSetFlags()[3] = false;
       return this;
     }
 
@@ -296,21 +349,21 @@ public class AgentReferential extends org.apache.avro.specific.SpecificRecordBas
     
     /** Sets the value of the 'Details' field */
     public fr.finaxys.tutorials.utils.avro.models.AgentReferential.Builder setDetails(java.lang.CharSequence value) {
-      validate(fields()[3], value);
+      validate(fields()[4], value);
       this.Details = value;
-      fieldSetFlags()[3] = true;
+      fieldSetFlags()[4] = true;
       return this; 
     }
     
     /** Checks whether the 'Details' field has been set */
     public boolean hasDetails() {
-      return fieldSetFlags()[3];
+      return fieldSetFlags()[4];
     }
     
     /** Clears the value of the 'Details' field */
     public fr.finaxys.tutorials.utils.avro.models.AgentReferential.Builder clearDetails() {
       Details = null;
-      fieldSetFlags()[3] = false;
+      fieldSetFlags()[4] = false;
       return this;
     }
 
@@ -321,20 +374,20 @@ public class AgentReferential extends org.apache.avro.specific.SpecificRecordBas
     
     /** Sets the value of the 'Timestamp' field */
     public fr.finaxys.tutorials.utils.avro.models.AgentReferential.Builder setTimestamp(long value) {
-      validate(fields()[4], value);
+      validate(fields()[5], value);
       this.Timestamp = value;
-      fieldSetFlags()[4] = true;
+      fieldSetFlags()[5] = true;
       return this; 
     }
     
     /** Checks whether the 'Timestamp' field has been set */
     public boolean hasTimestamp() {
-      return fieldSetFlags()[4];
+      return fieldSetFlags()[5];
     }
     
     /** Clears the value of the 'Timestamp' field */
     public fr.finaxys.tutorials.utils.avro.models.AgentReferential.Builder clearTimestamp() {
-      fieldSetFlags()[4] = false;
+      fieldSetFlags()[5] = false;
       return this;
     }
 
@@ -342,11 +395,12 @@ public class AgentReferential extends org.apache.avro.specific.SpecificRecordBas
     public AgentReferential build() {
       try {
         AgentReferential record = new AgentReferential();
-        record.AgentRefId = fieldSetFlags()[0] ? this.AgentRefId : (java.lang.Integer) defaultValue(fields()[0]);
-        record.AgentName = fieldSetFlags()[1] ? this.AgentName : (java.lang.CharSequence) defaultValue(fields()[1]);
-        record.IsMarketMaker = fieldSetFlags()[2] ? this.IsMarketMaker : (java.lang.CharSequence) defaultValue(fields()[2]);
-        record.Details = fieldSetFlags()[3] ? this.Details : (java.lang.CharSequence) defaultValue(fields()[3]);
-        record.Timestamp = fieldSetFlags()[4] ? this.Timestamp : (java.lang.Long) defaultValue(fields()[4]);
+        record.Trace = fieldSetFlags()[0] ? this.Trace : (java.lang.CharSequence) defaultValue(fields()[0]);
+        record.AgentRefId = fieldSetFlags()[1] ? this.AgentRefId : (java.lang.Integer) defaultValue(fields()[1]);
+        record.AgentName = fieldSetFlags()[2] ? this.AgentName : (java.lang.CharSequence) defaultValue(fields()[2]);
+        record.IsMarketMaker = fieldSetFlags()[3] ? this.IsMarketMaker : (java.lang.CharSequence) defaultValue(fields()[3]);
+        record.Details = fieldSetFlags()[4] ? this.Details : (java.lang.CharSequence) defaultValue(fields()[4]);
+        record.Timestamp = fieldSetFlags()[5] ? this.Timestamp : (java.lang.Long) defaultValue(fields()[5]);
         return record;
       } catch (Exception e) {
         throw new org.apache.avro.AvroRuntimeException(e);

@@ -37,7 +37,7 @@ public class HDFSReader {
         BufferedReader br=new BufferedReader(new InputStreamReader(fs.open(pt)));
         String line;
         line=br.readLine();
-        while (line != null){
+        while (line != null ){
             System.out.println(line);
             line=br.readLine();
         }
@@ -55,4 +55,9 @@ public class HDFSReader {
         fs.close();
     }
 
+    public static void main(String[] args) throws Exception {
+        HDFSReader reader = new HDFSReader(new AtomConfiguration());
+        reader.showHDFSFile("/readParquetFile/part-m-00000");
+        reader.close();
+    }
 }

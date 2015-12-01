@@ -2,6 +2,7 @@ package fr.finaxys.tutorials.utils.parquet;
 
 
 import fr.finaxys.tutorials.utils.AtomConfiguration;
+import fr.finaxys.tutorials.utils.avro.models.VRecord;
 import org.apache.avro.Schema;
 import org.apache.avro.mapreduce.AvroKeyInputFormat;
 import org.apache.hadoop.conf.Configuration;
@@ -15,25 +16,20 @@ import org.apache.parquet.avro.AvroParquetOutputFormat;
 import org.apache.parquet.avro.AvroSchemaConverter;
 import org.apache.parquet.hadoop.metadata.CompressionCodecName;
 
-import java.io.File;
-
 
 public class AvroParquetConverter extends Configured implements Tool {
 
     public int run(String[] args) throws Exception {
         AtomConfiguration atom = new AtomConfiguration() ;
         //Path schemaPath = new Path(args[0]);
-        String type = args[1];
-        Path inputPath = new Path(atom.getDestHDFS()+type+"File");
+        Path inputPath = new Path(atom.getDestHDFS());
         Path outputPath = new Path(args[0]);
         Configuration conf = new Configuration();
         conf.addResource(new Path(atom.getHadoopConfHdfs()));
         conf.reloadConfiguration();
         Job job = Job.getInstance(conf, "Parquet Conversion");
         job.setJarByClass(getClass());
-        //FileSystem fs = FileSystem.get(conf);
-        //InputStream in = fs.open(schemaPath);
-        Schema avroSchema = new Schema.Parser().parse(new File(atom.getAvroSchema()+"/"+type+"."+atom.getExtAvro()));
+        Schema avroSchema = VRecord.getClassSchema();
         System.out.println(new AvroSchemaConverter().convert(avroSchema).toString());
         FileInputFormat.addInputPath(job, inputPath);
         job.setInputFormatClass(AvroKeyInputFormat.class);
@@ -61,7 +57,7 @@ public class AvroParquetConverter extends Configured implements Tool {
 
     public static void main(String[] args) throws Exception {
 
-        String[] otherArgs = {"/pricePqt","price"} ; // args[0]=ParquetOutPutDir args[1]=ModelType
+        String[] otherArgs = {"/ParquetFile"} ; // args[0]=ParquetOutPutDir args[1]=ModelType
         int exitCode = ToolRunner.run(new AvroParquetConverter(), otherArgs);
         System.exit(exitCode);
     }
