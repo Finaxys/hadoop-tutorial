@@ -35,7 +35,7 @@ public class ParquetReader extends Configured implements Tool {
         @Override
         public void map(LongWritable key, Group value, Context context) throws IOException, InterruptedException {
             NullWritable outKey = NullWritable.get();
-            context.write(outKey, new Text(value.toString()));
+            context.write(outKey, new Text(value.toString().replaceAll("\n  ",";").split("\n")[1].replaceAll(" ","")));
         }
     }
 
@@ -68,11 +68,10 @@ public class ParquetReader extends Configured implements Tool {
         return 0;
     }
 
-
-    public static void main(String[] args) throws Exception {
+    public void read(String inputFilePath, String outputFilePath){
         try {
             AtomConfiguration atomConfiguration = new AtomConfiguration() ;
-            String[] otherArgs = {"/ParquetFile","/readParquetFile"} ; // parquet file path into hdfs , output file
+            String[] otherArgs = {inputFilePath,outputFilePath} ; // parquet file path into hdfs , output file
             Configuration conf = new Configuration() ;
             conf.addResource(atomConfiguration.getHadoopConfHdfs());
             conf.reloadConfiguration();
@@ -82,5 +81,10 @@ public class ParquetReader extends Configured implements Tool {
             LOGGER.severe("failed to load hdfs conf..." + e.getMessage());
             System.exit(255);
         }
+    }
+
+    public static void main(String[] args) throws Exception {
+        ParquetReader reader = new ParquetReader();
+        reader.read("/parquetResult","/finalResultF");
     }
 }

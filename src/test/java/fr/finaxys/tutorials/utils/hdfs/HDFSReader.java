@@ -57,7 +57,7 @@ public class HDFSReader {
 
     public static void main(String[] args) throws Exception {
         HDFSReader reader = new HDFSReader(new AtomConfiguration());
-        reader.showHDFSFile("/readParquetFile/part-m-00000");
+        reader.showHDFSFile("/finalResultF/part-m-00000");
         reader.close();
     }
 }
