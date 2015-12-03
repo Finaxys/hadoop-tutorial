@@ -34,7 +34,6 @@ public class SimpleHBaseInjector extends AtomHBaseHelper implements AtomDataInje
 	
 	public SimpleHBaseInjector(@NotNull AtomConfiguration conf) {
 		super(conf.getColumnFamily(), TableName.valueOf(conf.getTableName()),conf);
-		
 		this.atomConfiguration = conf;
 		this.dayGap = atomConfiguration.getDayGap();
 		/* this.table = createHTableConnexion(tableName

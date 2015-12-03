@@ -56,9 +56,9 @@ public class AtomConfiguration {
 	private boolean outFile;
 	private boolean outAvro;
 	private String avroSchema;
-	private String destHDFS;
+	private String avroHDFSDest;
+    private String parquetHDFSDest;
 	private String pathAvro;
-    private String extAvro;
 
 	private String hadoopConfCore;
 	private String hbaseConfHbase;
@@ -156,7 +156,7 @@ public class AtomConfiguration {
 			this.outAvro = System.getProperty("simul.output.avro", "true")
 					.equals("true");
 			this.avroSchema = System.getProperty("avro.schema");
-            this.extAvro = System.getProperty("avro.ext") ;
+            this.parquetHDFSDest = System.getProperty("dest.hdfs.parquet") ;
 			this.startTime = System.currentTimeMillis();
 			this.worker = Integer.parseInt(System.getProperty("simul.worker",
 					"10"));
@@ -194,7 +194,7 @@ public class AtomConfiguration {
 			this.hbaseConfHbase = System.getProperty("hbase.conf.hbase");
 			this.hadoopConfHdfs = System.getProperty("hadoop.conf.hdfs");
 
-			this.destHDFS = System.getProperty("dest.hdfs");
+			this.avroHDFSDest = System.getProperty("dest.hdfs.avro");
 			this.pathAvro = System.getProperty("avro.path");
 			
 			this.tsbDateBegin = System.getProperty("simul.time.startdate");
@@ -313,8 +313,8 @@ public class AtomConfiguration {
 		return avroSchema;
 	}
 
-	public String getDestHDFS() {
-		return destHDFS;
+	public String getAvroHDFSDest() {
+		return avroHDFSDest;
 	}
 
 	public String getPathAvro() {
@@ -401,11 +401,11 @@ public class AtomConfiguration {
 		return nbOrderBooks;
 	}
 
-    public String getExtAvro() {
-        return extAvro;
+    public String getParquetHDFSDest() {
+        return parquetHDFSDest;
     }
 
-    public void setExtAvro(String extAvro) {
-        this.extAvro = extAvro;
+    public void setParquetHDFSDest(String parquetHDFSDest) {
+        this.parquetHDFSDest = parquetHDFSDest;
     }
 }

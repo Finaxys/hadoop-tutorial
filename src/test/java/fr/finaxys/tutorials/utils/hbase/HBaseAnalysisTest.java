@@ -1,44 +1,32 @@
 package fr.finaxys.tutorials.utils.hbase;
 
-import static fr.finaxys.tutorials.utils.hbase.AtomHBaseHelper.AGENT;
-import static fr.finaxys.tutorials.utils.hbase.AtomHBaseHelper.ORDER;
-
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Map;
-import java.util.Properties;
-import java.util.logging.Level;
-
+import fr.finaxys.tutorials.utils.HadoopTutorialException;
+import fr.finaxys.tutorials.utils.InjectorTests;
+import fr.finaxys.tutorials.utils.TimeStampBuilder;
+import fr.univlille1.atom.trace.TraceType;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HBaseTestingUtility;
-import org.apache.hadoop.hbase.MiniHBaseCluster;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Table;
 import org.apache.hadoop.hbase.util.Bytes;
-import org.apache.hadoop.mapred.MiniMRCluster;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.experimental.categories.Category;
-
 import v13.LimitOrder;
 import v13.Order;
 import v13.PriceRecord;
 import v13.agents.Agent;
 import v13.agents.DumbAgent;
-import fr.finaxys.tutorials.utils.HadoopTutorialException;
-import fr.finaxys.tutorials.utils.InjectorTests;
-import fr.finaxys.tutorials.utils.TimeStampBuilder;
-import fr.univlille1.atom.trace.TraceType;
+
+import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Map;
+import java.util.logging.Level;
+
+import static fr.finaxys.tutorials.utils.hbase.AtomHBaseHelper.AGENT;
+import static fr.finaxys.tutorials.utils.hbase.AtomHBaseHelper.ORDER;
 
 @Category(InjectorTests.class)
 public class HBaseAnalysisTest {
@@ -151,7 +139,7 @@ public class HBaseAnalysisTest {
 		Assert.assertEquals("Order should be null", r.get(TraceType.Order), null);
 	}
 	
-	 @SuppressWarnings("unchecked")
+	@SuppressWarnings("unchecked")
 	@Test
 	public void testZAgentPosition() throws Exception {
 		 

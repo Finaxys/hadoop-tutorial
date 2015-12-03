@@ -3,15 +3,14 @@ package fr.finaxys.tutorials.utils.avro;
 import fr.finaxys.tutorials.utils.AtomConfiguration;
 import fr.finaxys.tutorials.utils.InjectorTests;
 import fr.finaxys.tutorials.utils.TimeStampBuilder;
-import fr.finaxys.tutorials.utils.avro.models.*;
+import fr.finaxys.tutorials.utils.avro.models.Tick;
+import fr.finaxys.tutorials.utils.avro.models.VRecord;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HBaseTestingUtility;
 import org.junit.*;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import v13.*;
-import v13.Day;
-import v13.Order;
 import v13.agents.Agent;
 import v13.agents.DumbAgent;
 

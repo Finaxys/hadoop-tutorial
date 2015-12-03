@@ -28,7 +28,7 @@ public class AvroReader {
 
     public AvroReader(AtomConfiguration atomConf) {
         this.atomConf = atomConf;
-        this.destHDFS = atomConf.getDestHDFS();
+        this.destHDFS = atomConf.getAvroHDFSDest();
         this.conf = new Configuration();
         this.conf.addResource(new Path(atomConf.getHadoopConfCore()));
         this.conf.addResource(new Path(atomConf.getHadoopConfHdfs()));
@@ -40,7 +40,7 @@ public class AvroReader {
 
     public AvroReader(AtomConfiguration atomConf,Configuration conf) {
         this.atomConf = atomConf;
-        this.destHDFS = atomConf.getDestHDFS();
+        this.destHDFS = atomConf.getAvroHDFSDest();
         this.conf = conf ;
     }
 

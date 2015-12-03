@@ -34,7 +34,7 @@ public class AvroInjector implements AtomDataInjector {
 
 	public AvroInjector(@NotNull AtomConfiguration atomConf) throws Exception {
 		this.atomConf = atomConf;
-		this.destHDFS = atomConf.getDestHDFS();
+		this.destHDFS = atomConf.getAvroHDFSDest();
 		this.conf = new Configuration();
 		this.conf.addResource(new Path(atomConf.getHadoopConfCore()));
 		this.conf.addResource(new Path(atomConf.getHadoopConfHdfs()));
@@ -47,7 +47,7 @@ public class AvroInjector implements AtomDataInjector {
 
     public AvroInjector(@NotNull AtomConfiguration atomConf,Configuration conf) throws Exception {
         this.atomConf = atomConf;
-        this.destHDFS = atomConf.getDestHDFS();
+        this.destHDFS = atomConf.getAvroHDFSDest();
         this.conf = conf;
         this.dayGap = atomConf.getDayGap();
     }

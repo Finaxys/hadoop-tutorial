@@ -25,12 +25,26 @@ import java.io.IOException;
  * Created by finaxys on 11/20/15.
  */
 public class ParquetReader extends Configured implements Tool {
+
     private static final java.util.logging.Logger LOGGER = java.util.logging.Logger
             .getLogger(AtomDataInjector.class.getName());
+    private Configuration conf = null ;
+    static private String FILE_PATH = "/part-m-00000.snappy.parquet" ;
 
-    /*
-     * Read a Parquet record, write a CSV record
-     */
+    private AtomConfiguration atomConfiguration ;
+
+    public ParquetReader(AtomConfiguration atomConfiguration,Configuration conf){
+        this.atomConfiguration = atomConfiguration ;
+        this.conf = conf ;
+    }
+    public ParquetReader(AtomConfiguration atomConfiguration){
+        this.atomConfiguration = atomConfiguration ;
+    }
+
+    public void setConfiguration(Configuration conf){
+        this.conf = conf ;
+    }
+
     public static class ReadRequestMap extends Mapper<LongWritable, Group, NullWritable, Text> {
         @Override
         public void map(LongWritable key, Group value, Context context) throws IOException, InterruptedException {
@@ -39,12 +53,15 @@ public class ParquetReader extends Configured implements Tool {
         }
     }
 
+
     public int run(String[] args) throws Exception {
         AtomConfiguration atom = new AtomConfiguration() ;
-        Configuration conf = new Configuration();
-        conf.addResource(new Path(atom.getHadoopConfHdfs()));
-        conf.reloadConfiguration();
-        Path inputPath = new Path(args[0]+"/part-m-00000.snappy.parquet");
+        if(conf == null){
+            conf = new Configuration();
+            conf.addResource(new Path(atom.getHadoopConfHdfs()));
+            conf.reloadConfiguration();
+        }
+        Path inputPath = new Path(args[0]+FILE_PATH);
         Path outputPath = new Path(args[1]);
 
         Job job = Job.getInstance(conf, "Parquet reader");
@@ -68,23 +85,19 @@ public class ParquetReader extends Configured implements Tool {
         return 0;
     }
 
-    public void read(String inputFilePath, String outputFilePath){
+    public void read(String outputFilePath){
         try {
-            AtomConfiguration atomConfiguration = new AtomConfiguration() ;
-            String[] otherArgs = {inputFilePath,outputFilePath} ; // parquet file path into hdfs , output file
-            Configuration conf = new Configuration() ;
-            conf.addResource(atomConfiguration.getHadoopConfHdfs());
-            conf.reloadConfiguration();
-            int res = ToolRunner.run(conf, new ParquetReader(), otherArgs);
-            System.exit(res);
+            String[] otherArgs = {atomConfiguration.getParquetHDFSDest(),outputFilePath} ; // parquet file path into hdfs , output file
+            int res = ToolRunner.run(conf, new ParquetReader(atomConfiguration,this.conf), otherArgs);
+            //System.exit(res);
         } catch (Exception e) {
             LOGGER.severe("failed to load hdfs conf..." + e.getMessage());
-            System.exit(255);
+            //System.exit(255);
         }
     }
 
     public static void main(String[] args) throws Exception {
-        ParquetReader reader = new ParquetReader();
-        reader.read("/parquetResult","/finalResultF");
+        ParquetReader reader = new ParquetReader(new AtomConfiguration());
+        reader.read(args[0]);
     }
 }

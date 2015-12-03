@@ -32,16 +32,35 @@ public class HDFSReader {
 
     }
 
-    public  void showHDFSFile (String filePath) throws Exception{
+    public HDFSReader(Configuration conf){
+        this.conf = conf;
+        conf.reloadConfiguration();
+        try {
+            this.fs = FileSystem.get(this.conf);
+        } catch (IOException e) {
+            throw new HadoopTutorialException("hdfs-site.xml can't be loade",e) ;
+        }
+
+    }
+
+    public void setConf(Configuration conf){
+        this.conf = conf ;
+    }
+
+    public String getHDFSFile (String filePath,int max) throws Exception{
         Path pt=new Path(filePath);
         BufferedReader br=new BufferedReader(new InputStreamReader(fs.open(pt)));
         String line;
+        StringBuffer buffer = new StringBuffer();
         line=br.readLine();
-        while (line != null ){
-            System.out.println(line);
+        int i = 0 ;
+        while (line != null && i<max ){
+            buffer.append(line + "\n");
             line=br.readLine();
+            i++ ;
         }
         br.close();
+        return buffer.toString() ;
     }
 
     public void lsDirectory(String dirPath) throws IOException {
@@ -57,7 +76,7 @@ public class HDFSReader {
 
     public static void main(String[] args) throws Exception {
         HDFSReader reader = new HDFSReader(new AtomConfiguration());
-        reader.showHDFSFile("/finalResultF/part-m-00000");
+        System.out.println(reader.getHDFSFile("/finalResult/part-m-00000", 10));
         reader.close();
     }
 }

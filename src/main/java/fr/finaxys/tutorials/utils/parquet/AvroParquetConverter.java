@@ -24,14 +24,22 @@ public class AvroParquetConverter extends Configured implements Tool {
     private static final java.util.logging.Logger LOGGER = java.util.logging.Logger
             .getLogger(AvroParquetConverter.class.getName());
     private Configuration configuration= null ;
+    private AtomConfiguration atom = null ;
+
+    public AvroParquetConverter(AtomConfiguration atom){
+        this.atom = atom ;
+    }
+    public AvroParquetConverter(AtomConfiguration atom,Configuration configuration){
+        this.atom = atom ;
+        this.configuration = configuration ;
+    }
 
     public void setConfiguration(Configuration configuration){
         this.configuration = configuration ;
     }
 
     public int run(String[] args) throws Exception {
-        AtomConfiguration atom = new AtomConfiguration();
-        Path inputPath = new Path(atom.getDestHDFS());
+        Path inputPath = new Path(atom.getAvroHDFSDest());
         Path outputPath = new Path(args[0]);
         Configuration conf;
         if (this.configuration == null){
@@ -41,6 +49,7 @@ public class AvroParquetConverter extends Configured implements Tool {
         }
         else {
             conf = this.configuration ;
+            conf.reloadConfiguration();
         }
         Job job = Job.getInstance(conf, "Parquet Conversion");
         job.setJarByClass(getClass());
@@ -60,27 +69,26 @@ public class AvroParquetConverter extends Configured implements Tool {
         return job.waitForCompletion(true) ? 0 : 1;
     }
 
-    public boolean convert(String outPutPath){
-        String[] otherArgs = {outPutPath} ; // args[0]=ParquetOutPutDir
+    public boolean convert(){
+        String[] otherArgs = {atom.getParquetHDFSDest()} ;
         int exitCode = 0;
         boolean success = false;
         try {
-            exitCode = ToolRunner.run(new AvroParquetConverter(), otherArgs);
+            exitCode = ToolRunner.run(new AvroParquetConverter(this.atom,this.configuration), otherArgs);
             success = true;
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Can't run map reduce job", e);
         }
         finally {
-            System.exit(exitCode);
+            //System.exit(exitCode);
             return success ;
         }
     }
 
     public static void main(String[] args) throws Exception {
         if(args.length != 0) {
-            AtomConfiguration atomConf = new AtomConfiguration() ;
-            AvroParquetConverter converter = new AvroParquetConverter();
-            converter.convert(args[0]); //ParquetOutPutDir
+            AvroParquetConverter converter = new AvroParquetConverter(new AtomConfiguration());
+            converter.convert();
         }
         else {
             LOGGER.info("Please set output file path .");
