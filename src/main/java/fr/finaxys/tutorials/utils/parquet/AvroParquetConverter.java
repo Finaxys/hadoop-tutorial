@@ -86,13 +86,8 @@ public class AvroParquetConverter extends Configured implements Tool {
     }
 
     public static void main(String[] args) throws Exception {
-        if(args.length != 0) {
             AvroParquetConverter converter = new AvroParquetConverter(new AtomConfiguration());
             converter.convert();
-        }
-        else {
-            LOGGER.info("Please set output file path .");
-        }
     }
 
 }
