@@ -182,7 +182,7 @@ public class AvroInjector implements AtomDataInjector {
 	}
 
 	@Override
-	public void sendTick(Day day, Collection<OrderBook> orderbooks) {
+	public  void sendTick(Day day, Collection<OrderBook> orderbooks) {
 		try {
             long ts = tsb.nextTimeStamp();
             for (OrderBook ob : orderbooks) {
