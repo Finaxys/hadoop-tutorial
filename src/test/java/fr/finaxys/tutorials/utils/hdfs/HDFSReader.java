@@ -73,10 +73,5 @@ public class HDFSReader {
     public void close() throws IOException {
         fs.close();
     }
-
-    public static void main(String[] args) throws Exception {
-        HDFSReader reader = new HDFSReader(new AtomConfiguration());
-        System.out.println(reader.getHDFSFile("/finalResult/part-m-00000", 10));
-        reader.close();
-    }
+    
 }

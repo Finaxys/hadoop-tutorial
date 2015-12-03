@@ -129,7 +129,7 @@ public class AvroParquetConverterTest {
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "can't read file result :"+e.getMessage());
         }
-        
+
         LOGGER.log(Level.INFO, "Reading data done");
 
         String convertedText = "agent;Trace:Agent;AgentName:a;ObName:o;Cash:0;Executed:1;Price:10;Direction:A;Timestamp:0;OrderExtId:1\n" +
