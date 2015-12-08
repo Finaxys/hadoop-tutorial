@@ -265,11 +265,11 @@ abstract class AtomHBaseHelper {
 	private Configuration createHbaseConfiguration(AtomConfiguration atomConf) {
 		Configuration conf = HBaseConfiguration.create();
 		try {
-		conf.addResource(new File(atomConf.getHadoopConfCore()).getAbsoluteFile().toURI().toURL());
+		//conf.addResource(new File(atomConf.getHadoopConfCore()).getAbsoluteFile().toURI().toURL());
 		conf.addResource(new
 		File(atomConf.getHbaseConfHbase()).getAbsoluteFile().toURI().toURL());
-            conf.addResource(new
-		File(atomConf.getHadoopConfHdfs()).getAbsoluteFile().toURI().toURL());
+            //conf.addResource(new
+		//File(atomConf.getHadoopConfHdfs()).getAbsoluteFile().toURI().toURL());
 		} catch (MalformedURLException e) {
 		LOGGER.log(Level.SEVERE, "Could not get hbase configuration files",
 		e);

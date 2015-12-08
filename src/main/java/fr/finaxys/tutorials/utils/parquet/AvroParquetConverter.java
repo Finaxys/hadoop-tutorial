@@ -29,6 +29,7 @@ public class AvroParquetConverter extends Configured implements Tool {
     public AvroParquetConverter(AtomConfiguration atom){
         this.atom = atom ;
     }
+
     public AvroParquetConverter(AtomConfiguration atom,Configuration configuration){
         this.atom = atom ;
         this.configuration = configuration ;

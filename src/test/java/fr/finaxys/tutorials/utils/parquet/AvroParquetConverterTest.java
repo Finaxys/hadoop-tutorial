@@ -71,7 +71,6 @@ public class AvroParquetConverterTest {
     @Test
     public void testConvert() {
         // prepare data to convert
-
         //put an agent example
         Agent a = new DumbAgent("a");
         Order o = new LimitOrder("o", "1", LimitOrder.ASK, 1, 10);
@@ -100,7 +99,7 @@ public class AvroParquetConverterTest {
         obs.add(ob2);
         avroInjector.sendTick(day, obs);
 
-        //put a dau example
+        //put a day example
         int nbDays = 1;
         OrderBook ob3 = new OrderBook("ob1");
         OrderBook ob4 = new OrderBook("ob2");

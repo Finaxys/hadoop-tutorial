@@ -1,0 +1,5 @@
+# to start launch spark job
+~/spark-1.5.1-bin-hadoop2.4/bin/spark-submit --class fr.finaxys.tutorials.utils.spark.batch.HBaseAnalysis target/hadoop-tutorial-0.2-SNAPSHOT-jar-with-dependencies.jar
+#Streaming
+~/spark-1.5.1-bin-hadoop2.4/bin/spark-submit --class fr.finaxys.tutorials.utils.spark.streaming.HBaseStreamingAnalysis target/hadoop-tutorial-0.2-SNAPSHOT-jar-with-dependencies.jar
+
