@@ -27,7 +27,7 @@ public class HBaseAnalysis {
     public static final String hbaseSitePath = atomConfiguration.getHbaseConfHbase() ;
 
     public static void main(String[] args) {
-        SparkConf sparkConf = new SparkConf().setAppName("HBaseRead")
+        SparkConf sparkConf = new SparkConf().setAppName("StreamingHBaseAnalysis")
                 .setMaster("local[*]");
         JavaSparkContext sc = new JavaSparkContext(sparkConf);
         Configuration conf = HBaseConfiguration.create();
