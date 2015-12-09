@@ -22,9 +22,15 @@ public class ParquetAnalysis {
 
     public static void main(String[] args) throws IOException {
         String request = requestReader.readRequest();
-        SparkConf sparkConf = new SparkConf().setAppName("ParquetAnalysis")
-                .setMaster("local[*]");
-        JavaSparkContext sc = new JavaSparkContext(sparkConf);
+        SparkConf sparkConf = new SparkConf().setAppName("HBaseAnalysis");
+        JavaSparkContext sc = null ;
+        try{
+            sc = new JavaSparkContext(sparkConf);
+        }catch(Exception e){
+            sparkConf = new SparkConf().setAppName("HBaseAnalysis")
+                    .setMaster("local[*]");
+            sc = new JavaSparkContext(sparkConf);
+        }
         Configuration conf = new Configuration();
         conf.addResource(new Path(hdfsSitePAth));
         conf.reloadConfiguration();

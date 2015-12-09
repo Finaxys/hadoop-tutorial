@@ -30,9 +30,15 @@ public class HBaseAnalysis {
 
     public static void main(String[] args) {
         String request = requestReader.readRequest() ;
-        SparkConf sparkConf = new SparkConf().setAppName("HBaseAnalysis")
-                .setMaster("local[*]");
-        JavaSparkContext sc = new JavaSparkContext(sparkConf);
+        SparkConf sparkConf = new SparkConf().setAppName("HBaseAnalysis");
+        JavaSparkContext sc = null ;
+        try{
+            sc = new JavaSparkContext(sparkConf);
+        }catch(Exception e){
+            sparkConf = new SparkConf().setAppName("HBaseAnalysis")
+                    .setMaster("local[*]");
+            sc = new JavaSparkContext(sparkConf);
+        }
         Configuration conf = HBaseConfiguration.create();
         String tableName = "trace";
         conf.addResource(new Path(hbaseSitePath));

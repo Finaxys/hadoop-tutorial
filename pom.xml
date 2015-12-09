@@ -205,6 +205,11 @@
           <artifactId>parquet-hadoop</artifactId>
           <version>1.8.1</version>
       </dependency>
+      <dependency>
+          <groupId>org.apache.parquet</groupId>
+          <artifactId>parquet-hadoop</artifactId>
+          <version>1.8.1</version>
+      </dependency>
       <dependency> <!-- Spark dependency -->
           <groupId>org.apache.spark</groupId>
           <artifactId>spark-core_2.10</artifactId>

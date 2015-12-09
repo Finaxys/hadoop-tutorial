@@ -45,8 +45,14 @@ public class HBaseStreamingAnalysis {
      */
     public static void main(String[] args) {
         final String request = requestReader.readRequest();
-        SparkConf sparkConf = new SparkConf().setMaster("local[*]").setAppName("sparkApplication");
-        jsc = new JavaSparkContext(sparkConf);
+        SparkConf sparkConf = new SparkConf().setAppName("sparkApplication");
+        try{
+            jsc = new JavaSparkContext(sparkConf);
+        }catch(Exception e){
+            sparkConf = new SparkConf().setMaster("local[*]").setAppName("sparkApplication");
+            jsc = new JavaSparkContext(sparkConf);
+        }
+
         JavaStreamingContext jssc = new JavaStreamingContext(jsc,
                 Durations.seconds(2));
         JavaReceiverInputDStream<DataRow> jrids = jssc
