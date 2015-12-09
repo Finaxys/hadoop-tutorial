@@ -94,12 +94,6 @@
         <groupId>org.apache.hadoop</groupId>
         <artifactId>hadoop-common</artifactId>
         <version>${hadoop.version}</version>
-        <exclusions>
-            <exclusion>
-                <groupId>javax.servlet</groupId>
-                <artifactId>*</artifactId>
-            </exclusion>
-        </exclusions>
     </dependency>
 
     <dependency>
@@ -214,17 +208,17 @@
       <dependency> <!-- Spark dependency -->
           <groupId>org.apache.spark</groupId>
           <artifactId>spark-core_2.10</artifactId>
-          <version>1.5.1</version>
+          <version>1.5.2</version>
       </dependency>
       <dependency>
           <groupId>org.apache.spark</groupId>
           <artifactId>spark-streaming_2.10</artifactId>
-          <version>1.5.1</version>
+          <version>1.5.2</version>
       </dependency>
       <dependency>
           <groupId>org.apache.spark</groupId>
           <artifactId>spark-sql_2.10</artifactId>
-          <version>1.5.1</version>
+          <version>1.5.2</version>
       </dependency>
   </dependencies>
 </project>

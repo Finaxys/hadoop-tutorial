@@ -3,6 +3,7 @@ package fr.finaxys.tutorials.utils.spark.streaming;
 import fr.finaxys.tutorials.utils.AtomConfiguration;
 import fr.finaxys.tutorials.utils.spark.models.DataRow;
 import fr.finaxys.tutorials.utils.spark.utils.Converter;
+import fr.finaxys.tutorials.utils.spark.utils.RequestReader;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.hbase.HBaseConfiguration;
@@ -33,6 +34,7 @@ public class HBaseStreamingAnalysis {
     private static final AtomConfiguration atomConfiguration= new AtomConfiguration();
     private static final String HBASE_SITE_PATH = atomConfiguration.getHbaseConfHbase();
     private static final String TABLE_NAME = atomConfiguration.getTableName();
+    public static final RequestReader requestReader= new RequestReader("spark-requests/hbase-streaming-analysis.sql");
 
     private static JavaSparkContext jsc;
     private static Configuration conf;
@@ -42,6 +44,7 @@ public class HBaseStreamingAnalysis {
      * @param args
      */
     public static void main(String[] args) {
+        final String request = requestReader.readRequest();
         SparkConf sparkConf = new SparkConf().setMaster("local[*]").setAppName("sparkApplication");
         jsc = new JavaSparkContext(sparkConf);
         JavaStreamingContext jssc = new JavaStreamingContext(jsc,
@@ -107,7 +110,7 @@ public class HBaseStreamingAnalysis {
                 SQLContext sqlContext = new SQLContext(jsc);
                 DataFrame df = sqlContext.createDataFrame(dr, DataRow.class);
                 df.registerTempTable("records");
-                DataFrame df2 = sqlContext.sql("SELECT * from records");
+                DataFrame df2 = sqlContext.sql(request);
                 df2.show(10);
                 return null;
             }

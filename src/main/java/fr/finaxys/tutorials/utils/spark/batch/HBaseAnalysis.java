@@ -3,6 +3,7 @@ package fr.finaxys.tutorials.utils.spark.batch;
 import fr.finaxys.tutorials.utils.AtomConfiguration;
 import fr.finaxys.tutorials.utils.spark.models.DataRow;
 import fr.finaxys.tutorials.utils.spark.utils.Converter;
+import fr.finaxys.tutorials.utils.spark.utils.RequestReader;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.hbase.HBaseConfiguration;
@@ -25,9 +26,11 @@ public class HBaseAnalysis {
 
     public static final AtomConfiguration atomConfiguration = new AtomConfiguration() ;
     public static final String hbaseSitePath = atomConfiguration.getHbaseConfHbase() ;
+    public static final RequestReader requestReader= new RequestReader("spark-requests/hbase-analysis.sql");
 
     public static void main(String[] args) {
-        SparkConf sparkConf = new SparkConf().setAppName("StreamingHBaseAnalysis")
+        String request = requestReader.readRequest() ;
+        SparkConf sparkConf = new SparkConf().setAppName("HBaseAnalysis")
                 .setMaster("local[*]");
         JavaSparkContext sc = new JavaSparkContext(sparkConf);
         Configuration conf = HBaseConfiguration.create();
@@ -56,7 +59,7 @@ public class HBaseAnalysis {
         SQLContext sqlContext = new SQLContext(sc);
         DataFrame df = sqlContext.createDataFrame(mapped, DataRow.class);
         df.registerTempTable("records");
-        DataFrame df2 = sqlContext.sql("SELECT * FROM records");
+        DataFrame df2 = sqlContext.sql(request);
         df2.show();
         sc.stop();
     }
