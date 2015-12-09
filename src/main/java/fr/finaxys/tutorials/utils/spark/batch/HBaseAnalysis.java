@@ -66,7 +66,7 @@ public class HBaseAnalysis {
         DataFrame df = sqlContext.createDataFrame(mapped, DataRow.class);
         df.registerTempTable("records");
         DataFrame df2 = sqlContext.sql(request);
-        df2.show();
+        df2.show(1000);
         sc.stop();
     }
 }

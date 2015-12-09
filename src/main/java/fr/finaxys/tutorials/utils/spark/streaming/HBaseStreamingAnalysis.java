@@ -117,7 +117,7 @@ public class HBaseStreamingAnalysis {
                 DataFrame df = sqlContext.createDataFrame(dr, DataRow.class);
                 df.registerTempTable("records");
                 DataFrame df2 = sqlContext.sql(request);
-                df2.show(10);
+                df2.show(1000);
                 return null;
             }
         });

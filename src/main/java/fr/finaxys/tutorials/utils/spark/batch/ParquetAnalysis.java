@@ -39,7 +39,7 @@ public class ParquetAnalysis {
         DataFrame df = sqlContext.read().load(conf.get("fs.default.name")+"/"+atomConfiguration.getParquetHDFSDest());
         df.registerTempTable("records");
         DataFrame df2 = sqlContext.sql(request);
-        df2.show();
+        df2.show(1000);
         sc.stop();
     }
 }
