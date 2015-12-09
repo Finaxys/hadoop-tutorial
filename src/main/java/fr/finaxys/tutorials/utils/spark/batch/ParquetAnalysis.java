@@ -22,12 +22,12 @@ public class ParquetAnalysis {
 
     public static void main(String[] args) throws IOException {
         String request = requestReader.readRequest();
-        SparkConf sparkConf = new SparkConf().setAppName("HBaseAnalysis");
+        SparkConf sparkConf = new SparkConf().setAppName("ParquetAnalysis");
         JavaSparkContext sc = null ;
         try{
             sc = new JavaSparkContext(sparkConf);
         }catch(Exception e){
-            sparkConf = new SparkConf().setAppName("HBaseAnalysis")
+            sparkConf = new SparkConf().setAppName("ParquetAnalysis")
                     .setMaster("local[*]");
             sc = new JavaSparkContext(sparkConf);
         }
