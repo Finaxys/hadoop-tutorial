@@ -20,6 +20,9 @@ import org.apache.spark.sql.SQLContext;
 import scala.Tuple2;
 
 import java.io.Serializable;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.logging.Level;
 
 /**
  * Created by finaxys on 12/8/15.
@@ -30,6 +33,10 @@ public class HBaseAnalysis implements Serializable {
     public static  String hbaseSitePath ;
     public static final RequestReader requestReader= new RequestReader("spark-requests/hbase-analysis.sql");
     public static Configuration hbaseConf = null ;
+
+    private static final java.util.logging.Logger LOGGER = java.util.logging.Logger
+            .getLogger(HBaseAnalysis.class.getName());
+
 
     public HBaseAnalysis(AtomConfiguration atomConfiguration) {
         this.atomConfiguration = atomConfiguration ;
@@ -97,6 +104,20 @@ public class HBaseAnalysis implements Serializable {
         df2.show();
         sc.stop();
         return df2 ;
+    }
+
+    public DataFrame traceCount(Date date){
+        //pre-request
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(date);
+        long minStamp = cal.getTimeInMillis();
+        cal.add(Calendar.DAY_OF_YEAR, 1);
+        long maxStamp = cal.getTimeInMillis();
+        LOGGER.log(Level.INFO, "traceCount Date : " +date + ", Min TimeStamp : "+ minStamp + ", Max TimeStamp : "+ maxStamp);
+
+        //request
+        String request = "select count(*) from records where records.timestamp >= "+minStamp+" and records.timestamp <= "+maxStamp ;
+        return executeRequest(request) ;
     }
 
     public static void main(String[] args) {
