@@ -57,8 +57,8 @@ public class HBaseStreamingAnalysis {
                 Durations.seconds(2));
         JavaReceiverInputDStream<DataRow> jrids = jssc
                 .receiverStream(new EmptyReceiver(StorageLevel.MEMORY_ONLY()));
-
-        final Converter converter = new Converter();
+        final byte[] columnFamily = atomConfiguration.getColumnFamily();
+        final Converter converter = new Converter(columnFamily);
         conf = HBaseConfiguration.create();
         conf.addResource(new Path(HBASE_SITE_PATH));
         conf.set(TableInputFormat.INPUT_TABLE, TABLE_NAME);

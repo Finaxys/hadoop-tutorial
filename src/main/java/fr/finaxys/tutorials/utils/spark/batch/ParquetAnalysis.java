@@ -16,12 +16,32 @@ import java.io.Serializable;
  */
 public class ParquetAnalysis implements Serializable{
 
-    public static final AtomConfiguration atomConfiguration = new AtomConfiguration() ;
-    public static final String hdfsSitePAth = atomConfiguration.getHadoopConfHdfs() ;
+    public static  AtomConfiguration atomConfiguration;
+    public static  String hdfsSitePAth ;
+    public static  Configuration hdfsConf ;
     public static final RequestReader requestReader= new RequestReader("spark-requests/parquet-analysis.sql");
 
+    public ParquetAnalysis(AtomConfiguration atomConfiguration) {
+        this.atomConfiguration = atomConfiguration ;
+        this.hdfsSitePAth = atomConfiguration.getHadoopConfHdfs();
+    }
+
+    public ParquetAnalysis(Configuration hdfsConf) {
+        this.hdfsConf = hdfsConf ;
+        this.atomConfiguration = new AtomConfiguration() ;
+        this.hdfsSitePAth = atomConfiguration.getHadoopConfHdfs();
+    }
+
+    public ParquetAnalysis() {
+        this.atomConfiguration = new AtomConfiguration() ;
+        this.hdfsSitePAth = atomConfiguration.getHadoopConfHdfs();
+    }
+
     public DataFrame executeRequest(){
-        String request = requestReader.readRequest();
+        return executeRequest(requestReader.readRequest());
+    }
+
+    public DataFrame executeRequest(String request){
         SparkConf sparkConf = new SparkConf().setAppName("ParquetAnalysis");
         JavaSparkContext sc = null ;
         try{
@@ -31,8 +51,14 @@ public class ParquetAnalysis implements Serializable{
                     .setMaster("local[*]");
             sc = new JavaSparkContext(sparkConf);
         }
-        Configuration conf = new Configuration();
-        conf.addResource(new Path(hdfsSitePAth));
+        Configuration conf ;
+        if(hdfsConf == null){
+            conf = new Configuration();
+            conf.addResource(new Path(hdfsSitePAth));
+        }
+        else{
+            conf = this.hdfsConf ;
+        }
         conf.reloadConfiguration();
         System.out.println("fs.default.name : - " + conf.get("fs.default.name"));
         SQLContext sqlContext = new SQLContext(sc);

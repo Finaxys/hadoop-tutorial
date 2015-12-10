@@ -16,9 +16,6 @@ public class RequestReader {
             .getLogger(RequestReader.class.getName());
 
 
-    public RequestReader() {
-    }
-
     public RequestReader(String filePath) {
         this.filePath = filePath;
     }

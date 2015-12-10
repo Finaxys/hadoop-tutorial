@@ -21,13 +21,15 @@ public class Converter implements Serializable {
     private static final long serialVersionUID = 3142828016264704546L;
     private transient Map<byte[], byte[]> cfmap;
     private static transient HBaseDataTypeEncoder encoder = new HBaseDataTypeEncoder() ;
+    public  static byte[] colFamily ;
 
-    public Converter() {
+    public Converter(byte[] colFamily) {
+        this.colFamily = colFamily ;
     }
 
     public DataRow convertTupleToDataRow(
             Tuple2<ImmutableBytesWritable, Result> tuple) {
-        cfmap = tuple._2.getFamilyMap(Bytes.toBytes("cf"));
+        cfmap = tuple._2.getFamilyMap(colFamily);
         DataRow dr = new DataRow() {
             {
                 setTrace(getString("Trace"));
