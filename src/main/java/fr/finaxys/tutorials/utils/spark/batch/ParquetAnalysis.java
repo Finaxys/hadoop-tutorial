@@ -9,16 +9,18 @@ import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.sql.DataFrame;
 import org.apache.spark.sql.SQLContext;
 
+import java.io.Serializable;
+
 /**
  * Created by finaxys on 12/8/15.
  */
-public class ParquetAnalysis {
+public class ParquetAnalysis implements Serializable{
 
     public static final AtomConfiguration atomConfiguration = new AtomConfiguration() ;
     public static final String hdfsSitePAth = atomConfiguration.getHadoopConfHdfs() ;
     public static final RequestReader requestReader= new RequestReader("spark-requests/parquet-analysis.sql");
 
-    public static void main(String[] args)  {
+    public DataFrame executeRequest(){
         String request = requestReader.readRequest();
         SparkConf sparkConf = new SparkConf().setAppName("ParquetAnalysis");
         JavaSparkContext sc = null ;
@@ -39,5 +41,11 @@ public class ParquetAnalysis {
         DataFrame df2 = sqlContext.sql(request);
         df2.show(1000);
         sc.stop();
+        return df2 ;
+    }
+
+    public static void main(String[] args)  {
+        ParquetAnalysis analysis = new ParquetAnalysis() ;
+        analysis.executeRequest();
     }
 }

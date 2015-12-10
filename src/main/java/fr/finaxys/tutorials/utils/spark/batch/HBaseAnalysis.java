@@ -19,16 +19,18 @@ import org.apache.spark.sql.DataFrame;
 import org.apache.spark.sql.SQLContext;
 import scala.Tuple2;
 
+import java.io.Serializable;
+
 /**
  * Created by finaxys on 12/8/15.
  */
-public class HBaseAnalysis {
+public class HBaseAnalysis implements Serializable {
 
     public static final AtomConfiguration atomConfiguration = new AtomConfiguration() ;
     public static final String hbaseSitePath = atomConfiguration.getHbaseConfHbase() ;
     public static final RequestReader requestReader= new RequestReader("spark-requests/hbase-analysis.sql");
 
-    public static void main(String[] args) {
+    public DataFrame executeRequest(){
         String request = requestReader.readRequest() ;
         SparkConf sparkConf = new SparkConf().setAppName("HBaseAnalysis");
         JavaSparkContext sc = null ;
@@ -65,7 +67,13 @@ public class HBaseAnalysis {
         DataFrame df = sqlContext.createDataFrame(mapped, DataRow.class);
         df.registerTempTable("records");
         DataFrame df2 = sqlContext.sql(request);
-        df2.show(1000);
+        df2.show();
         sc.stop();
+        return df2 ;
+    }
+
+    public static void main(String[] args) {
+            HBaseAnalysis analysis = new HBaseAnalysis() ;
+            analysis.executeRequest();
     }
 }

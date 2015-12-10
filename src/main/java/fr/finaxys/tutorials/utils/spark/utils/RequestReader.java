@@ -15,6 +15,14 @@ public class RequestReader {
     private static final java.util.logging.Logger LOGGER = java.util.logging.Logger
             .getLogger(RequestReader.class.getName());
 
+
+    public RequestReader() {
+    }
+
+    public RequestReader(String filePath) {
+        this.filePath = filePath;
+    }
+
     public String readRequest(){
         String request = null ;
         File file = new File(filePath); //for ex foo.txt
@@ -38,10 +46,6 @@ public class RequestReader {
             }
         }
         return request ;
-    }
-
-    public RequestReader(String filePath) {
-        this.filePath = filePath;
     }
 
     public String getFilePath() {
