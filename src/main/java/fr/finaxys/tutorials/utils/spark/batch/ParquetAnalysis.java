@@ -9,8 +9,6 @@ import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.sql.DataFrame;
 import org.apache.spark.sql.SQLContext;
 
-import java.io.IOException;
-
 /**
  * Created by finaxys on 12/8/15.
  */
@@ -20,7 +18,7 @@ public class ParquetAnalysis {
     public static final String hdfsSitePAth = atomConfiguration.getHadoopConfHdfs() ;
     public static final RequestReader requestReader= new RequestReader("spark-requests/parquet-analysis.sql");
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args)  {
         String request = requestReader.readRequest();
         SparkConf sparkConf = new SparkConf().setAppName("ParquetAnalysis");
         JavaSparkContext sc = null ;

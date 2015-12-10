@@ -53,12 +53,19 @@ public class AvroInjector implements AtomDataInjector {
     }
 
 
-    public void createRecord() throws IOException {
+    public void createRecord()  {
         Schema schema = VRecord.getClassSchema() ;
         DatumWriter<VRecord> orderDatumWriter = new SpecificDatumWriter<>(schema) ;
         fileWriter = new DataFileWriter<VRecord>(orderDatumWriter);
-        FSDataOutputStream file = fileSystem.create(new Path(destHDFS));
-        fileWriter.create(schema, file);
+        FSDataOutputStream file = null;
+        try {
+            file = fileSystem.create(new Path(destHDFS));
+            fileWriter.create(schema, file);
+        } catch (IOException e) {
+            LOGGER.severe("can't create record for avro injection : "+e.getMessage());
+            throw new HadoopTutorialException();
+        }
+
 	}
 
 	// one schema for each agent ?
