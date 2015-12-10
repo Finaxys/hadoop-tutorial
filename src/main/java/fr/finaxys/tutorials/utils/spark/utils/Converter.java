@@ -37,12 +37,12 @@ public class Converter implements Serializable {
                 setBestAsk(getLong("BestAsk"));
                 setOrder2(getString("Order2"));
                 setOrder1(getString("Order1"));
-                setDir(getChar("Dir")+"");
+                setDir(getChar("Dir"));
                 setObName(getString("ObName"));
                 setValidity(getLong("Validity"));
                 setQuantity(getInteger("Quantity"));
                 setId(getLong("Id"));
-                setType(getChar("Type")+"");
+                setType(getChar("Type"));
                 setExtId(getString("ExtId"));
                 setSender(getString("Sender"));
                 setNbPricesFixed(getLong("NbPricesFixed"));
@@ -52,7 +52,7 @@ public class Converter implements Serializable {
                 setFirstFixedPrice(getLong("FirstFixedPrice"));
                 setOrderExtId(getString("OrderExtId"));
                 setTimestamp(getLong("Timestamp"));
-                setDirection(getChar("Direction")+"");
+                setDirection(getChar("Direction"));
                 setPrice(getLong("Price"));
                 setExecuted(getInteger("Executed"));
                 setCash(getLong("Cash"));
@@ -105,13 +105,13 @@ public class Converter implements Serializable {
         }
     }
 
-    private char getChar(String col) {
+    private String getChar(String col) {
         try {
             byte[] bArr = cfmap.get(Bytes.toBytes(col));
-            return (bArr != null) ? encoder.decodeChar(bArr): null;
+            return (bArr != null) ? encoder.decodeChar(bArr)+"": null;
         }
         catch(Exception e){
-            return '/' ;
+            return null ;
         }
     }
 

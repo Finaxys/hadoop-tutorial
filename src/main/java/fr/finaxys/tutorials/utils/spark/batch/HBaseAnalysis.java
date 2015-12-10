@@ -61,7 +61,6 @@ public class HBaseAnalysis {
                     }
                 });
         System.out.println("Number of Records found : " + mapped.count());
-        System.out.println("First records found : " + mapped.first());
         SQLContext sqlContext = new SQLContext(sc);
         DataFrame df = sqlContext.createDataFrame(mapped, DataRow.class);
         df.registerTempTable("records");
