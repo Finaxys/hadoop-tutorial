@@ -16,18 +16,16 @@ import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.api.java.function.Function;
 import org.apache.spark.sql.DataFrame;
+import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SQLContext;
 import scala.Tuple2;
 
 import java.io.Serializable;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.logging.Level;
 
 /**
  * Created by finaxys on 12/8/15.
  */
-public class HBaseAnalysis implements Serializable {
+public class HBaseSparkRequester implements Serializable {
 
     public static  AtomConfiguration atomConfiguration;
     public static  String hbaseSitePath ;
@@ -35,35 +33,37 @@ public class HBaseAnalysis implements Serializable {
     public static Configuration hbaseConf = null ;
 
     private static final java.util.logging.Logger LOGGER = java.util.logging.Logger
-            .getLogger(HBaseAnalysis.class.getName());
+            .getLogger(HBaseSparkRequester.class.getName());
 
 
-    public HBaseAnalysis(AtomConfiguration atomConfiguration) {
+    public HBaseSparkRequester(AtomConfiguration atomConfiguration) {
         this.atomConfiguration = atomConfiguration ;
         hbaseSitePath = atomConfiguration.getHbaseConfHbase() ;
     }
 
-    public HBaseAnalysis(Configuration hbaseConf) {
+    public HBaseSparkRequester(Configuration hbaseConf) {
         this.hbaseConf = hbaseConf ;
         atomConfiguration = new AtomConfiguration();
         hbaseSitePath = atomConfiguration.getHbaseConfHbase() ;
     }
 
-    public HBaseAnalysis() {
+    public HBaseSparkRequester() {
         atomConfiguration = new AtomConfiguration();
         hbaseSitePath = atomConfiguration.getHbaseConfHbase() ;
     }
 
-    public DataFrame executeRequest(){
+    public Row[] executeRequest(){
         return executeRequest(requestReader.readRequest());
     }
 
-    public DataFrame executeRequest(String request){
+    public Row[] executeRequest(String request){
         SparkConf sparkConf = new SparkConf().setAppName("HBaseAnalysis");
         JavaSparkContext sc = null ;
+        //try to launch spark with distributed mode then with the local one
         try{
             sc = new JavaSparkContext(sparkConf);
         }catch(Exception e){
+            LOGGER.info("Disable distributed mode and try the local one .");
             sparkConf = new SparkConf().setAppName("HBaseAnalysis")
                     .setMaster("local[*]");
             sc = new JavaSparkContext(sparkConf);
@@ -78,7 +78,7 @@ public class HBaseAnalysis implements Serializable {
         }
         String tableName = atomConfiguration.getTableName();
         conf.set(TableInputFormat.INPUT_TABLE, tableName);
-        conf.reloadConfiguration();
+        //conf.reloadConfiguration();
         final byte[] columnFamily = atomConfiguration.getColumnFamily();
         JavaPairRDD<ImmutableBytesWritable, Result> hBaseRDD = sc
                 .newAPIHadoopRDD(conf, TableInputFormat.class,
@@ -96,32 +96,20 @@ public class HBaseAnalysis implements Serializable {
                         return dr;
                     }
                 });
-        System.out.println("Number of Records found : " + mapped.count());
+        LOGGER.info("Number of Records found : " + mapped.count());
         SQLContext sqlContext = new SQLContext(sc);
         DataFrame df = sqlContext.createDataFrame(mapped, DataRow.class);
         df.registerTempTable("records");
         DataFrame df2 = sqlContext.sql(request);
+        Row[] rows = df2.collect();
         df2.show();
         sc.stop();
-        return df2 ;
+        return rows ;
     }
 
-    public DataFrame traceCount(Date date){
-        //pre-request
-        Calendar cal = Calendar.getInstance();
-        cal.setTime(date);
-        long minStamp = cal.getTimeInMillis();
-        cal.add(Calendar.DAY_OF_YEAR, 1);
-        long maxStamp = cal.getTimeInMillis();
-        LOGGER.log(Level.INFO, "traceCount Date : " +date + ", Min TimeStamp : "+ minStamp + ", Max TimeStamp : "+ maxStamp);
-
-        //request
-        String request = "select count(*) from records where records.timestamp >= "+minStamp+" and records.timestamp <= "+maxStamp ;
-        return executeRequest(request) ;
-    }
 
     public static void main(String[] args) {
-            HBaseAnalysis analysis = new HBaseAnalysis() ;
+            HBaseSparkRequester analysis = new HBaseSparkRequester() ;
             analysis.executeRequest();
     }
 }

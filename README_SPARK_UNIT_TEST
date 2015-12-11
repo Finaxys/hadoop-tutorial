@@ -1,0 +1,2 @@
+# to start spark unit test with miniCluster you should add to your jvm params
+-XX:MaxPermSize=1024m

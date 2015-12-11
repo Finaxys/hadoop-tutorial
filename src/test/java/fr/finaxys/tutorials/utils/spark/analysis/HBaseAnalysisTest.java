@@ -1,14 +1,14 @@
-package fr.finaxys.tutorials.utils.spark.batch;
+package fr.finaxys.tutorials.utils.spark.analysis;
 
 import fr.finaxys.tutorials.utils.HadoopTutorialException;
 import fr.finaxys.tutorials.utils.InjectorTests;
 import fr.finaxys.tutorials.utils.TimeStampBuilder;
-import fr.finaxys.tutorials.utils.hbase.AgentPosition;
-import fr.finaxys.tutorials.utils.hbase.HBaseDataTypeEncoder;
-import fr.finaxys.tutorials.utils.hbase.SimpleHBaseInjector;
+import fr.finaxys.tutorials.utils.hbase.*;
+import fr.univlille1.atom.trace.TraceType;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HBaseTestingUtility;
 import org.apache.hadoop.hbase.TableName;
+import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Table;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.junit.*;
@@ -23,11 +23,14 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Map;
 import java.util.logging.Level;
 
+import static fr.finaxys.tutorials.utils.hbase.AtomHBaseHelper.AGENT;
+import static fr.finaxys.tutorials.utils.hbase.AtomHBaseHelper.ORDER;
 
 /**
- * Created by finaxys on 12/10/15.
+ * Created by finaxys on 12/11/15.
  */
 @Category(InjectorTests.class)
 public class HBaseAnalysisTest {
@@ -36,7 +39,7 @@ public class HBaseAnalysisTest {
             .getLogger(HBaseAnalysisTest.class.getName());
 
     private static final TableName TEST_TABLE = TableName
-            .valueOf("testhbaseinjector");
+            .valueOf("trace");
 
     private static final byte[] TEST_FAMILY = Bytes.toBytes("cf");
 
@@ -47,9 +50,8 @@ public class HBaseAnalysisTest {
     private static Table tbAgentPosition = null;
 
     final HBaseDataTypeEncoder hbEncoder = new HBaseDataTypeEncoder();
-    private SimpleHBaseInjector injector = new SimpleHBaseInjector();
 
-    private fr.finaxys.tutorials.utils.spark.batch.HBaseAnalysis analysis = new fr.finaxys.tutorials.utils.spark.batch.HBaseAnalysis();
+    private HBaseAnalysis analysis = new HBaseAnalysis();
     private TimeStampBuilder tsb = null;
     private Date testDate;
 
@@ -68,10 +70,9 @@ public class HBaseAnalysisTest {
 //		CONF.reloadConfiguration();
         //Configuration conf = TEST_UTIL.getConfiguration();
 		/*MiniMRCluster mapReduceCluster = *///TEST_UTIL.startMiniMapReduceCluster();
-		/*MiniHBaseCluster hbaseCluster = */
-        TEST_UTIL.startMiniCluster();
-        table = TEST_UTIL.createTable(TEST_TABLE, new byte[][]{TEST_FAMILY});
-        tbAgentPosition = TEST_UTIL.createTable(Bytes.toBytes(AgentPosition.AP_RESULT_TABLE), new byte[][]{Bytes.toBytes(AgentPosition.AP_RESULT_CF)});
+		/*MiniHBaseCluster hbaseCluster = */TEST_UTIL.startMiniCluster();
+        table = TEST_UTIL.createTable(TEST_TABLE, new byte[][] { TEST_FAMILY });
+        tbAgentPosition = TEST_UTIL.createTable(Bytes.toBytes(AgentPosition.AP_RESULT_TABLE), new byte[][] { Bytes.toBytes(AgentPosition.AP_RESULT_CF) });
     }
 
     @AfterClass
@@ -88,8 +89,12 @@ public class HBaseAnalysisTest {
             testDate = f.parse(sDate);
             tsb = new TimeStampBuilder(sDate, "9:00", "17:30", 3000, 2, 2);
             tsb.init();
+            analysis.setHbaseConfiguration(CONF);
+            analysis.setTableName(TEST_TABLE);
+            analysis.setColumnFamily(TEST_FAMILY);
+            analysis.openTable();
         } catch (ParseException e) {
-            LOGGER.log(Level.SEVERE, "Could not parse Date for Test:" + sDate + ", expected format" + TimeStampBuilder.DATE_FORMAT);
+            LOGGER.log(Level.SEVERE, "Could not parse Date for Test:"+sDate+", expected format"+TimeStampBuilder.DATE_FORMAT);
             throw new HadoopTutorialException("Could not init test", e);
         }
     }
@@ -98,6 +103,7 @@ public class HBaseAnalysisTest {
     public void tearDown() {
         try {
             tbAgentPosition.close();
+            analysis.closeTable();
             analysis = null;
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE, "Could not parse Date for Test", e.getMessage());
@@ -116,8 +122,8 @@ public class HBaseAnalysisTest {
         PriceRecord pr = new PriceRecord("o", 10, 1, LimitOrder.ASK, "o-1", "o-2");
         pr.timestamp = ts;
 
-/*        LOGGER.log(Level.INFO, "Order 1 TimeStamp:" + ts);
-        Put p = analysis.mkPutAgent(analysis.createRequired(AGENT), ts, a, o, pr);
+        LOGGER.log(Level.INFO, "Order 1 TimeStamp:"+ts);
+        Put p = analysis.mkPutAgent(analysis.createRequired(AGENT), ts, a, o , pr);
         analysis.directPutTable(p);
         Map<TraceType, Integer> r = analysis.traceCount(testDate, null);
         Assert.assertEquals("1 results return", r.size(), 1);
@@ -128,12 +134,75 @@ public class HBaseAnalysisTest {
         o2.sender = new DumbAgent("a2");
         o2.timestamp = ts2;
 
-        LOGGER.log(Level.INFO, "Order 2 TimeStamp:" + ts2);
+
+        LOGGER.log(Level.INFO, "Order 2 TimeStamp:"+ts2);
         Put pOrder = analysis.mkPutOrder(analysis.createRequired(ORDER), ts2, o2);
         analysis.directPutTable(pOrder);
         r = analysis.traceCount(testDate, null);
         Assert.assertEquals("1 result should be return", r.size(), 1);
         Assert.assertEquals("2 should have count 1", r.get(TraceType.Agent), new Integer(1));
-        Assert.assertEquals("Order should be null", r.get(TraceType.Order), null);*/
+        Assert.assertEquals("Order should be null", r.get(TraceType.Order), null);
     }
+/*
+    @SuppressWarnings("unchecked")
+    @Test
+    public void testZAgentPosition() throws Exception {
+
+        long ts = tsb.nextTimeStamp();
+
+        Agent a = new DumbAgent("a1");
+        Order o = new LimitOrder("o", "1", LimitOrder.ASK, 10, 10);
+        o.sender = a;
+        o.timestamp = ts;
+
+        LOGGER.log(Level.INFO, "Order 1 TimeStamp:"+o.timestamp);
+        //Put p = analysis.mkPutOrder(analysis.createRequired(AGENT), ts, a, o , pr);
+        Put pOrder = analysis.mkPutOrder(analysis.createRequired(ORDER), ts, o);
+        analysis.directPutTable(pOrder);
+
+        LimitOrder o2 = new LimitOrder("o", "2", LimitOrder.ASK, 1, 11);
+        o2.sender = a;
+        o2.timestamp = ts;
+
+        LOGGER.log(Level.INFO, "Order 2 TimeStamp:"+o2.timestamp);
+        Put pOrder2 = analysis.mkPutOrder(analysis.createRequired(ORDER), ts, o2);
+        analysis.directPutTable(pOrder2);
+
+        long ts2 = System.currentTimeMillis();
+        LimitOrder o3 = new LimitOrder("o", "3", LimitOrder.ASK, 1, 1);
+        o3.sender = a;
+        o3.timestamp = ts2;
+
+        LOGGER.log(Level.INFO, "Order 3 TimeStamp:"+o3.timestamp);
+        Put pOrder3 = analysis.mkPutOrder(analysis.createRequired(ORDER), ts2, o3);
+        analysis.directPutTable(pOrder3);
+
+        Map<String, Integer> r = analysis.agentPosition(testDate);
+        Assert.assertEquals("1 results return", r.size(), 1);
+        Assert.assertEquals("Position should have count 11", new Integer(11), r.get("a1-o"));
+
+//		 TraceCountMap map = new TraceCountMap();
+//
+//		ImmutableBytesWritable rowKey = new ImmutableBytesWritable(Bytes.toBytes("test"));
+//	    Mapper<ImmutableBytesWritable, Result, Text, IntWritable>.Context ctx =
+//	        mock(Context.class);
+//	    when(ctx.getConfiguration()).thenReturn(CONF);
+//	    doAnswer(new Answer<Void>() {
+//
+//	      @Override
+//	      public Void answer(InvocationOnMock invocation) throws Throwable {
+//	        ImmutableBytesWritable writer = (ImmutableBytesWritable) invocation.getArguments()[0];
+//	        Put put = (Put) invocation.getArguments()[1];
+//	        assertEquals("tableName-column1", Bytes.toString(writer.get()));
+//	        assertEquals("test", Bytes.toString(put.getRow()));
+//	        return null;
+//	      }
+//	    }).when(ctx).write(any(ImmutableBytesWritable.class), any(Put.class));
+//	    Result result = mock(Result.class);
+//	    when(result.getValue(Bytes.toBytes("columnFamily"), Bytes.toBytes("column1"))).thenReturn(
+//	        Bytes.toBytes("test"));
+//
+//	    map.setup(ctx);
+//	    map.map(rowKey, result, ctx);
+    }*/
 }

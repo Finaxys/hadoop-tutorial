@@ -14,25 +14,25 @@ import java.io.Serializable;
 /**
  * Created by finaxys on 12/8/15.
  */
-public class ParquetAnalysis implements Serializable{
+public class ParquetSparkRequester implements Serializable{
 
     public static  AtomConfiguration atomConfiguration;
     public static  String hdfsSitePAth ;
     public static  Configuration hdfsConf ;
     public static final RequestReader requestReader= new RequestReader("spark-requests/parquet-analysis.sql");
 
-    public ParquetAnalysis(AtomConfiguration atomConfiguration) {
+    public ParquetSparkRequester(AtomConfiguration atomConfiguration) {
         this.atomConfiguration = atomConfiguration ;
         this.hdfsSitePAth = atomConfiguration.getHadoopConfHdfs();
     }
 
-    public ParquetAnalysis(Configuration hdfsConf) {
+    public ParquetSparkRequester(Configuration hdfsConf) {
         this.hdfsConf = hdfsConf ;
         this.atomConfiguration = new AtomConfiguration() ;
         this.hdfsSitePAth = atomConfiguration.getHadoopConfHdfs();
     }
 
-    public ParquetAnalysis() {
+    public ParquetSparkRequester() {
         this.atomConfiguration = new AtomConfiguration() ;
         this.hdfsSitePAth = atomConfiguration.getHadoopConfHdfs();
     }
@@ -71,7 +71,7 @@ public class ParquetAnalysis implements Serializable{
     }
 
     public static void main(String[] args)  {
-        ParquetAnalysis analysis = new ParquetAnalysis() ;
+        ParquetSparkRequester analysis = new ParquetSparkRequester() ;
         analysis.executeRequest();
     }
 }

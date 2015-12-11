@@ -18,7 +18,7 @@ import java.net.MalformedURLException;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.logging.Level;
 
-abstract class AtomHBaseHelper {
+public abstract class AtomHBaseHelper {
 
 	public static final byte[] Q_TRACE_TYPE = Bytes.toBytes("Trace");
 	public static final byte[] Q_NUM_DAY = Bytes.toBytes("NumDay");
@@ -108,8 +108,8 @@ abstract class AtomHBaseHelper {
 		if (this.open) throw new HadoopTutorialException("hbaseConfiguration already set");
 		this.configuration = hbaseConfiguration;
 	}
-	
-	protected void closeTable() {
+
+    public void closeTable() {
 //		try {
 			//table.close();
 			//table = null;
@@ -159,8 +159,8 @@ abstract class AtomHBaseHelper {
 			throw new HadoopTutorialException("Failed to push data into queue", e);
 		}
 	}
-	
-	protected void directPutTable(@NotNull Put p) {
+
+    public void directPutTable(@NotNull Put p) {
 		try {
 			Table table = getTable();
 			table.put(p);
@@ -286,7 +286,7 @@ abstract class AtomHBaseHelper {
 //		return table;
 //	}
 	
-	final protected void openTable() {
+	final public void openTable() {
 		assert !(tableName == null);
 		if (open == true) return; // already initialized
 //		String port = hbaseConfiguration.get("hbase.zookeeper.property.clientPort");
@@ -332,7 +332,7 @@ abstract class AtomHBaseHelper {
 		return type; 
 	}
 
-	protected Put mkPutAgent(byte[] row, long ts, Agent a, Order o, PriceRecord pr) {
+    public Put mkPutAgent(byte[] row, long ts, Agent a, Order o, PriceRecord pr) {
 		Put p = new Put(row, ts);
 		p.addColumn(columnFamily, Q_TRACE_TYPE, ts,
 				hbEncoder.encodeString(TraceType.Agent.name()));
@@ -408,7 +408,7 @@ abstract class AtomHBaseHelper {
 		return p;
 	}
 
-	protected Put mkPutOrder(byte[] row, long ts, Order o) {
+    public Put mkPutOrder(byte[] row, long ts, Order o) {
 		Put p = new Put(row, ts);
 		p.addColumn(columnFamily, Q_TRACE_TYPE, ts,
 				hbEncoder.encodeString(TraceType.Order.name()));
@@ -493,7 +493,7 @@ abstract class AtomHBaseHelper {
 	}
 
 	@NotNull
-	protected byte[] createRequired(@NotNull char name) {
+    public byte[] createRequired(@NotNull char name) {
 		long rowKey = Long.reverseBytes(idGen.incrementAndGet());
 		return Bytes.toBytes(String.valueOf(rowKey) + name);
 	}
