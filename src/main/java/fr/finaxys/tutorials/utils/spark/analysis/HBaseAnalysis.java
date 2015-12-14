@@ -51,44 +51,28 @@ public class HBaseAnalysis extends AtomHBaseHelper implements AtomAnalysis  {
 
     @Override
     public Map<String, Integer> agentPosition(Date date) {
-
+        //pre-request
         Map<String, Integer> ret = new HashMap<String, Integer>();
-
-   /*     Calendar cal = Calendar.getInstance();
+        Calendar cal = Calendar.getInstance();
         cal.setTime(date);
         long minStamp = cal.getTimeInMillis();
         cal.add(Calendar.DAY_OF_YEAR, 1);
         long maxStamp = cal.getTimeInMillis();
         LOGGER.log(Level.INFO, "agentPosition Date : " +date + ", Min TimeStamp : "+ minStamp + ", Max TimeStamp : "+ maxStamp);
-
-        AgentPosition ag = new AgentPosition();
-        ag.setConf(configuration);
-        try {
-            String[] args = {Long.toString(minStamp),Long.toString(maxStamp),
-                    this.tableName.getNameAsString(), Bytes.toString(this.columnFamily)};
-            ag.run(args);
-        } catch (Exception e) {
-            LOGGER.log(Level.SEVERE,"Could not execute agent position", e);
+        //request
+        //request
+        String request = "select  records.sender as Sender , records.obName as ObName , sum(records.quantity) as totalQty from records where records.trace='Order' and  records.timestamp <= "+maxStamp+" and records.timestamp >= "+minStamp+" GROUP BY records.obName , records.sender " ;
+        HBaseSparkRequester requester = new HBaseSparkRequester(this.configuration);
+        org.apache.spark.sql.Row[] result = requester.executeRequest(request);
+        for(int i=0 ; i< result.length ; i++){
+            ret.put(result[i].getString(0)+"-"+result[1].getString(1),new Integer((int)result[i].getLong(2)));
         }
-
-        try {
-            Scan s = new Scan();
-            s.addFamily(Bytes.toBytes(AgentPosition.AP_RESULT_CF));
-            Connection connection = ConnectionFactory.createConnection(configuration);
-            Table table = connection.getTable(TableName.valueOf(AgentPosition.AP_RESULT_TABLE));
-            ResultScanner results = table.getScanner(s);
-            for (Result r : results) {
-                String key = Bytes.toString(r.getRow());
-                Integer l = Bytes.toInt(r.getValue(Bytes.toBytes(AgentPosition.AP_RESULT_CF), Bytes.toBytes(AgentPosition.AP_RESULT_QUAL)));
-                ret.put(key, l);
-            }
-            table.close();
-            connection.close();
-        } catch (IOException e) {
-            LOGGER.log(Level.SEVERE,"Could not parse result of agent position", e);
-        };
-*/
         return ret;
+    }
+
+    static public void main(String[] args){
+        HBaseAnalysis analysis = new HBaseAnalysis() ;
+        System.out.println(analysis.agentPosition(new Date()));
     }
 
     @Override
