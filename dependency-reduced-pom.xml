@@ -9,6 +9,13 @@
   <build>
     <plugins>
       <plugin>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>2.9</version>
+        <configuration>
+          <argLine>-XX:MaxPermSize=1024m</argLine>
+        </configuration>
+      </plugin>
+      <plugin>
         <artifactId>maven-compiler-plugin</artifactId>
         <version>3.2</version>
         <configuration>
@@ -57,14 +64,20 @@
       <artifactId>atom</artifactId>
       <version>1.0</version>
       <scope>system</scope>
-      <systemPath>/Users/pierre/workspace/hadoop-tutorial/atom.jar</systemPath>
+      <systemPath>/home/finaxys/dev/hadoop-tutorial/atom.jar</systemPath>
     </dependency>
     <dependency>
       <groupId>org.apache.hadoop</groupId>
       <artifactId>hadoop-hdfs</artifactId>
       <version>2.7.1</version>
       <type>test-jar</type>
-      <scope>compile</scope>
+      <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <artifactId>servlet-api</artifactId>
+          <groupId>javax.servlet</groupId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.apache.hbase</groupId>
