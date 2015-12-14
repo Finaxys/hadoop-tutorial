@@ -3,7 +3,7 @@
 #HBase Batch
 spark-submit --class fr.finaxys.tutorials.utils.spark.batch.HBaseSparkRequester target/hadoop-tutorial-0.2-SNAPSHOT-jar-with-dependencies.jar
 #Streaming HBase
-spark-submit --class fr.finaxys.tutorials.utils.spark.streaming.HBaseStreamingAnalysis target/hadoop-tutorial-0.2-SNAPSHOT-jar-with-dependencies.jar
+spark-submit --class fr.finaxys.tutorials.utils.spark.streaming.HBaseStreamingRequester target/hadoop-tutorial-0.2-SNAPSHOT-jar-with-dependencies.jar
 #Parquet Batch
 spark-submit --class fr.finaxys.tutorials.utils.spark.batch.ParquetSparkRequester target/hadoop-tutorial-0.2-SNAPSHOT-jar-with-dependencies.jar
 

@@ -30,7 +30,7 @@ import java.util.Calendar;
 /**
  * Created by finaxys on 12/4/15.
  */
-public class HBaseStreamingAnalysis {
+public class HBaseStreamingRequester {
     private static final AtomConfiguration atomConfiguration= new AtomConfiguration();
     private static final String HBASE_SITE_PATH = atomConfiguration.getHbaseConfHbase();
     private static final String TABLE_NAME = atomConfiguration.getTableName();
