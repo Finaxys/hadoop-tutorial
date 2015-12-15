@@ -29,7 +29,7 @@ public class HBaseSparkRequester implements Serializable {
 
     public static  AtomConfiguration atomConfiguration;
     public static  String hbaseSitePath ;
-    public static final RequestReader requestReader= new RequestReader("spark-requests/hbase-analysis.sql");
+    public static final RequestReader requestReader= new RequestReader("spark-requests/hbase-batch-request.sql");
     public static Configuration hbaseConf = null ;
 
     private static final java.util.logging.Logger LOGGER = java.util.logging.Logger

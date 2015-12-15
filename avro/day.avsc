@@ -9,7 +9,6 @@
      {"name" : "LowestPrice", "type": "long"},
      {"name" : "HighestPrice", "type": "long"},
      {"name" : "LastFixedPrice", "type": "long"},
-     {"name" : "Timestamp", "type": "long"},
      {"name" : "NbPricesFixed", "type": "long"}
  ]
 }

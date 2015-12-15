@@ -34,7 +34,7 @@ public class HBaseStreamingRequester {
     private static final AtomConfiguration atomConfiguration= new AtomConfiguration();
     private static final String HBASE_SITE_PATH = atomConfiguration.getHbaseConfHbase();
     private static final String TABLE_NAME = atomConfiguration.getTableName();
-    public static final RequestReader requestReader= new RequestReader("spark-requests/hbase-streaming-analysis.sql");
+    public static final RequestReader requestReader= new RequestReader("spark-requests/hbase-streaming-request.sql");
 
     private static JavaSparkContext jsc;
     private static Configuration conf;

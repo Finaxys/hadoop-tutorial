@@ -20,7 +20,7 @@ public class ParquetSparkRequester implements Serializable{
     public static  AtomConfiguration atomConfiguration;
     public static  String hdfsSitePAth ;
     public static  Configuration hdfsConf ;
-    public static final RequestReader requestReader= new RequestReader("spark-requests/parquet-analysis.sql");
+    public static final RequestReader requestReader= new RequestReader("spark-requests/parquet-batch-request.sql");
 
     private static final java.util.logging.Logger LOGGER = java.util.logging.Logger
             .getLogger(ParquetSparkRequester.class.getName());

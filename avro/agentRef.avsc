@@ -6,7 +6,6 @@
      {"name" : "AgentRefId", "type": "int"},
      {"name" : "AgentName",  "type": "string"},
      {"name" : "IsMarketMaker",  "type": "string"},
-     {"name" : "Details",  "type": "string"},
-     {"name" : "Timestamp", "type": "long"}
+     {"name" : "Details",  "type": "string"}
  ]
 }

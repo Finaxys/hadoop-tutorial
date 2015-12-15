@@ -6,7 +6,6 @@
      {"name" : "NumTick",  "type": "int"},
      {"name" : "NumDay", "type": "int"},
      {"name" : "ObName",  "type": "string"},
-     {"name" : "Timestamp", "type": "long"},
      {"name" : "BestAsk", "type": "long"},
      {"name" : "BestBid", "type": "long"},
      {"name" : "LastFixedPrice", "type": "long"}

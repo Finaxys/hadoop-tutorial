@@ -9,7 +9,6 @@
      {"name" : "Executed", "type": "int"},
      {"name" : "Price", "type": "long"},
      {"name" : "Direction", "type": "string"},
-     {"name" : "Timestamp", "type": "long"},
      {"name" : "OrderExtId", "type": "string"}
  ]
 }

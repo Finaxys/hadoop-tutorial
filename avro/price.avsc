@@ -10,7 +10,6 @@
      {"name" : "Order2", "type": "string"},
      {"name" : "BestAsk", "type": "long"},
      {"name" : "BestBid", "type": "long"},
-     {"name" : "Dir", "type": "string"},
-     {"name" : "Timestamp", "type": "long"}
+     {"name" : "Dir", "type": "string"}
  ]
 }

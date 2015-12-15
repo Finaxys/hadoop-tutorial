@@ -4,7 +4,6 @@
  "fields": [
      {"name" : "Trace", "type": "string"},
      {"name" : "Sender", "type": "string"},
-     {"name" : "ExtId", "type": "string"},
-     {"name" : "Timestamp", "type": "long"}
+     {"name" : "ExtId", "type": "string"}
  ]
 }

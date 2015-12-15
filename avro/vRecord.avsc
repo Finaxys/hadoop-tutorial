@@ -10,6 +10,7 @@
      {"name" : "exec",  "type": [ "null", "Exec"]},
      {"name" : "order",  "type": [ "null", "Order"]},
      {"name" : "price",  "type": [ "null", "Price"]},
+     {"name" : "Timestamp", "type": "long"},
      {"name" : "tick",  "type": [ "null", "Tick"]}
  ]
 }

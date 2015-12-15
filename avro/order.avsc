@@ -8,7 +8,6 @@
      {"name" : "ExtId", "type": "string"},
      {"name" : "Type", "type": "string"},
      {"name" : "Id", "type": "long"},
-     {"name" : "Timestamp", "type": "long"},
      {"name" : "Quantity", "type": "int"},
      {"name" : "Direction", "type": "string"},
      {"name" : "Price", "type": "long"},

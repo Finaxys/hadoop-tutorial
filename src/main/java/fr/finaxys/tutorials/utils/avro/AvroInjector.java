@@ -97,7 +97,7 @@ public class AvroInjector implements AtomDataInjector {
             agent.setPrice(pr.price);
             if (o.getClass().equals(LimitOrder.class)) {
                 agent.setDirection(((LimitOrder) o).direction+"");
-                agent.setTimestamp( pr.timestamp); // pr.timestamp
+                record.setTimestamp( pr.timestamp); // pr.timestamp
                 agent.setOrderExtId(o.extId);
             }
             //append agent
@@ -126,7 +126,7 @@ public class AvroInjector implements AtomDataInjector {
             price.setOrder2(pr.extId2);
             price.setBestAsk(bestAskPrice);
             price.setBestBid(bestBidPrice);
-            price.setTimestamp((pr.timestamp > 0 ? pr.timestamp : ts));
+            record.setTimestamp((pr.timestamp > 0 ? pr.timestamp : ts));
             record.setPrice(price);
             //append price 
             fileWriter.append(record);
@@ -148,7 +148,7 @@ public class AvroInjector implements AtomDataInjector {
             agentRef.setAgentName(agent.agentName);
             agentRef.setIsMarketMaker(Boolean.toString(agent.isMarketMaker));
             agentRef.setDetails(agent.details);
-            agentRef.setTimestamp(ts);
+            record.setTimestamp(ts);
             record.setAgentRef(agentRef);
             //append agent
             try {
@@ -172,7 +172,7 @@ public class AvroInjector implements AtomDataInjector {
             order.setExtId(o.extId);
             order.setType(o.type + "");
             order.setId(o.id);
-            order.setTimestamp(o.timestamp);
+            record.setTimestamp(o.timestamp);
             if (o.getClass().equals(LimitOrder.class)) {
                 LimitOrder lo = (LimitOrder) o;
                 order.setQuantity(lo.quantity);
@@ -201,7 +201,7 @@ public class AvroInjector implements AtomDataInjector {
                 tick.setNumTick(day.currentTick());
                 tick.setNumDay(day.number + dayGap);
                 tick.setObName(ob.obName);
-                tick.setTimestamp(ts);
+                record.setTimestamp(ts);
                 if (!ob.ask.isEmpty()) {
                     tick.setBestAsk(ob.ask.last().price);
                 }
@@ -244,7 +244,7 @@ public class AvroInjector implements AtomDataInjector {
                 }
                 day.setLastFixedPrice(price);
                 day.setNbPricesFixed(ob.numberOfPricesFixed);
-                day.setTimestamp(ts);
+                record.setTimestamp(ts);
                 record.setDay(day);
                 //append day
                 fileWriter.append(record);
@@ -265,7 +265,7 @@ public class AvroInjector implements AtomDataInjector {
             exec.setTrace(TraceType.Exec.name());
             exec.setSender(o.sender.name);
             exec.setExtId(o.extId);
-            exec.setTimestamp(ts);
+            record.setTimestamp(ts);
             record.setExec(exec);
             //append exec
             fileWriter.append(record);
