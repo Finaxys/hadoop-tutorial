@@ -34,10 +34,10 @@ import static fr.finaxys.tutorials.utils.hbase.AtomHBaseHelper.ORDER;
  * Created by finaxys on 12/11/15.
  */
 @Category(InjectorTests.class)
-public class HBaseAnalysisTest {
+public class SparkHBaseAnalysisTest {
 
     private static final java.util.logging.Logger LOGGER = java.util.logging.Logger
-            .getLogger(HBaseAnalysisTest.class.getName());
+            .getLogger(SparkHBaseAnalysisTest.class.getName());
 
     private static final TableName TEST_TABLE = TableName
             .valueOf("trace");
@@ -52,7 +52,7 @@ public class HBaseAnalysisTest {
 
     final HBaseDataTypeEncoder hbEncoder = new HBaseDataTypeEncoder();
 
-    private HBaseAnalysis analysis = new HBaseAnalysis();
+    private SparkHBaseAnalysis analysis = new SparkHBaseAnalysis();
     private TimeStampBuilder tsb = null;
     private Date testDate;
 
@@ -144,7 +144,6 @@ public class HBaseAnalysisTest {
         Assert.assertEquals("2 should have count 1", r.get(TraceType.Agent), new Integer(1));
         Assert.assertEquals("Order should be null", r.get(TraceType.Order), null);
     }
-/*
     @SuppressWarnings("unchecked")
     @Test
     public void testZAgentPosition() throws Exception {
@@ -205,5 +204,5 @@ public class HBaseAnalysisTest {
 //
 //	    map.setup(ctx);
 //	    map.map(rowKey, result, ctx);
-    }*/
+    }
 }

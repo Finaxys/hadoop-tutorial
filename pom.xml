@@ -69,8 +69,11 @@
   	 <junit.version>4.11</junit.version>
   	 <log4j.version>2.3</log4j.version>
   	 <hadoop.version>2.7.1</hadoop.version>
+     <parquet.version>1.7.0</parquet.version>
   	 <hbase.version>1.1.2</hbase.version>
   	 <testng.version>6.4</testng.version>
+     <spark.version>1.5.2</spark.version>
+     <avro.version>1.7.7</avro.version>
   	 <mockito-all.version>1.10.8</mockito-all.version>
    </properties>
   <dependencies>
@@ -196,32 +199,32 @@
       <dependency>
           <groupId>org.apache.avro</groupId>
           <artifactId>avro-mapred</artifactId>
-          <version>1.7.7</version>
+          <version>${avro.version}</version>
       </dependency>
       <dependency>
           <groupId>org.apache.avro</groupId>
           <artifactId>avro-tools</artifactId>
-          <version>1.7.7</version>
+          <version>${avro.version}</version>
       </dependency>
       <dependency>
           <groupId>org.apache.parquet</groupId>
           <artifactId>parquet-avro</artifactId>
-          <version>1.8.1</version>
+          <version>${parquet.version}</version>
       </dependency>
       <dependency>
           <groupId>org.apache.parquet</groupId>
           <artifactId>parquet-column</artifactId>
-          <version>1.8.1</version>
+          <version>${parquet.version}</version>
       </dependency>
       <dependency>
           <groupId>org.apache.parquet</groupId>
           <artifactId>parquet-hadoop</artifactId>
-          <version>1.8.1</version>
+          <version>${parquet.version}</version>
       </dependency>
       <dependency> <!-- Spark dependency -->
           <groupId>org.apache.spark</groupId>
           <artifactId>spark-core_2.10</artifactId>
-          <version>1.5.2</version>
+          <version>${spark.version}</version>
           <exclusions>
               <exclusion>
                   <groupId>org.eclipse.jetty.orbit</groupId>
@@ -232,12 +235,12 @@
       <dependency>
           <groupId>org.apache.spark</groupId>
           <artifactId>spark-streaming_2.10</artifactId>
-          <version>1.5.2</version>
+          <version>${spark.version}</version>
       </dependency>
       <dependency>
           <groupId>org.apache.spark</groupId>
           <artifactId>spark-sql_2.10</artifactId>
-          <version>1.5.2</version>
+          <version>${spark.version}</version>
       </dependency>
   </dependencies>
 </project>

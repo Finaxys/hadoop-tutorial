@@ -7,6 +7,7 @@ import org.apache.hadoop.fs.Path;
 import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.sql.DataFrame;
+import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SQLContext;
 
 import java.io.Serializable;
@@ -20,6 +21,10 @@ public class ParquetSparkRequester implements Serializable{
     public static  String hdfsSitePAth ;
     public static  Configuration hdfsConf ;
     public static final RequestReader requestReader= new RequestReader("spark-requests/parquet-analysis.sql");
+
+    private static final java.util.logging.Logger LOGGER = java.util.logging.Logger
+            .getLogger(ParquetSparkRequester.class.getName());
+
 
     public ParquetSparkRequester(AtomConfiguration atomConfiguration) {
         this.atomConfiguration = atomConfiguration ;
@@ -37,11 +42,11 @@ public class ParquetSparkRequester implements Serializable{
         this.hdfsSitePAth = atomConfiguration.getHadoopConfHdfs();
     }
 
-    public DataFrame executeRequest(){
+    public Row[] executeRequest(){
         return executeRequest(requestReader.readRequest());
     }
 
-    public DataFrame executeRequest(String request){
+    public Row[] executeRequest(String request){
         SparkConf sparkConf = new SparkConf().setAppName("ParquetAnalysis");
         JavaSparkContext sc = null ;
         try{
@@ -55,8 +60,7 @@ public class ParquetSparkRequester implements Serializable{
         if(hdfsConf == null){
             conf = new Configuration();
             conf.addResource(new Path(hdfsSitePAth));
-        }
-        else{
+        } else {
             conf = this.hdfsConf ;
         }
         conf.reloadConfiguration();
@@ -66,8 +70,9 @@ public class ParquetSparkRequester implements Serializable{
         df.registerTempTable("records");
         DataFrame df2 = sqlContext.sql(request);
         df2.show(1000);
+        Row[] result = df2.collect();
         sc.stop();
-        return df2 ;
+        return result ;
     }
 
     public static void main(String[] args)  {

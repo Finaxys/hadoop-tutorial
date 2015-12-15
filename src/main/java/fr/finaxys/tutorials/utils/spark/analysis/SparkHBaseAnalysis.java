@@ -12,11 +12,11 @@ import java.util.logging.Level;
 /**
  * Created by finaxys on 12/11/15.
  */
-public class HBaseAnalysis extends AtomHBaseHelper implements AtomAnalysis  {
+public class SparkHBaseAnalysis extends AtomHBaseHelper implements AtomAnalysis  {
 
 
     private static final java.util.logging.Logger LOGGER = java.util.logging.Logger
-            .getLogger(HBaseAnalysis.class.getName());
+            .getLogger(SparkHBaseAnalysis.class.getName());
 
     @Override
     public Map<TraceType, Integer> traceCount(Date date, List<TraceType> types) {
@@ -65,14 +65,9 @@ public class HBaseAnalysis extends AtomHBaseHelper implements AtomAnalysis  {
         HBaseSparkRequester requester = new HBaseSparkRequester(this.configuration);
         org.apache.spark.sql.Row[] result = requester.executeRequest(request);
         for(int i=0 ; i< result.length ; i++){
-            ret.put(result[i].getString(0)+"-"+result[1].getString(1),new Integer((int)result[i].getLong(2)));
+            ret.put(result[i].getString(0)+"-"+result[i].getString(1),new Integer((int)result[i].getLong(2)));
         }
         return ret;
-    }
-
-    static public void main(String[] args){
-        HBaseAnalysis analysis = new HBaseAnalysis() ;
-        System.out.println(analysis.agentPosition(new Date()));
     }
 
     @Override
