@@ -73,5 +73,4 @@ public class HDFSReader {
     public void close() throws IOException {
         fs.close();
     }
-
 }

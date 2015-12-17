@@ -32,7 +32,7 @@ public class AvroParquetConverterTest {
     private static AvroInjector avroInjector;
     private static String finalResultFile = "/final-result";
     private static String resultSuffix = "/part-m-00000" ;
-    private static int max = 10 ;
+    private static int max = 1000 ;
 
     @BeforeClass
     public static void setupBeforeClass() throws Exception {
@@ -131,13 +131,13 @@ public class AvroParquetConverterTest {
 
         LOGGER.log(Level.INFO, "Reading data done");
 
-        String convertedText = "agent;Trace:Agent;AgentName:a;ObName:o;Cash:0;Executed:1;Price:10;Direction:A;Timestamp:0;OrderExtId:1\n" +
-                "price;Trace:Price;ObName:pr;Price:10;Executed:1;Order1:o-1;Order2:o-2;BestAsk:1;BestBid:2;Dir:A;Timestamp:526978801275\n" +
-                "order;Trace:Order;ObName:o;Sender:a;ExtId:1;Type:L;Id:-1;Timestamp:0;Quantity:1;Direction:A;Price:10;Validity:-1\n" +
-                "tick;Trace:Tick;NumTick:0;NumDay:0;ObName:ob1;Timestamp:526978802550;BestAsk:0;BestBid:0;LastFixedPrice:0\n" +
-                "tick;Trace:Tick;NumTick:0;NumDay:0;ObName:ob2;Timestamp:526978802550;BestAsk:0;BestBid:0;LastFixedPrice:0\n" +
-                "day;Trace:Day;NumDay:1;ObName:ob1;FirstFixedPrice:-1;LowestPrice:-1;HighestPrice:-1;LastFixedPrice:0;Timestamp:526978803825;NbPricesFixed:0\n" +
-                "day;Trace:Day;NumDay:1;ObName:ob2;FirstFixedPrice:-1;LowestPrice:-1;HighestPrice:-1;LastFixedPrice:0;Timestamp:526978803825;NbPricesFixed:0\n";
+        String convertedText = "type: Agent\n" + "agent\n" + "  Trace: Agent\n" + "  AgentName: a\n" + "  ObName: o\n" + "  Cash: 0\n" + "  Executed: 1\n" + "  Price: 10\n" + "  Direction: A\n" + "  OrderExtId: 1\n" + "Timestamp: 0\n" +
+                "\n" +"type: Price\n" +"price\n" +"  Trace: Price\n" +"  ObName: pr\n" +"  Price: 10\n" +"  Executed: 1\n" +"  Order1: o-1\n" +"  Order2: o-2\n" + "  BestAsk: 1\n" + "  BestBid: 2\n" + "  Dir: A\n" + "Timestamp: 526978801275\n" +
+                "\n" + "type: Order\n" + "order\n" + "  Trace: Order\n" + "  ObName: o\n" + "  Sender: a\n" + "  ExtId: 1\n" + "  Type: L\n" + "  Id: -1\n" + "  Quantity: 1\n" + "  Direction: A\n" + "  Price: 10\n" + "  Validity: -1\n" + "Timestamp: 0\n" +
+                "\n" + "type: Tick\n" + "Timestamp: 526978802550\n" + "tick\n" + "  Trace: Tick\n" + "  NumTick: 0\n" + "  NumDay: 0\n" + "  ObName: ob1\n" + "  BestAsk: 0\n" + "  BestBid: 0\n" + "  LastFixedPrice: 0\n" +
+                "\n" + "type: Tick\n" + "Timestamp: 526978802550\n" + "tick\n" + "  Trace: Tick\n" + "  NumTick: 0\n" + "  NumDay: 0\n" + "  ObName: ob2\n" + "  BestAsk: 0\n" + "  BestBid: 0\n" + "  LastFixedPrice: 0\n" +
+                "\n" + "type: Day\n" + "day\n" + "  Trace: Day\n" + "  NumDay: 1\n" + "  ObName: ob1\n" + "  FirstFixedPrice: -1\n" + "  LowestPrice: -1\n" + "  HighestPrice: -1\n" + "  LastFixedPrice: 0\n" + "  NbPricesFixed: 0\n" + "Timestamp: 526978803825\n" +
+                "\n" + "type: Day\n" + "day\n" + "  Trace: Day\n" + "  NumDay: 1\n" + "  ObName: ob2\n" + "  FirstFixedPrice: -1\n" + "  LowestPrice: -1\n" + "  HighestPrice: -1\n" + "  LastFixedPrice: 0\n" + "  NbPricesFixed: 0\n" + "Timestamp: 526978803825\n" + "\n";
 
         Assert.assertTrue("result converted as required", convertedText.equals(fileValue));
 
