@@ -32,6 +32,7 @@ symbols.agents.test2=Paul,Anna
 dest.hdfs.avro=/avro
 dest.hdfs.parquet=/parquet
 hbase.table=trace
+hbase.table.spark.result=result
 hbase.cf=cf
 hadoop.conf.core=/tmp/configuration.xml
 hbase.conf.hbase=/tmp/configuration.xml

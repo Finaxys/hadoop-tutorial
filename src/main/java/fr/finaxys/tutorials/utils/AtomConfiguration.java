@@ -45,6 +45,7 @@ public class AtomConfiguration {
 	private boolean autoFlush;
 	private byte[] cfName;
 	private String tableName = "trace";
+    private String sparkTableName ;
 
 	// App data
 	private long startTime;
@@ -136,6 +137,7 @@ public class AtomConfiguration {
 	        nbOrderBooks = orderBooks.size();
 
 			this.tableName = System.getProperty("hbase.table", "trace");
+            this.sparkTableName = System.getProperty("hbase.table.spark.result", "result");
 			this.cfName = Bytes.toBytes(System.getProperty("hbase.cf", "cf"));
 			assert cfName != null;
 			this.outHbase = System.getProperty("simul.output.hbase", "true")
@@ -407,5 +409,13 @@ public class AtomConfiguration {
 
     public void setParquetHDFSDest(String parquetHDFSDest) {
         this.parquetHDFSDest = parquetHDFSDest;
+    }
+
+    public String getSparkTableName() {
+        return sparkTableName;
+    }
+
+    public void setSparkTableName(String sparkTableName) {
+        this.sparkTableName = sparkTableName;
     }
 }

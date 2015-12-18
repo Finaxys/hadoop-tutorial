@@ -67,6 +67,7 @@ public class Converter implements Serializable {
         return dr;
     }
 
+
     private String getString(String col) {
         try {
             byte[] bArr = cfmap.get(Bytes.toBytes(col));

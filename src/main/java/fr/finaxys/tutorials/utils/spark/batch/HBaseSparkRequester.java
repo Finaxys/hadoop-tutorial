@@ -31,6 +31,7 @@ public class HBaseSparkRequester implements Serializable {
     public static  String hbaseSitePath ;
     public static final RequestReader requestReader= new RequestReader("spark-requests/hbase-batch-request.sql");
     public static Configuration hbaseConf = null ;
+    public static int max = 10000 ;
 
     private static final java.util.logging.Logger LOGGER = java.util.logging.Logger
             .getLogger(HBaseSparkRequester.class.getName());
@@ -103,6 +104,7 @@ public class HBaseSparkRequester implements Serializable {
         DataFrame df2 = sqlContext.sql(request);
         Row[] rows = df2.collect();
         df2.show();
+
         sc.stop();
         return rows ;
     }
