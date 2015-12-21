@@ -201,11 +201,21 @@
           <artifactId>avro-mapred</artifactId>
           <version>${avro.version}</version>
       </dependency>
-      <dependency>
-          <groupId>org.apache.avro</groupId>
-          <artifactId>avro-tools</artifactId>
-          <version>${avro.version}</version>
-      </dependency>
+      <!--<dependency>-->
+          <!--<groupId>org.apache.avro</groupId>-->
+          <!--<artifactId>avro-tools</artifactId>-->
+          <!--<version>${avro.version}</version>-->
+          <!--<exclusions>-->
+              <!--<exclusion>-->
+                      <!--<groupId>org.slf4j</groupId>-->
+                      <!--<artifactId>slf4j-api</artifactId>-->
+              <!--</exclusion>-->
+              <!--<exclusion>-->
+                  <!--<groupId>org.slf4j</groupId>-->
+                  <!--<artifactId>slf4j-simple</artifactId>-->
+              <!--</exclusion>-->
+            <!--</exclusions>-->
+      <!--</dependency>-->
       <dependency>
           <groupId>org.apache.parquet</groupId>
           <artifactId>parquet-avro</artifactId>
@@ -242,5 +252,24 @@
           <artifactId>spark-sql_2.10</artifactId>
           <version>${spark.version}</version>
       </dependency>
+
+      <!-- kafka -->
+      <dependency>
+          <groupId>org.apache.kafka</groupId>
+          <artifactId>kafka_2.10</artifactId>
+          <version>0.8.2.2</version>
+      </dependency>
+      <dependency>
+          <groupId>org.apache.kafka</groupId>
+          <artifactId>kafka_2.10</artifactId>
+          <version>0.8.2.2</version>
+          <classifier>test</classifier>
+      </dependency>
+      <dependency>
+          <groupId>org.apache.kafka</groupId>
+          <artifactId>kafka-clients</artifactId>
+          <version>0.8.2.2</version>
+      </dependency>
+
   </dependencies>
 </project>
