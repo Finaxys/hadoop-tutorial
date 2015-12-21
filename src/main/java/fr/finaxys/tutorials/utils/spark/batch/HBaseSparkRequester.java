@@ -1,15 +1,19 @@
 package fr.finaxys.tutorials.utils.spark.batch;
 
 import fr.finaxys.tutorials.utils.AtomConfiguration;
+import fr.finaxys.tutorials.utils.hbase.HBaseAnalysis;
 import fr.finaxys.tutorials.utils.spark.models.DataRow;
 import fr.finaxys.tutorials.utils.spark.utils.Converter;
 import fr.finaxys.tutorials.utils.spark.utils.RequestReader;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.hbase.HBaseConfiguration;
+import org.apache.hadoop.hbase.TableName;
+import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.io.ImmutableBytesWritable;
 import org.apache.hadoop.hbase.mapreduce.TableInputFormat;
+import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaRDD;
@@ -21,6 +25,7 @@ import org.apache.spark.sql.SQLContext;
 import scala.Tuple2;
 
 import java.io.Serializable;
+import java.util.Date;
 
 /**
  * Created by finaxys on 12/8/15.
@@ -32,6 +37,7 @@ public class HBaseSparkRequester implements Serializable {
     public static final RequestReader requestReader= new RequestReader("spark-requests/hbase-batch-request.sql");
     public static Configuration hbaseConf = null ;
     public static int max = 10000 ;
+    public static String resultQualifier = "result" ;
 
     private static final java.util.logging.Logger LOGGER = java.util.logging.Logger
             .getLogger(HBaseSparkRequester.class.getName());
@@ -104,6 +110,19 @@ public class HBaseSparkRequester implements Serializable {
         DataFrame df2 = sqlContext.sql(request);
         Row[] rows = df2.collect();
         df2.show();
+
+        // put data
+        HBaseAnalysis analysis = new HBaseAnalysis();
+        analysis.setTableName(TableName.valueOf(atomConfiguration.getSparkTableName()));
+        analysis.setColumnFamily(atomConfiguration.getColumnFamily());
+        analysis.setHbaseConfiguration(conf);
+        analysis.openTable();
+        Date date = new Date();
+        Put p = new Put(Bytes.toBytes("r-"+date.getTime()));
+        p.addColumn(atomConfiguration.getColumnFamily(),Bytes.toBytes(resultQualifier),Bytes.toBytes(df2.showString(max,false)));
+        analysis.directPutTable(p);
+        analysis.closeTable();
+
 
         sc.stop();
         return rows ;
