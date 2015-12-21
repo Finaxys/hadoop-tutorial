@@ -38,6 +38,7 @@ public class HBaseStreamingRequester {
     private static final AtomConfiguration atomConfiguration= new AtomConfiguration();
     private static final String HBASE_SITE_PATH = atomConfiguration.getHbaseConfHbase();
     private static final String TABLE_NAME = atomConfiguration.getTableName();
+    private static final byte[] COLUMN_FAMILY = atomConfiguration.getColumnFamily() ;
     public static final RequestReader requestReader= new RequestReader("spark-requests/hbase-streaming-request.sql");
     public static final String resultQualifier = "result";
     public static final int max = 10000 ;
@@ -63,8 +64,7 @@ public class HBaseStreamingRequester {
                 Durations.seconds(2));
         JavaReceiverInputDStream<DataRow> jrids = jssc
                 .receiverStream(new EmptyReceiver(StorageLevel.MEMORY_ONLY()));
-        final byte[] columnFamily = atomConfiguration.getColumnFamily();
-        final Converter converter = new Converter(columnFamily);
+        final Converter converter = new Converter(COLUMN_FAMILY);
         conf = HBaseConfiguration.create();
         conf.addResource(new Path(HBASE_SITE_PATH));
         conf.set(TableInputFormat.INPUT_TABLE, TABLE_NAME);
