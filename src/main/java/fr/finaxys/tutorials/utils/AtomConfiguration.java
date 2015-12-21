@@ -55,6 +55,7 @@ public class AtomConfiguration {
 	// private boolean replay;
 	// private String replaySource;
 	private boolean outFile;
+    private boolean outKafka;
 	private boolean outAvro;
 	private String avroSchema;
 	private String avroHDFSDest;
@@ -64,6 +65,8 @@ public class AtomConfiguration {
 	private String hadoopConfCore;
 	private String hbaseConfHbase;
 	private String hadoopConfHdfs;
+    private String kafkaTopic ;
+    private String kafkaBoot ;
 	
 	private int agentCash;
 	private int agentMinPrice;
@@ -144,6 +147,8 @@ public class AtomConfiguration {
 					.equals("true");
 			this.outFile = Boolean.parseBoolean(System.getProperty(
 					"simul.output.file", "false"));
+            this.outKafka = Boolean.parseBoolean(System.getProperty(
+                    "simul.output.kafka", "false"));
 			this.outFilePath = System.getProperty("simul.output.file.path",
 					"outPutAtom.log");
 			this.outSystem = System.getProperty("simul.output.standard",
@@ -198,6 +203,8 @@ public class AtomConfiguration {
 
 			this.avroHDFSDest = System.getProperty("dest.hdfs.avro");
 			this.pathAvro = System.getProperty("avro.path");
+            this.kafkaTopic = System.getProperty("kafka.topic") ;
+            this.kafkaBoot = System.getProperty("bootstrap.kafka.servers");
 			
 			this.tsbDateBegin = System.getProperty("simul.time.startdate");
 	        assert tsbDateBegin != null;
@@ -306,6 +313,10 @@ public class AtomConfiguration {
 	public boolean isOutFile() {
 		return outFile;
 	}
+
+    public boolean isOutKafka() {
+        return outKafka;
+    }
 
 	public boolean isOutAvro() {
 		return outAvro;
@@ -417,5 +428,21 @@ public class AtomConfiguration {
 
     public void setSparkTableName(String sparkTableName) {
         this.sparkTableName = sparkTableName;
+    }
+
+    public String getKafkaTopic() {
+        return kafkaTopic;
+    }
+
+    public void setKafkaTopic(String kafkaTopic) {
+        this.kafkaTopic = kafkaTopic;
+    }
+
+    public String getKafkaBoot() {
+        return kafkaBoot;
+    }
+
+    public void setKafkaBoot(String kafkaBoot) {
+        this.kafkaBoot = kafkaBoot;
     }
 }
