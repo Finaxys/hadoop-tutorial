@@ -72,12 +72,6 @@
       <version>2.7.1</version>
       <type>test-jar</type>
       <scope>test</scope>
-      <exclusions>
-        <exclusion>
-          <artifactId>servlet-api</artifactId>
-          <groupId>javax.servlet</groupId>
-        </exclusion>
-      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.apache.hbase</groupId>
@@ -117,12 +111,15 @@
     </dependency>
   </dependencies>
   <properties>
-    <testng.version>6.4</testng.version>
-    <hbase.version>1.1.2</hbase.version>
-    <mockito-all.version>1.10.8</mockito-all.version>
-    <log4j.version>2.3</log4j.version>
-    <hadoop.version>2.7.1</hadoop.version>
+    <avro.version>1.7.7</avro.version>
     <junit.version>4.11</junit.version>
+    <mockito-all.version>1.10.8</mockito-all.version>
+    <hbase.version>1.1.2</hbase.version>
+    <log4j.version>2.3</log4j.version>
+    <parquet.version>1.7.0</parquet.version>
+    <hadoop.version>2.7.1</hadoop.version>
+    <testng.version>6.4</testng.version>
+    <spark.version>1.5.2</spark.version>
   </properties>
 </project>
 
