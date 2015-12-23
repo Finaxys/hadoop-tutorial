@@ -1,7 +1,10 @@
 package fr.finaxys.tutorials.utils.avro;
 
 import com.sun.istack.NotNull;
-import fr.finaxys.tutorials.utils.*;
+import fr.finaxys.tutorials.utils.AgentReferentialLine;
+import fr.finaxys.tutorials.utils.AtomConfiguration;
+import fr.finaxys.tutorials.utils.AtomDataInjector;
+import fr.finaxys.tutorials.utils.HadoopTutorialException;
 import fr.finaxys.tutorials.utils.avro.models.*;
 import fr.univlille1.atom.trace.TraceType;
 import org.apache.avro.Schema;
@@ -12,8 +15,8 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import v13.*;
 import v13.Day;
+import v13.*;
 import v13.Order;
 import v13.agents.Agent;
 
@@ -28,7 +31,7 @@ public class AvroInjector implements AtomDataInjector {
 	private Configuration conf;
 	private FileSystem fileSystem;
 	private String destHDFS;
-	private TimeStampBuilder tsb;
+
     private int dayGap;
     private DataFileWriter<VRecord> fileWriter ;
 
@@ -83,7 +86,7 @@ public class AvroInjector implements AtomDataInjector {
 	}
 
 	@Override
-	public void sendAgent(Agent a, Order o, PriceRecord pr) {
+	public void sendAgent(long ts, Agent a, Order o, PriceRecord pr) {
 		try {
             //put agent fields
             VRecord record = new VRecord() ;
@@ -109,10 +112,9 @@ public class AvroInjector implements AtomDataInjector {
 	}
 
 	@Override
-	public void sendPriceRecord(PriceRecord pr, long bestAskPrice,
+	public void sendPriceRecord(long ts, PriceRecord pr, long bestAskPrice,
 			long bestBidPrice) {
 		try {
-            long ts = tsb.nextTimeStamp();
             VRecord record = new VRecord() ;
             //put price fields 
             record.setType(TraceType.Price.name());
@@ -136,9 +138,8 @@ public class AvroInjector implements AtomDataInjector {
 	}
 
 	@Override
-	public void sendAgentReferential(List<AgentReferentialLine> referencial) {
+	public void sendAgentReferential(long ts, List<AgentReferentialLine> referencial) {
         for (AgentReferentialLine agent : referencial) {
-            long ts = tsb.nextTimeStamp();
             VRecord record = new VRecord();
             record.setType("AgentReferential");
             //put agent fields
@@ -160,7 +161,7 @@ public class AvroInjector implements AtomDataInjector {
 	}
 
 	@Override
-	public void sendOrder(Order o) {
+	public void sendOrder(long ts, Order o) {
 		try {
             VRecord record = new VRecord();
             record.setType(TraceType.Order.name());
@@ -189,9 +190,9 @@ public class AvroInjector implements AtomDataInjector {
 	}
 
 	@Override
-	public  void sendTick(Day day, Collection<OrderBook> orderbooks) {
+	public  void sendTick(long ts, Day day, Collection<OrderBook> orderbooks) {
 		try {
-            long ts = tsb.nextTimeStamp();
+
             for (OrderBook ob : orderbooks) {
                 VRecord record = new VRecord();
                 record.setType(TraceType.Tick.name());
@@ -224,9 +225,9 @@ public class AvroInjector implements AtomDataInjector {
 	}
 
 	@Override
-	public void sendDay(int nbDays, Collection<OrderBook> orderbooks) {
+	public void sendDay(long ts, int nbDays, Collection<OrderBook> orderbooks) {
 		try {
-            long ts = tsb.nextTimeStamp();
+
             for (OrderBook ob : orderbooks) {
                 VRecord record = new VRecord();
                 record.setType(TraceType.Day.name());
@@ -255,9 +256,9 @@ public class AvroInjector implements AtomDataInjector {
 	}
 
 	@Override
-	public void sendExec(Order o) {
+	public void sendExec(long ts, Order o) {
 		try {
-            long ts = tsb.nextTimeStamp();
+
             VRecord record = new VRecord();
             record.setType(TraceType.Exec.name());
             //put exec fields
@@ -285,16 +286,6 @@ public class AvroInjector implements AtomDataInjector {
 		} catch (IOException e) {
             throw new HadoopTutorialException("failed close fileSystem...", e);
 		}
-	}
-
-        @Override
-	public void setTimeStampBuilder(TimeStampBuilder tsb) {
-		this.tsb = tsb;
-	}
-
-	@Override
-	public TimeStampBuilder getTimeStampBuilder() {
-		return tsb;
 	}
 
     public int getDayGap() {

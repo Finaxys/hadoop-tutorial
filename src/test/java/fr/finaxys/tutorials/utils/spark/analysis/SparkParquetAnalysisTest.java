@@ -125,7 +125,7 @@ public class SparkParquetAnalysisTest {
 
         LOGGER.log(Level.INFO, "Order 1 TimeStamp:"+ts);
         injector.createOutput();
-        injector.sendAgent(a, o , pr);
+        injector.sendAgent(ts, a, o , pr);
 
 
         long ts2 = System.currentTimeMillis();
@@ -135,7 +135,7 @@ public class SparkParquetAnalysisTest {
 
 
         LOGGER.log(Level.INFO, "Order 2 TimeStamp:"+ts2);
-        injector.sendOrder(o2);
+        injector.sendOrder(ts2, o2);
         injector.closeOutput();
         converter.convert() ;
         Map<TraceType,Integer>r = analysis.traceCount(testDate, null);
@@ -157,14 +157,14 @@ public class SparkParquetAnalysisTest {
         LOGGER.log(Level.INFO, "Order 1 TimeStamp:"+o.timestamp);
         //Put p = analysis.mkPutOrder(analysis.createRequired(AGENT), ts, a, o , pr);
         injector.createOutput();
-        injector.sendOrder(o);
+        injector.sendOrder(ts, o);
 
         LimitOrder o2 = new LimitOrder("o", "2", LimitOrder.ASK, 1, 11);
         o2.sender = a;
         o2.timestamp = ts;
 
         LOGGER.log(Level.INFO, "Order 2 TimeStamp:"+o2.timestamp);
-        injector.sendOrder(o2);
+        injector.sendOrder(ts, o2);
 
 
         long ts2 = System.currentTimeMillis();
@@ -173,7 +173,7 @@ public class SparkParquetAnalysisTest {
         o3.timestamp = ts2;
 
         LOGGER.log(Level.INFO, "Order 3 TimeStamp:"+o3.timestamp);
-        injector.sendOrder(o3);
+        injector.sendOrder(ts2, o3);
         injector.closeOutput();
         converter.convert();
 

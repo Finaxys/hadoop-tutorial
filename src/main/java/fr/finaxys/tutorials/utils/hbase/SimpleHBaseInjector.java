@@ -24,8 +24,6 @@ public class SimpleHBaseInjector extends AtomHBaseHelper implements AtomDataInje
 
 	private static final java.util.logging.Logger LOGGER = java.util.logging.Logger
 			.getLogger(SimpleHBaseInjector.class.getName());
-	
-	private TimeStampBuilder timeStampBuilder;
 
 	private int dayGap;
 	private AtomConfiguration atomConfiguration;
@@ -66,14 +64,13 @@ public class SimpleHBaseInjector extends AtomHBaseHelper implements AtomDataInje
 	}
 
 	@Override
-	public void sendAgent(Agent a, Order o, PriceRecord pr) {
-		long ts = timeStampBuilder.nextTimeStamp();
+	public void sendAgent(long ts, Agent a, Order o, PriceRecord pr) {
 		Put p = mkPutAgent(createRequired(AGENT), ts, a, o, pr);
 		putTable(p);
 	}
 	
 	@Override
-	public void sendAgentReferential(List<AgentReferentialLine> referencial) {
+	public void sendAgentReferential(long ts, List<AgentReferentialLine> referencial) {
 		for (AgentReferentialLine agent : referencial) {
 			Put p = mkPutAgentReferential(agent, hbEncoder, columnFamily,
 					System.currentTimeMillis());
@@ -82,8 +79,7 @@ public class SimpleHBaseInjector extends AtomHBaseHelper implements AtomDataInje
 	}
 	
 	@Override
-	public void sendDay(int nbDays, Collection<OrderBook> orderbooks) {
-		long ts = timeStampBuilder.nextTimeStamp();
+	public void sendDay(long ts, int nbDays, Collection<OrderBook> orderbooks) {
 		for (OrderBook ob : orderbooks) {
 			Put p = mkPutDay(createRequired(DAY), ts, dayGap, nbDays, ob);
 			putTable(p);
@@ -91,41 +87,39 @@ public class SimpleHBaseInjector extends AtomHBaseHelper implements AtomDataInje
 	}
 	
 	@Override
-	public void sendExec(Order o) {
-		long ts = timeStampBuilder.nextTimeStamp();
+	public void sendExec(long ts, Order o) {
 		Put p = mkPutExec(createRequired(EXEC), ts, o);
 		putTable(p);
 	}
 	
 	@Override
-	public void sendOrder(Order o) {
+	public void sendOrder(long ts, Order o) {
 		
 		// hack for update on scaledrisk
 		// (does not manage put then
 		// update with same ts)
 		//long ts = System.currentTimeMillis(); 
-		o.timestamp = timeStampBuilder.nextTimeStamp();
+		o.timestamp = ts;
 		Put p = mkPutOrder(createRequired(ORDER), o.timestamp, o);
 		putTable(p);
 	}
 	
 	@Override
-	public void sendPriceRecord(PriceRecord pr, long bestAskPrice,
+	public void sendPriceRecord(long ts, PriceRecord pr, long bestAskPrice,
 			long bestBidPrice) {
 		// hack for update on
 		// scaledrisk (does not
 		// manage put then update
 		// with same ts)
 		//long ts = System.currentTimeMillis() + 2L; 
-		pr.timestamp = timeStampBuilder.nextTimeStamp();
+		pr.timestamp = ts;
 
 		Put p = mkPutPriceRecord(createRequired(PRICE), pr.timestamp, pr, bestAskPrice, bestBidPrice);
 		putTable(p);
 	}
 	
 	@Override
-	public void sendTick(Day day, Collection<OrderBook> orderbooks) {
-		long ts = timeStampBuilder.nextTimeStamp();
+	public void sendTick(long ts, Day day, Collection<OrderBook> orderbooks) {
 		for (OrderBook ob : orderbooks) {
 			Put p = mkPutTick(createRequired(TICK), ts, dayGap, day, ob);
 			putTable(p);
@@ -146,15 +140,6 @@ public class SimpleHBaseInjector extends AtomHBaseHelper implements AtomDataInje
 	
 	public AtomConfiguration getAtomConfiguration() {
 		return atomConfiguration;
-	}
-
-	public TimeStampBuilder getTimeStampBuilder() {
-		return timeStampBuilder;
-	}
-	
-	@Override
-	public void setTimeStampBuilder(TimeStampBuilder tsb) {
-		this.timeStampBuilder = tsb;
 	}
 
 }

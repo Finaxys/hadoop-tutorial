@@ -2,16 +2,11 @@ package fr.finaxys.tutorials.utils.hbase;
 
 
 import com.sun.istack.NotNull;
-
 import fr.finaxys.tutorials.utils.AgentReferentialLine;
 import fr.finaxys.tutorials.utils.AtomConfiguration;
 import fr.finaxys.tutorials.utils.AtomDataInjector;
 import fr.finaxys.tutorials.utils.HadoopTutorialException;
-import v13.Day;
-import v13.Logger;
-import v13.Order;
-import v13.OrderBook;
-import v13.PriceRecord;
+import v13.*;
 import v13.agents.Agent;
 
 import java.io.PrintStream;
@@ -50,7 +45,7 @@ public class HBaseLogger extends Logger {
   public void agentReferential(@NotNull List<AgentReferentialLine> referencial) {
     assert !referencial.isEmpty();
     for (int i = 0; i < injectors.length; i++) {
-      injectors[i].sendAgentReferential(referencial);
+      injectors[i].sendAgentReferential(System.currentTimeMillis(),referencial);
     }
   }
 
@@ -58,7 +53,7 @@ public class HBaseLogger extends Logger {
   public void agent(Agent a, Order o, PriceRecord pr) {
     super.agent(a, o, pr);
     for (int i = 0; i < injectors.length; i++) {
-      injectors[i].sendAgent(a, o, pr);
+      injectors[i].sendAgent(System.currentTimeMillis(), a, o, pr);
     }
   }
 
@@ -67,7 +62,7 @@ public class HBaseLogger extends Logger {
   public void exec(Order o) {
     super.exec(o);
     for (int i = 0; i < injectors.length; i++) {
-      injectors[i].sendExec(o);
+      injectors[i].sendExec(System.currentTimeMillis(),o);
     }
   }
 
@@ -75,7 +70,7 @@ public class HBaseLogger extends Logger {
   public void order(Order o) {
     super.order(o);
     for (int i = 0; i < injectors.length; i++) {
-      injectors[i].sendOrder(o);
+      injectors[i].sendOrder(System.currentTimeMillis(),o);
     }
   }
 
@@ -83,7 +78,7 @@ public class HBaseLogger extends Logger {
   public void price(PriceRecord pr, long bestAskPrice, long bestBidPrice) {
     super.price(pr, bestAskPrice, bestBidPrice);
     for (int i = 0; i < injectors.length; i++) {
-      injectors[i].sendPriceRecord(pr, bestAskPrice, bestBidPrice);
+      injectors[i].sendPriceRecord(System.currentTimeMillis(),pr, bestAskPrice, bestBidPrice);
     }
   }
 
@@ -92,7 +87,7 @@ public class HBaseLogger extends Logger {
   public void day(int nbDays, java.util.Collection<OrderBook> orderbooks) {
     super.day(nbDays, orderbooks);
     for (int i = 0; i < injectors.length; i++) {
-      injectors[i].sendDay(nbDays, orderbooks);
+      injectors[i].sendDay(System.currentTimeMillis(),nbDays, orderbooks);
     }
   }
 
@@ -101,7 +96,7 @@ public class HBaseLogger extends Logger {
   public void tick(Day day, java.util.Collection<OrderBook> orderbooks) {
     super.tick(day, orderbooks);
     for (int i = 0; i < injectors.length; i++) {
-      injectors[i].sendTick(day, orderbooks);
+      injectors[i].sendTick(System.currentTimeMillis(),day, orderbooks);
     }
 
   }

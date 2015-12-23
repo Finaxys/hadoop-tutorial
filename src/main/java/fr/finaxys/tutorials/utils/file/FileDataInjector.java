@@ -23,8 +23,7 @@ public class FileDataInjector implements AtomDataInjector {
 			.getLogger(FileDataInjector.class.getName());
 	
     private PrintStream pw = null;
-    private TimeStampBuilder tsb;
-    private int nb_order = 0;
+
     private String filename;
 
     public FileDataInjector(String filename) {
@@ -54,25 +53,6 @@ public class FileDataInjector implements AtomDataInjector {
 
     }
 
-/*    public void error(Exception e) {
-        if(this.pw != null) {
-            this.println("#ERROR;" + e.getMessage());
-        }
-    }
-*/
-/*    public void command(char c) {
-        if(this.pw != null) {
-            this.println("!" + c);
-        }
-    }
-*/
-/*    public void info(String s) {
-        if(this.pw != null) {
-            this.println("Info;" + s);
-        }
-    }
-*/
-
 	@Override
 	public void createOutput() throws HadoopTutorialException {
 		try {
@@ -89,7 +69,7 @@ public class FileDataInjector implements AtomDataInjector {
 	}
 
 	@Override
-	public void sendAgent(Agent a, Order o, PriceRecord pr)
+	public void sendAgent(long ts, Agent a, Order o, PriceRecord pr)
 			throws HadoopTutorialException {
 		if(this.pw != null) {
             this.println("Agent;" + a.name + ";" + a.cash + ";" + o.obName + ";" + a.getInvest(o.obName) + ";" + (pr != null?Long.valueOf(pr.price):"none"));
@@ -97,7 +77,7 @@ public class FileDataInjector implements AtomDataInjector {
 	}
 
 	@Override
-	public void sendPriceRecord(PriceRecord pr, long bestAskPrice,
+	public void sendPriceRecord(long ts, PriceRecord pr, long bestAskPrice,
 			long bestBidPrice) throws HadoopTutorialException {
 		if(this.pw != null) {
             this.println("Price;" + pr + ";" + bestAskPrice + ";" + bestBidPrice);
@@ -105,26 +85,23 @@ public class FileDataInjector implements AtomDataInjector {
 	}
 
 	@Override
-	public void sendAgentReferential(List<AgentReferentialLine> referencial)
+	public void sendAgentReferential(long ts, List<AgentReferentialLine> referencial)
 			throws HadoopTutorialException {
 		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
-	public void sendOrder(Order o) throws HadoopTutorialException {
+	public void sendOrder(long ts, Order o) throws HadoopTutorialException {
 		if(this.pw != null) {
-            ++nb_order;
             this.print(o.toString()/*+displayTimestamp()*/);
         }
 	}
 
 	@Override
-	public void sendTick(Day day, Collection<OrderBook> orderbooks)
+	public void sendTick(long ts, Day day, Collection<OrderBook> orderbooks)
 			throws HadoopTutorialException {
 		if(this.pw != null) {
-            LOGGER.fine(day.currentTick() + " >> " + nb_order);
-            nb_order = 0;
 
             Iterator<OrderBook> i$ = orderbooks.iterator();
 
@@ -141,7 +118,7 @@ public class FileDataInjector implements AtomDataInjector {
 	}
 
 	@Override
-	public void sendDay(int nbDays, Collection<OrderBook> orderbooks)
+	public void sendDay(long ts, int nbDays, Collection<OrderBook> orderbooks)
 			throws HadoopTutorialException {
 		if(this.pw != null) {
 			
@@ -160,7 +137,7 @@ public class FileDataInjector implements AtomDataInjector {
 	}
 
 	@Override
-	public void sendExec(Order o) throws HadoopTutorialException {
+	public void sendExec(long ts, Order o) throws HadoopTutorialException {
 		if(this.pw != null) {
             this.println("Exec;" + o.sender.name + "-" + o.extId);
         }
@@ -170,16 +147,6 @@ public class FileDataInjector implements AtomDataInjector {
 	public void closeOutput() throws HadoopTutorialException {
 		this.pw.close();
 		this.pw = null;
-	}
-
-	@Override
-	public void setTimeStampBuilder(TimeStampBuilder tsb) {
-		this.tsb = tsb;
-	}
-
-	@Override
-	public TimeStampBuilder getTimeStampBuilder() {
-		return tsb;
 	}
 
 }

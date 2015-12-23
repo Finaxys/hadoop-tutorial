@@ -1,6 +1,8 @@
 package fr.finaxys.tutorials.utils.kafka;
 
-import fr.finaxys.tutorials.utils.*;
+import fr.finaxys.tutorials.utils.AgentReferentialLine;
+import fr.finaxys.tutorials.utils.AtomConfiguration;
+import fr.finaxys.tutorials.utils.AtomDataInjector;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerConfig;
@@ -22,15 +24,13 @@ public class KafkaInjector implements AtomDataInjector {
     private final static Logger LOGGER = LoggerFactory.getLogger(KafkaInjector.class);
     private Producer<String, String> producer;
     private String topic;
-    private AtomConfiguration atomConfiguration ;
-    private TimeStampBuilder tsb ;
-    private int nb_order = 0;
+    private AtomConfiguration atomConfiguration;
 
-    public KafkaInjector(AtomConfiguration atomConfiguration){
-        this.atomConfiguration = atomConfiguration ;
+    public KafkaInjector(AtomConfiguration atomConfiguration) {
+        this.atomConfiguration = atomConfiguration;
         topic = atomConfiguration.getKafkaTopic();
         Properties props = new Properties();
-        props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG,atomConfiguration.getKafkaBoot());
+        props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, atomConfiguration.getKafkaBoot());
         props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringSerializer");
         props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringSerializer");
         props.put("request.timeout.ms", 100);
@@ -38,7 +38,7 @@ public class KafkaInjector implements AtomDataInjector {
     }
 
     @Override
-    public void closeOutput()  {
+    public void closeOutput() {
         producer.close();
     }
 
@@ -47,72 +47,94 @@ public class KafkaInjector implements AtomDataInjector {
         //TODO
     }
 
+
     @Override
-    public TimeStampBuilder getTimeStampBuilder() {
-        return tsb;
+    public void sendAgent(long ts, Agent a, Order o, PriceRecord pr) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("Agent").append(";");
+        sb.append(a.name).append(";");
+        sb.append(a.cash).append(";");
+        sb.append(o.obName).append(";");
+        sb.append(a.getInvest(o.obName)).append(";");
+        sb.append((pr != null ? Long.valueOf(pr.price) : "none")).append(";");
+        sb.append(ts);
+
+        producer.send(new ProducerRecord<String, String>(topic, sb.toString()));
     }
 
     @Override
-    public void setTimeStampBuilder(TimeStampBuilder tsb) {
-        this.tsb = tsb ;
+    public void sendPriceRecord(long ts, PriceRecord pr, long bestAskPrice, long bestBidPrice) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("Price").append(";");
+        sb.append(pr).append(";");
+        sb.append(bestAskPrice).append(";");
+        sb.append(bestBidPrice).append(";");
+        sb.append(ts);
+
+        producer.send(new ProducerRecord<String, String>(topic, sb.toString()));
     }
 
     @Override
-    public void sendAgent(Agent a, Order o, PriceRecord pr)  {
-        producer.send(new ProducerRecord<String, String>(topic, "Agent;" + a.name + ";" + a.cash + ";" + o.obName + ";" + a.getInvest(o.obName) + ";" + (pr != null ? Long.valueOf(pr.price) : "none")));
-    }
-
-    @Override
-    public void sendPriceRecord(PriceRecord pr, long bestAskPrice, long bestBidPrice)  {
-        producer.send(new ProducerRecord<String, String>(topic,"Price;" + pr + ";" + bestAskPrice + ";" + bestBidPrice));
-    }
-
-    @Override
-    public void sendAgentReferential(List<AgentReferentialLine> referencial)  {
+    public void sendAgentReferential(long ts, List<AgentReferentialLine> referencial) {
 
     }
 
     @Override
-    public void sendOrder(Order o)  {
-        ++nb_order;
-        producer.send(new ProducerRecord<String, String>(topic, (o.toString()/*+displayTimestamp()*/)));
+    public void sendOrder(long ts, Order o) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(o.toString()).append(";");
+        sb.append(ts);
+
+        producer.send(new ProducerRecord<String, String>(topic, sb.toString()));
     }
 
     @Override
-    public void sendTick(Day day, Collection<OrderBook> orderbooks)  {
-        LOGGER.info(day.currentTick() + " >> " + nb_order);
-        nb_order = 0;
+    public void sendTick(long ts, Day day, Collection<OrderBook> orderbooks) {
 
         Iterator<OrderBook> i$ = orderbooks.iterator();
 
-        while(i$.hasNext()) {
-            OrderBook ob = (OrderBook)i$.next();
+        while (i$.hasNext()) {
+            OrderBook ob = i$.next();
             StringBuilder sb = new StringBuilder();
-            sb.append("Tick;").append(day.currentPeriod().currentTick()).append(";");
-            sb.append(ob.obName).append(";" + (ob.ask.size() > 0?Long.valueOf(((LimitOrder)ob.ask.first()).price):"0"));
-            sb.append(";").append(ob.bid.size() > 0?Long.valueOf(((LimitOrder)ob.bid.first()).price):"0");
-            sb.append(";").append(ob.lastFixedPrice != null?Long.valueOf(ob.lastFixedPrice.price):"0").append(";");
+            sb.append("Tick").append(";");
+            sb.append(day.currentPeriod().currentTick()).append(";");
+            sb.append(ob.obName).append(";");
+            sb.append(ob.ask.size() > 0 ? Long.valueOf(((LimitOrder) ob.ask.first()).price) : "0").append(";");
+            sb.append(ob.bid.size() > 0 ? Long.valueOf(((LimitOrder) ob.bid.first()).price) : "0").append(";");
+            sb.append(ob.lastFixedPrice != null ? Long.valueOf(ob.lastFixedPrice.price) : "0").append(";");
+            sb.append(ts);
+
             producer.send(new ProducerRecord<String, String>(topic, sb.toString()));
         }
     }
 
     @Override
-    public void sendDay(int nbDays, Collection<OrderBook> orderbooks)  {
-            Iterator<OrderBook> i$ = orderbooks.iterator();
+    public void sendDay(long ts, int nbDays, Collection<OrderBook> orderbooks) {
+        Iterator<OrderBook> i$ = orderbooks.iterator();
 
-            while(i$.hasNext()) {
-                OrderBook ob = (OrderBook) i$.next();
-                StringBuilder sb = new StringBuilder();
-                sb.append(ob.obName).append(";").append(ob.firstPriceOfDay);
-                sb.append(";").append(ob.lowestPriceOfDay).append(";");
-                sb.append(ob.highestPriceOfDay).append(";").append(ob.lastPriceOfDay);
-                sb.append(";").append(ob.numberOfPricesFixed).append(";");
-                producer.send(new ProducerRecord<String, String>(topic, "Day;" + nbDays + ";" + sb.toString()));
-            }
+        while (i$.hasNext()) {
+            OrderBook ob = i$.next();
+            StringBuilder sb = new StringBuilder();
+            sb.append("Day").append(";");
+            sb.append(nbDays).append(";");
+            sb.append(ob.obName).append(";");
+            sb.append(ob.firstPriceOfDay).append(";");
+            sb.append(ob.lowestPriceOfDay).append(";");
+            sb.append(ob.highestPriceOfDay).append(";");
+            sb.append(ob.lastPriceOfDay).append(";");
+            sb.append(ob.numberOfPricesFixed).append(";");
+            sb.append(ts);
+            producer.send(new ProducerRecord<String, String>(topic, sb.toString()));
+        }
     }
 
     @Override
-    public void sendExec(Order o)  {
-        producer.send(new ProducerRecord<String, String>(topic, "Exec;" + o.sender.name + "-" + o.extId));
+    public void sendExec(long ts, Order o) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("Exec").append(";");
+        sb.append(o.sender.name).append("-").append(o.extId).append(";");
+        sb.append(ts);
+
+        producer.send(new ProducerRecord<String, String>(topic, sb.toString()));
     }
 }

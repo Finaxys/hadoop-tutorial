@@ -54,7 +54,6 @@ public class AvroInjectorTest {
     public void setUp() {
         tsb = new TimeStampBuilder("09/13/1986", "9:00", "17:30", 3000, 2, 2);
         tsb.init();
-        injector.setTimeStampBuilder(tsb);
         injector.setDayGap(DAY_GAP);
     }
 
@@ -66,12 +65,13 @@ public class AvroInjectorTest {
     @Test
     public void testSendAgent() {
         // Agent a, Order o, PriceRecord pr
+            long ts = tsb.nextTimeStamp();
             injector.createOutput();
             Agent a = new DumbAgent("a");
             Order o = new LimitOrder("o", "1", LimitOrder.ASK, 1, 10);
             o.sender = a;
             PriceRecord pr = new PriceRecord("o", 10, 1, LimitOrder.ASK, "o-1", "o-2");
-            injector.sendAgent(a, o, pr);
+            injector.sendAgent(ts, a, o, pr);
             injector.closeOutput();
             List<VRecord> records = reader.scanRecords(100);
             fr.finaxys.tutorials.utils.avro.models.Agent agent = records.get(records.size()-1).getAgent();
@@ -88,11 +88,12 @@ public class AvroInjectorTest {
     @Test
     public void testSendPriceRecord() {
         // PriceRecord pr, long bestAskPrice, long bestBidPrice
+        long ts = tsb.nextTimeStamp();
             injector.createOutput();
             PriceRecord pr = new PriceRecord("pr", 10, 1, LimitOrder.ASK, "o-1", "o-2");
             long bestAskPrice = 1;
             long bestBidPrice = 2;
-            injector.sendPriceRecord(pr, bestAskPrice, bestBidPrice);
+            injector.sendPriceRecord(ts, pr, bestAskPrice, bestBidPrice);
             injector.closeOutput();
             List<VRecord> records = reader.scanRecords(100);
             fr.finaxys.tutorials.utils.avro.models.Price price = records.get(records.size()-1).getPrice();
@@ -111,10 +112,11 @@ public class AvroInjectorTest {
     @Test
     public void testSendOrder() {
         // Order o
+        long ts = tsb.nextTimeStamp();
             injector.createOutput();
             LimitOrder o = new LimitOrder("o", "1", LimitOrder.ASK, 1, 10);
             o.sender = new DumbAgent("a");
-            injector.sendOrder(o);
+            injector.sendOrder(ts, o);
             injector.closeOutput();
             List<VRecord> records = reader.scanRecords(100);
             fr.finaxys.tutorials.utils.avro.models.Order order =  records.get(records.size()-1).getOrder();
@@ -128,6 +130,7 @@ public class AvroInjectorTest {
     @Test
     public void testSendTick() {
         // Day day, Collection<OrderBook> orderbooks
+        long ts = tsb.nextTimeStamp();
             injector.createOutput();
             Day day = Day.createSinglePeriod(1, 100);
             day.nextPeriod();
@@ -136,7 +139,7 @@ public class AvroInjectorTest {
             List<OrderBook> obs = new ArrayList<OrderBook>();
             obs.add(ob);
             obs.add(ob2);
-            injector.sendTick(day, obs);
+            injector.sendTick(ts, day, obs);
             injector.closeOutput();
             List<VRecord> records = reader.scanRecords(100);
             Tick tick = records.get(records.size()-1).getTick();
@@ -151,6 +154,7 @@ public class AvroInjectorTest {
     @Test
     public void testSendDay() {
         // int nbDays, Collection<OrderBook> orderbooks
+        long ts = tsb.nextTimeStamp();
             injector.createOutput();
             int day = 1;
             OrderBook ob = new OrderBook("ob1");
@@ -158,7 +162,7 @@ public class AvroInjectorTest {
             List<OrderBook> obs = new ArrayList<OrderBook>();
             obs.add(ob);
             obs.add(ob2);
-            injector.sendDay(day, obs);
+            injector.sendDay(ts, day, obs);
             injector.closeOutput();
             List<VRecord> records = reader.scanRecords(100);
             fr.finaxys.tutorials.utils.avro.models.Day avroDay = records.get(records.size()-1).getDay();

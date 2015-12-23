@@ -120,6 +120,7 @@
     <hadoop.version>2.7.1</hadoop.version>
     <testng.version>6.4</testng.version>
     <spark.version>1.5.2</spark.version>
+    <kafka-version>0.8.2.2</kafka-version>
   </properties>
 </project>
 

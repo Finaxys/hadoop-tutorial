@@ -33,6 +33,7 @@ public class AvroParquetConverterTest {
     private static String finalResultFile = "/final-result";
     private static String resultSuffix = "/part-m-00000" ;
     private static int max = 1000 ;
+    private static TimeStampBuilder tsb;
 
     @BeforeClass
     public static void setupBeforeClass() throws Exception {
@@ -56,9 +57,8 @@ public class AvroParquetConverterTest {
     public void setUp() {
         converter.setConfiguration(CONF);
         parquetReader.setConfiguration(CONF);
-        TimeStampBuilder tsb = new TimeStampBuilder("09/13/1986", "9:00", "17:30", 3000, 2, 2);
+        tsb = new TimeStampBuilder("09/13/1986", "9:00", "17:30", 3000, 2, 2);
         tsb.init();
-        avroInjector.setTimeStampBuilder(tsb);
         avroInjector.createOutput();
         LOGGER.log(Level.INFO, "setup done");
     }
@@ -76,18 +76,20 @@ public class AvroParquetConverterTest {
         Order o = new LimitOrder("o", "1", LimitOrder.ASK, 1, 10);
         o.sender = a;
         PriceRecord pr = new PriceRecord("o", 10, 1, LimitOrder.ASK, "o-1", "o-2");
-        avroInjector.sendAgent(a, o, pr);
+        long ts = tsb.nextTimeStamp();
+
+        avroInjector.sendAgent(ts,a, o, pr);
 
         //put a price example
         PriceRecord price = new PriceRecord("pr", 10, 1, LimitOrder.ASK, "o-1", "o-2");
         long bestAskPrice = 1;
         long bestBidPrice = 2;
-        avroInjector.sendPriceRecord(price, bestAskPrice, bestBidPrice);
+        avroInjector.sendPriceRecord(ts,price, bestAskPrice, bestBidPrice);
 
         //put order
         LimitOrder order = new LimitOrder("o", "1", LimitOrder.ASK, 1, 10);
         order.sender = new DumbAgent("a");
-        avroInjector.sendOrder(order);
+        avroInjector.sendOrder(ts,order);
 
         //put a tick example
         Day day = Day.createSinglePeriod(1, 100);
@@ -97,7 +99,7 @@ public class AvroParquetConverterTest {
         List<OrderBook> obs = new ArrayList<OrderBook>();
         obs.add(ob);
         obs.add(ob2);
-        avroInjector.sendTick(day, obs);
+        avroInjector.sendTick(ts,day, obs);
 
         //put a day example
         int nbDays = 1;
@@ -106,7 +108,7 @@ public class AvroParquetConverterTest {
         List<OrderBook> obList = new ArrayList<OrderBook>();
         obList.add(ob3);
         obList.add(ob4);
-        avroInjector.sendDay(nbDays, obList);
+        avroInjector.sendDay(ts,nbDays, obList);
 
         //close injector
         avroInjector.closeOutput();

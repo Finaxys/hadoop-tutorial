@@ -1,5 +1,17 @@
 package fr.finaxys.tutorials.utils.hbase;
 
+import com.sun.istack.NotNull;
+import fr.finaxys.tutorials.utils.AgentReferentialLine;
+import fr.finaxys.tutorials.utils.AtomConfiguration;
+import fr.finaxys.tutorials.utils.HadoopTutorialException;
+import fr.finaxys.tutorials.utils.TimeStampBuilder;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.hbase.*;
+import org.apache.hadoop.hbase.client.*;
+import org.apache.hadoop.hbase.util.Bytes;
+import v13.*;
+import v13.agents.Agent;
+
 import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
@@ -11,40 +23,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.logging.Level;
 
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.hbase.HBaseConfiguration;
-import org.apache.hadoop.hbase.HColumnDescriptor;
-import org.apache.hadoop.hbase.HTableDescriptor;
-import org.apache.hadoop.hbase.MasterNotRunningException;
-import org.apache.hadoop.hbase.TableName;
-import org.apache.hadoop.hbase.ZooKeeperConnectionException;
-import org.apache.hadoop.hbase.client.Admin;
-import org.apache.hadoop.hbase.client.Connection;
-import org.apache.hadoop.hbase.client.ConnectionFactory;
-import org.apache.hadoop.hbase.client.Put;
-import org.apache.hadoop.hbase.client.Table;
-import org.apache.hadoop.hbase.util.Bytes;
-
-import v13.Day;
-import v13.LimitOrder;
-import v13.Order;
-import v13.OrderBook;
-import v13.PriceRecord;
-import v13.agents.Agent;
-
-import com.sun.istack.NotNull;
-
-import fr.finaxys.tutorials.utils.AgentReferentialLine;
-import fr.finaxys.tutorials.utils.AtomConfiguration;
-import fr.finaxys.tutorials.utils.AtomDataInjector;
-import fr.finaxys.tutorials.utils.HadoopTutorialException;
-import fr.finaxys.tutorials.utils.TimeStampBuilder;
-
 /**
  *
  */
 @Deprecated
-public class HBaseInjector implements AtomDataInjector {
+public class HBaseInjector  {
 	private static final java.util.logging.Logger LOGGER = java.util.logging.Logger
 			.getLogger(HBaseInjector.class.getName());
 
@@ -103,7 +86,7 @@ public class HBaseInjector implements AtomDataInjector {
 		return table;
 	}
 
-	@Override
+
 	public void createOutput() {
 		assert !(atomConf.getTableName() == null);
 		String port = hbConf.get("hbase.zookeeper.property.clientPort");
@@ -170,7 +153,7 @@ public class HBaseInjector implements AtomDataInjector {
 		}
 	}
 
-	@Override
+
 	public void sendPriceRecord(PriceRecord pr, long bestAskPrice,
 			long bestBidPrice) {
 		long ts = System.currentTimeMillis() + 2L; // hack for update on
@@ -202,7 +185,7 @@ public class HBaseInjector implements AtomDataInjector {
 		putTable(p);
 	}
 
-	@Override
+
 	public void sendAgent(Agent a, Order o, PriceRecord pr) {
 		Put p = new Put(Bytes.toBytes(createRequired("A")));
 		p.addColumn(cfall, Bytes.toBytes("agentName"),
@@ -225,7 +208,6 @@ public class HBaseInjector implements AtomDataInjector {
 		putTable(p);
 	}
 
-	@Override
 	public void sendOrder(Order o) {
 		o.timestamp = tsb.nextTimeStamp();
 		long ts = System.currentTimeMillis(); // hack for update on scaledrisk
@@ -257,7 +239,6 @@ public class HBaseInjector implements AtomDataInjector {
 		putTable(p);
 	}
 
-	@Override
 	public void sendTick(Day day, Collection<OrderBook> orderbooks) {
 		for (OrderBook ob : orderbooks) {
 
@@ -285,7 +266,6 @@ public class HBaseInjector implements AtomDataInjector {
 		}
 	}
 
-	@Override
 	public void sendExec(Order o) {
 		Put p = new Put(Bytes.toBytes(createRequired("E")));
 		p.addColumn(cfall, Bytes.toBytes("sender"),
@@ -295,7 +275,7 @@ public class HBaseInjector implements AtomDataInjector {
 		putTable(p);
 	}
 
-	@Override
+
 	public void sendDay(int nbDays, Collection<OrderBook> orderbooks) {
 		
 		for (OrderBook ob : orderbooks) {
@@ -321,7 +301,7 @@ public class HBaseInjector implements AtomDataInjector {
 		}
 	}
 
-	@Override
+
 	public void sendAgentReferential(List<AgentReferentialLine> referencial) {
 		for (AgentReferentialLine agent : referencial) {
 			Put p = mkPutAgentReferential(agent, hbEncoder, cfall,
@@ -384,7 +364,6 @@ public class HBaseInjector implements AtomDataInjector {
 		return conf;
 	}
 
-	@Override
 	public void closeOutput() {
 		eService.shutdown();
 		isClosing.set(true);
@@ -400,13 +379,4 @@ public class HBaseInjector implements AtomDataInjector {
 		}
 	}
 
-	@Override
-	public void setTimeStampBuilder(TimeStampBuilder tsb) {
-		this.tsb = tsb;
-	}
-
-	@Override
-	public TimeStampBuilder getTimeStampBuilder() {
-		return tsb;
-	}
 }

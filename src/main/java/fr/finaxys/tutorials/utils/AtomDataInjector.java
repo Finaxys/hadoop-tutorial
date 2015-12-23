@@ -17,28 +17,24 @@ public interface AtomDataInjector {
 	public void closeOutput() throws HadoopTutorialException;
 
 	public void createOutput() throws HadoopTutorialException;
-	
-	public TimeStampBuilder getTimeStampBuilder();
 
-	public void setTimeStampBuilder(TimeStampBuilder tsb);
-
-	public void sendAgent(Agent a, Order o, PriceRecord pr)
+	public void sendAgent(long ts, Agent a, Order o, PriceRecord pr)
 			throws HadoopTutorialException;
 
-	public void sendPriceRecord(PriceRecord pr, long bestAskPrice,
+	public void sendPriceRecord(long ts, PriceRecord pr, long bestAskPrice,
 			long bestBidPrice) throws HadoopTutorialException;
 
-	public void sendAgentReferential(List<AgentReferentialLine> referencial)
+	public void sendAgentReferential(long ts, List<AgentReferentialLine> referencial)
 			throws HadoopTutorialException;
 
-	public void sendOrder(Order o) throws HadoopTutorialException;
+	public void sendOrder(long ts, Order o) throws HadoopTutorialException;
 
-	public void sendTick(Day day, Collection<OrderBook> orderbooks)
+	public void sendTick(long ts, Day day, Collection<OrderBook> orderbooks)
 			throws HadoopTutorialException;
 
-	public void sendDay(int nbDays, Collection<OrderBook> orderbooks)
+	public void sendDay(long ts, int nbDays, Collection<OrderBook> orderbooks)
 			throws HadoopTutorialException;
 
-	public void sendExec(Order o) throws HadoopTutorialException;
+	public void sendExec(long ts, Order o) throws HadoopTutorialException;
 
 }

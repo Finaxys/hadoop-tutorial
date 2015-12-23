@@ -37,7 +37,6 @@ public class AtomLogger extends Logger {
       tsb.init();
 	  
       for (int i = 0; i < injectors.length; i++) {
-    	  injectors[i].setTimeStampBuilder(tsb);
     	  injectors[i].createOutput();
       }
   }
@@ -45,16 +44,18 @@ public class AtomLogger extends Logger {
   public void agentReferential(@NotNull List<AgentReferentialLine> referencial) throws
       IOException {
     assert !referencial.isEmpty();
+    long ts = tsb.nextTimeStamp();
     for (int i = 0; i < injectors.length; i++) {
-      injectors[i].sendAgentReferential(referencial);
+      injectors[i].sendAgentReferential(ts, referencial);
     }
   }
 
   @Override
   public void agent(Agent a, Order o, PriceRecord pr) {
     super.agent(a, o, pr);
+    long ts = tsb.nextTimeStamp();
     for (int i = 0; i < injectors.length; i++) {
-      injectors[i].sendAgent(a, o, pr);
+      injectors[i].sendAgent(ts, a, o, pr);
     }
   }
 
@@ -62,24 +63,27 @@ public class AtomLogger extends Logger {
   @Override
   public void exec(Order o) {
     super.exec(o);
+    long ts = tsb.nextTimeStamp();
     for (int i = 0; i < injectors.length; i++) {
-      injectors[i].sendExec(o);
+      injectors[i].sendExec(ts, o);
     }
   }
 
   @Override
   public void order(Order o) {
     super.order(o);
+    long ts = tsb.nextTimeStamp();
     for (int i = 0; i < injectors.length; i++) {
-      injectors[i].sendOrder(o);
+      injectors[i].sendOrder(ts, o);
     }
   }
 
   @Override
   public void price(PriceRecord pr, long bestAskPrice, long bestBidPrice) {
     super.price(pr, bestAskPrice, bestBidPrice);
+    long ts = tsb.nextTimeStamp();
     for (int i = 0; i < injectors.length; i++) {
-      injectors[i].sendPriceRecord(pr, bestAskPrice, bestBidPrice);
+      injectors[i].sendPriceRecord(ts, pr, bestAskPrice, bestBidPrice);
     }
   }
 
@@ -89,9 +93,9 @@ public class AtomLogger extends Logger {
     super.day(nbDays, orderbooks);
     
     tsb.setCurrentDay(nbDays);
-    
+    long ts = tsb.nextTimeStamp();
     for (int i = 0; i < injectors.length; i++) {
-      injectors[i].sendDay(nbDays, orderbooks);
+      injectors[i].sendDay(ts, nbDays, orderbooks);
     }
   }
 
@@ -102,9 +106,9 @@ public class AtomLogger extends Logger {
     
 	tsb.setCurrentTick(day.currentTick());
 	tsb.setTimeStamp(tsb.baseTimeStampForCurrentTick());
-	
+    long ts = tsb.nextTimeStamp();
     for (int i = 0; i < injectors.length; i++) {
-      injectors[i].sendTick(day, orderbooks);
+      injectors[i].sendTick(ts, day, orderbooks);
     }
 
   }

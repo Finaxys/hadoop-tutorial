@@ -63,7 +63,6 @@ public class SimpleHBaseInjectorTest {
 	public void setUp() {
 		tsb = new TimeStampBuilder("09/13/1986", "9:00", "17:30", 3000, 2, 2);
 		tsb.init();
-		injector.setTimeStampBuilder(tsb);
 		injector.setHbaseConfiguration(CONF);
 		injector.setTableName(TEST_TABLE);
 		injector.setColumnFamily(TEST_FAMILY);
@@ -81,11 +80,12 @@ public class SimpleHBaseInjectorTest {
 	public void testSendAgent() {
 			// Agent a, Order o, PriceRecord pr
 		try {
+			long ts = tsb.nextTimeStamp();
 			Agent a = new DumbAgent("a");
 			Order o = new LimitOrder("o", "1", LimitOrder.ASK, 1, 10);
 			o.sender = a;
 			PriceRecord pr = new PriceRecord("o", 10, 1, LimitOrder.ASK, "o-1", "o-2");
-			injector.sendAgent(a, o, pr);
+			injector.sendAgent(ts, a, o, pr);
 			injector.flushIfNeeded();
 			String reference = Bytes.toString(injector.getLastRequired(AtomHBaseHelper.AGENT));
 			LOGGER.log(Level.INFO, "Agent reference :"+reference);
@@ -108,10 +108,11 @@ public class SimpleHBaseInjectorTest {
 	public void testSendPriceRecord() {
 		// PriceRecord pr, long bestAskPrice, long bestBidPrice
 		try {
+			long ts = tsb.nextTimeStamp();
 			PriceRecord pr = new PriceRecord("pr", 10, 1, LimitOrder.ASK, "o-1", "o-2");
 			long bestAskPrice = 1;
 			long bestBidPrice = 2;
-			injector.sendPriceRecord(pr, bestAskPrice, bestBidPrice);
+			injector.sendPriceRecord(ts, pr, bestAskPrice, bestBidPrice);
 			injector.flushIfNeeded();
 			String reference = Bytes.toString(injector.getLastRequired(AtomHBaseHelper.PRICE));
 			LOGGER.log(Level.INFO, "Price Record reference :"+reference);
@@ -138,9 +139,10 @@ public class SimpleHBaseInjectorTest {
 	public void testSendOrder() {
 		// Order o
 		try {
+			long ts = tsb.nextTimeStamp();
 			LimitOrder o = new LimitOrder("o", "1", LimitOrder.ASK, 1, 10);
 			o.sender = new DumbAgent("a");
-			injector.sendOrder(o);
+			injector.sendOrder(ts, o);
 			injector.flushIfNeeded();
 			String reference = Bytes.toString(injector.getLastRequired(AtomHBaseHelper.ORDER));
 			LOGGER.log(Level.INFO, "Order reference :"+reference);
@@ -162,6 +164,7 @@ public class SimpleHBaseInjectorTest {
 	public void testSendTick() {
 		// Day day, Collection<OrderBook> orderbooks
 		try {
+			long ts = tsb.nextTimeStamp();
 /*			List<Period> periods = new ArrayList<Period>();
 			periods.add(new Period());*/
 			Day day = Day.createSinglePeriod(1, 100);
@@ -171,7 +174,7 @@ public class SimpleHBaseInjectorTest {
 			List<OrderBook> obs = new ArrayList<OrderBook>();
 			obs.add(ob);
 			obs.add(ob2);
-			injector.sendTick(day, obs);
+			injector.sendTick(ts, day, obs);
 			injector.flushIfNeeded();
 			String reference = Bytes.toString(injector.getLastRequired(AtomHBaseHelper.TICK));
 			LOGGER.log(Level.INFO, "Tick reference :"+reference);
@@ -211,13 +214,14 @@ public class SimpleHBaseInjectorTest {
 	public void testSendDay() {
 		// int nbDays, Collection<OrderBook> orderbooks
 		try {
+			long ts = tsb.nextTimeStamp();
 			int day = 1;
 			OrderBook ob = new OrderBook("ob1");
 			OrderBook ob2 = new OrderBook("ob2");
 			List<OrderBook> obs = new ArrayList<OrderBook>();
 			obs.add(ob);
 			obs.add(ob2);
-			injector.sendDay(day, obs);
+			injector.sendDay(ts, day, obs);
 			injector.flushIfNeeded();
 			String reference = Bytes.toString(injector.getLastRequired(AtomHBaseHelper.DAY));
 			// WILL RETRIEVE LAST DAY ONLY
