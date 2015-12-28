@@ -4,7 +4,9 @@ import com.sun.istack.NotNull;
 import org.apache.hadoop.hbase.types.*;
 import org.apache.hadoop.hbase.util.SimplePositionedMutableByteRange;
 
-public class HBaseDataTypeEncoder
+import java.io.Serializable;
+
+public class HBaseDataTypeEncoder implements Serializable
 {
 
     private final DataType<String> strDataType = new RawStringTerminated("\0");

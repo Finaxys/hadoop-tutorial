@@ -19,12 +19,12 @@ public class Converter implements Serializable {
      *
      */
     private static final long serialVersionUID = 3142828016264704546L;
-    private transient Map<byte[], byte[]> cfmap;
-    private static transient HBaseDataTypeEncoder encoder = new HBaseDataTypeEncoder() ;
+    private  Map<byte[], byte[]> cfmap;
+    private static  HBaseDataTypeEncoder encoder = new HBaseDataTypeEncoder() ;
     public static byte[] colFamily ;
 
     public Converter(byte[] colFamily) {
-        this.colFamily = Bytes.toBytes("cf") ;
+        this.colFamily = colFamily ;
     }
 
     public DataRow  convertTupleToDataRow(
