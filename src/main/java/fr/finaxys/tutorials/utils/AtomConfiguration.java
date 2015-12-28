@@ -1,9 +1,13 @@
 package fr.finaxys.tutorials.utils;
 
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.hbase.util.Bytes;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -88,7 +92,12 @@ public class AtomConfiguration {
 
 	private void load() throws HadoopTutorialException {
 		try {
-			FileInputStream propFile = new FileInputStream("properties.txt");
+            InputStream propFile ;
+            try{
+			    propFile = new FileInputStream("properties.txt");
+            }catch(IOException e){
+                propFile = FileSystem.get(new Configuration()).open(new Path("/properties.xml"));
+            }
 			Properties p = new Properties(System.getProperties());
 			p.load(propFile);
 			System.setProperties(p);

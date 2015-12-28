@@ -243,6 +243,11 @@
           <artifactId>spark-sql_2.10</artifactId>
           <version>${spark.version}</version>
       </dependency>
+      <dependency>
+          <groupId>org.apache.spark</groupId>
+          <artifactId>spark-streaming-kafka_2.10</artifactId>
+          <version>${spark.version}</version>
+      </dependency>
       <!--kafka -->
       <dependency>
           <groupId>org.apache.kafka</groupId>
