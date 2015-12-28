@@ -96,7 +96,8 @@ public class AtomConfiguration {
             try{
 			    propFile = new FileInputStream("properties.txt");
             }catch(IOException e){
-                propFile = FileSystem.get(new Configuration()).open(new Path("/properties.xml"));
+                LOGGER.info("try to read properties.txt from hdfs");
+                propFile = FileSystem.get(new Configuration()).open(new Path("/properties.txt"));
             }
 			Properties p = new Properties(System.getProperties());
 			p.load(propFile);
