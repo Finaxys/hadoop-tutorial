@@ -24,7 +24,7 @@ public class Converter implements Serializable {
     public static byte[] colFamily ;
 
     public Converter(byte[] colFamily) {
-        this.colFamily = colFamily ;
+        this.colFamily = Bytes.toBytes("cf") ;
     }
 
     public DataRow  convertTupleToDataRow(
