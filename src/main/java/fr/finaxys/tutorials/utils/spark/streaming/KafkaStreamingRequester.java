@@ -107,10 +107,9 @@ public class KafkaStreamingRequester {
                 JavaPairRDD<ImmutableBytesWritable, Put> hbasePuts = rdd.mapToPair(new PairFunction<Tuple2<String, String>, ImmutableBytesWritable, Put>() {
                     @Override
                     public Tuple2<ImmutableBytesWritable, Put> call(Tuple2<String, String> stringStringTuple2) throws Exception {
-                        Put put = new Put(Bytes.toBytes("row" + i));
-                        i++;
+                        Put put = new Put(Bytes.toBytes("row" +stringStringTuple2._1()));
                         put.addColumn(atom.getCfName(), Bytes.toBytes("value"), Bytes.toBytes(stringStringTuple2._2()));
-                        if(i%1000 == 0) LOGGER.info("nb of data inserted " + i);
+                        //LOGGER.info("data inserted : " + stringStringTuple2._1());
                         return new Tuple2<ImmutableBytesWritable, Put>(new ImmutableBytesWritable(), put);
                     }
                 });
