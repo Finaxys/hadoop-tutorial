@@ -51,7 +51,7 @@ public class KafkaStreamingRequester {
                 Durations.seconds(2));
         Map<String, Integer> topics  = new HashMap<>();
         topics.put(atom.getKafkaTopic(),new Integer(1));
-        JavaPairReceiverInputDStream<String, String> kafkaStream = KafkaUtils.createStream(jssc,"localhost:2181","groupid",topics);
+        JavaPairReceiverInputDStream<String, String> kafkaStream = KafkaUtils.createStream(jssc,atom.getKafkaQuorum(),"groupid",topics);
 
         kafkaStream.foreachRDD(new Function<JavaPairRDD<String, String>, Void>() {
 

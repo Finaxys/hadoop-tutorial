@@ -41,5 +41,5 @@ hadoop.conf.hdfs=/tmp/configuration.xml
 hbase.autoflush=false
 hbase.stackputs=1000
 kafka.topic=atomTopic
-bootstrap.kafka.servers=localhost:9092
 kafka.quorum=localhost:2181
+bootstrap.kafka.servers=localhost:9092

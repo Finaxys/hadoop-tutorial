@@ -71,6 +71,7 @@ public class AtomConfiguration {
 	private String hadoopConfHdfs;
     private String kafkaTopic ;
     private String kafkaBoot ;
+    private String kafkaQuorum ;
 	
 	private int agentCash;
 	private int agentMinPrice;
@@ -214,6 +215,7 @@ public class AtomConfiguration {
 			this.avroHDFSDest = System.getProperty("dest.hdfs.avro");
 			this.pathAvro = System.getProperty("avro.path");
             this.kafkaTopic = System.getProperty("kafka.topic") ;
+            this.kafkaQuorum = System.getProperty("kafka.quorum") ;
             this.kafkaBoot = System.getProperty("bootstrap.kafka.servers");
 			
 			this.tsbDateBegin = System.getProperty("simul.time.startdate");
@@ -454,5 +456,13 @@ public class AtomConfiguration {
 
     public void setKafkaBoot(String kafkaBoot) {
         this.kafkaBoot = kafkaBoot;
+    }
+
+    public String getKafkaQuorum() {
+        return kafkaQuorum;
+    }
+
+    public void setKafkaQuorum(String kafkaQuorum) {
+        this.kafkaQuorum = kafkaQuorum;
     }
 }
