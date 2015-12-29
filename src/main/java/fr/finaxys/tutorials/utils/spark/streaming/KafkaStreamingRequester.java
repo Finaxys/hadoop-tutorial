@@ -34,7 +34,7 @@ import java.util.Map;
 public class KafkaStreamingRequester {
     private static JavaSparkContext jsc;
     private static AtomConfiguration atom = new AtomConfiguration();
-    private static int i = 0 ;
+    private volatile static int i = 0 ;
     private final static Logger LOGGER = LoggerFactory.getLogger(KafkaStreamingRequester.class);
 
     public static void main(String[] args){
