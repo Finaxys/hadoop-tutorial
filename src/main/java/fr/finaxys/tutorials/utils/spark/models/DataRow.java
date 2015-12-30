@@ -37,6 +37,7 @@ public class DataRow implements Serializable {
     private String agentName;
     private Boolean isMarketMaker;
     private String details ;
+    private String Invest ;
 
     public Long getBestBid() {
         return bestBid;
@@ -276,5 +277,13 @@ public class DataRow implements Serializable {
 
     public void setDetails(String details) {
         this.details = details;
+    }
+
+    public String getInvest() {
+        return Invest;
+    }
+
+    public void setInvest(String invest) {
+        Invest = invest;
     }
 }

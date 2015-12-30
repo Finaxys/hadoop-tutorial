@@ -2,6 +2,7 @@ package fr.finaxys.tutorials.utils.spark.streaming;
 
 import fr.finaxys.tutorials.utils.AtomConfiguration;
 import fr.finaxys.tutorials.utils.HadoopTutorialException;
+import fr.finaxys.tutorials.utils.spark.utils.Converter;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.hbase.client.HBaseAdmin;
@@ -9,7 +10,6 @@ import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.io.ImmutableBytesWritable;
 import org.apache.hadoop.hbase.mapreduce.TableInputFormat;
 import org.apache.hadoop.hbase.mapreduce.TableOutputFormat;
-import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaPairRDD;
@@ -34,8 +34,12 @@ import java.util.Map;
 public class KafkaStreamingRequester {
     private static JavaSparkContext jsc;
     private static AtomConfiguration atom = new AtomConfiguration();
-    private volatile static int i = 0 ;
     private final static Logger LOGGER = LoggerFactory.getLogger(KafkaStreamingRequester.class);
+    private static String kafkaTopic = atom.getKafkaTopic() ;
+    private static String kafkaQuorum = atom.getKafkaQuorum() ;
+    private static String hbaseConf = atom.getHbaseConfHbase();
+    private static String tableName = atom.getTableName();
+    private static byte[] columnFamily = atom.getColumnFamily();
 
     public static void main(String[] args){
         SparkConf sparkConf = new SparkConf().setAppName("kafkaStreaming");
@@ -50,8 +54,8 @@ public class KafkaStreamingRequester {
         JavaStreamingContext jssc = new JavaStreamingContext(jsc,
                 Durations.seconds(2));
         Map<String, Integer> topics  = new HashMap<>();
-        topics.put(atom.getKafkaTopic(),new Integer(1));
-        JavaPairReceiverInputDStream<String, String> kafkaStream = KafkaUtils.createStream(jssc,atom.getKafkaQuorum(),"groupid",topics);
+        topics.put(kafkaTopic,new Integer(1));
+        JavaPairReceiverInputDStream<String, String> kafkaStream = KafkaUtils.createStream(jssc,kafkaQuorum,"groupid",topics);
 
         kafkaStream.foreachRDD(new Function<JavaPairRDD<String, String>, Void>() {
 
@@ -81,7 +85,7 @@ public class KafkaStreamingRequester {
                 // create connection with HBase
                 final Configuration config = new Configuration();
                 try {
-                    config.addResource(new Path(atom.getHbaseConfHbase()));
+                    config.addResource(new Path(hbaseConf));
                     config.reloadConfiguration();
                     HBaseAdmin.checkHBaseAvailable(config);
                     LOGGER.info("HBase is running!");
@@ -90,7 +94,7 @@ public class KafkaStreamingRequester {
                     LOGGER.error("HBase is not running!" + e.getMessage());
                     throw new HadoopTutorialException(e.getMessage());
                 }
-                config.set(TableInputFormat.INPUT_TABLE, atom.getTableName());
+                config.set(TableInputFormat.INPUT_TABLE, tableName);
 
                 final Job newAPIJobConfiguration1 ;
                 try {
@@ -99,7 +103,7 @@ public class KafkaStreamingRequester {
                     LOGGER.error("can't create mapRed conf");
                     throw new HadoopTutorialException(e.getMessage());
                 }
-                newAPIJobConfiguration1.getConfiguration().set(TableOutputFormat.OUTPUT_TABLE, atom.getTableName());
+                newAPIJobConfiguration1.getConfiguration().set(TableOutputFormat.OUTPUT_TABLE, tableName);
                 newAPIJobConfiguration1.setOutputFormatClass(org.apache.hadoop.hbase.mapreduce.TableOutputFormat.class);
 
 
@@ -107,8 +111,8 @@ public class KafkaStreamingRequester {
                 JavaPairRDD<ImmutableBytesWritable, Put> hbasePuts = rdd.mapToPair(new PairFunction<Tuple2<String, String>, ImmutableBytesWritable, Put>() {
                     @Override
                     public Tuple2<ImmutableBytesWritable, Put> call(Tuple2<String, String> stringStringTuple2) throws Exception {
-                        Put put = new Put(Bytes.toBytes("row" +stringStringTuple2._1()));
-                        put.addColumn(atom.getCfName(), Bytes.toBytes("value"), Bytes.toBytes(stringStringTuple2._2()));
+                        Converter converter = new Converter(columnFamily);
+                        Put put = converter.convertStringToPut(stringStringTuple2._1(),stringStringTuple2._2());
                         //LOGGER.info("data inserted : " + stringStringTuple2._1());
                         return new Tuple2<ImmutableBytesWritable, Put>(new ImmutableBytesWritable(), put);
                     }
