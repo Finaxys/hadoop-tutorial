@@ -76,6 +76,7 @@
      <avro.version>1.7.7</avro.version>
      <kafka-version>0.8.2.2</kafka-version>
   	 <mockito-all.version>1.10.8</mockito-all.version>
+  	 <protobuf.version>2.5.0</protobuf.version>
    </properties>
   <dependencies>
       <dependency>
@@ -167,11 +168,16 @@
     	<artifactId>hbase-client</artifactId>
     	<version>${hbase.version}</version>
     </dependency>
+    <dependency>
+      <groupId>com.google.protobuf</groupId>
+      <artifactId>protobuf-java</artifactId>
+      <version>${protobuf.version}</version>
+    </dependency>
      <dependency>
         <groupId>org.apache.hbase</groupId>
         <artifactId>hbase-testing-util</artifactId>
-        <version>${hbase.version}</version>
         <scope>test</scope>
+        <version>${hbase.version}</version>
     </dependency>
     <dependency>
         <groupId>org.mockito</groupId>
@@ -201,6 +207,7 @@
           <groupId>org.apache.avro</groupId>
           <artifactId>avro-mapred</artifactId>
           <version>${avro.version}</version>
+           <classifier>hadoop2</classifier>
       </dependency>
       <dependency>
           <groupId>org.apache.avro</groupId>
@@ -266,4 +273,44 @@
           <version>${kafka-version}</version>
       </dependency>
   </dependencies>
+  <profiles>
+  <profile>
+      <id>compile-protobuf</id>
+      <activation>
+        <property>
+          <name>compile-protobuf</name>
+        </property>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.hadoop</groupId>
+            <artifactId>hadoop-maven-plugins</artifactId>
+            <executions>
+              <execution>
+                <id>compile-protoc</id>
+                <phase>generate-sources</phase>
+                <goals>
+                  <goal>protoc</goal>
+                </goals>
+                <configuration>
+                  <imports>
+                    <param>${basedir}/src/main/protobuf</param>
+                    <!--<param>${basedir}/../hbase-protocol/src/main/protobuf</param>-->
+                  </imports>
+                  <source>
+                    <directory>${basedir}/src/main/protobuf</directory>
+                    <includes>
+                      <include>Examples.proto</include>
+                    </includes>
+                  </source>
+                  <output>${basedir}/src/main/java/</output>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
 </project>
