@@ -126,20 +126,98 @@ public class AvroParquetConverterTest {
         try {
             hdfsReader = new HDFSReader(CONF) ;
             fileValue = hdfsReader.getHDFSFile(finalResultFile+resultSuffix, max) ;
-            System.out.print("file result : \n"+fileValue);
+            LOGGER.info("file result : \n"+fileValue);
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "can't read file result :"+e.getMessage());
         }
 
         LOGGER.log(Level.INFO, "Reading data done");
 
-        String convertedText = "type: Agent\n" + "agent\n" + "  Trace: Agent\n" + "  AgentName: a\n" + "  ObName: o\n" + "  Cash: 0\n" + "  Executed: 1\n" + "  Price: 10\n" + "  Direction: A\n" + "  OrderExtId: 1\n" + "Timestamp: 0\n" +
-                "\n" +"type: Price\n" +"price\n" +"  Trace: Price\n" +"  ObName: pr\n" +"  Price: 10\n" +"  Executed: 1\n" +"  Order1: o-1\n" +"  Order2: o-2\n" + "  BestAsk: 1\n" + "  BestBid: 2\n" + "  Dir: A\n" + "Timestamp: 526978801275\n" +
-                "\n" + "type: Order\n" + "order\n" + "  Trace: Order\n" + "  ObName: o\n" + "  Sender: a\n" + "  ExtId: 1\n" + "  Type: L\n" + "  Id: -1\n" + "  Quantity: 1\n" + "  Direction: A\n" + "  Price: 10\n" + "  Validity: -1\n" + "Timestamp: 0\n" +
-                "\n" + "type: Tick\n" + "Timestamp: 526978802550\n" + "tick\n" + "  Trace: Tick\n" + "  NumTick: 0\n" + "  NumDay: 0\n" + "  ObName: ob1\n" + "  BestAsk: 0\n" + "  BestBid: 0\n" + "  LastFixedPrice: 0\n" +
-                "\n" + "type: Tick\n" + "Timestamp: 526978802550\n" + "tick\n" + "  Trace: Tick\n" + "  NumTick: 0\n" + "  NumDay: 0\n" + "  ObName: ob2\n" + "  BestAsk: 0\n" + "  BestBid: 0\n" + "  LastFixedPrice: 0\n" +
-                "\n" + "type: Day\n" + "day\n" + "  Trace: Day\n" + "  NumDay: 1\n" + "  ObName: ob1\n" + "  FirstFixedPrice: -1\n" + "  LowestPrice: -1\n" + "  HighestPrice: -1\n" + "  LastFixedPrice: 0\n" + "  NbPricesFixed: 0\n" + "Timestamp: 526978803825\n" +
-                "\n" + "type: Day\n" + "day\n" + "  Trace: Day\n" + "  NumDay: 1\n" + "  ObName: ob2\n" + "  FirstFixedPrice: -1\n" + "  LowestPrice: -1\n" + "  HighestPrice: -1\n" + "  LastFixedPrice: 0\n" + "  NbPricesFixed: 0\n" + "Timestamp: 526978803825\n" + "\n";
+        String convertedText = "type: Agent\n" +
+                "agent\n" +
+                "  Trace: Agent\n" +
+                "  AgentName: a\n" +
+                "  ObName: o\n" +
+                "  Cash: 0\n" +
+                "  Executed: 1\n" +
+                "  Price: 10\n" +
+                "  Direction: A\n" +
+                "  OrderExtId: 1\n" +
+                "Timestamp: 0\n" +
+                "\n" +
+                "type: Price\n" +
+                "price\n" +
+                "  Trace: Price\n" +
+                "  ObName: pr\n" +
+                "  Price: 10\n" +
+                "  Executed: 1\n" +
+                "  Order1: o-1\n" +
+                "  Order2: o-2\n" +
+                "  BestAsk: 1\n" +
+                "  BestBid: 2\n" +
+                "  Dir: A\n" +
+                "Timestamp: 526978801275\n" +
+                "\n" +
+                "type: Order\n" +
+                "order\n" +
+                "  Trace: Order\n" +
+                "  ObName: o\n" +
+                "  Sender: a\n" +
+                "  ExtId: 1\n" +
+                "  Type: L\n" +
+                "  Id: -1\n" +
+                "  Quantity: 1\n" +
+                "  Direction: A\n" +
+                "  Price: 10\n" +
+                "  Validity: -1\n" +
+                "Timestamp: 0\n" +
+                "\n" +
+                "type: Tick\n" +
+                "Timestamp: 526978801275\n" +
+                "tick\n" +
+                "  Trace: Tick\n" +
+                "  NumTick: 0\n" +
+                "  NumDay: 0\n" +
+                "  ObName: ob1\n" +
+                "  BestAsk: 0\n" +
+                "  BestBid: 0\n" +
+                "  LastFixedPrice: 0\n" +
+                "\n" +
+                "type: Tick\n" +
+                "Timestamp: 526978801275\n" +
+                "tick\n" +
+                "  Trace: Tick\n" +
+                "  NumTick: 0\n" +
+                "  NumDay: 0\n" +
+                "  ObName: ob2\n" +
+                "  BestAsk: 0\n" +
+                "  BestBid: 0\n" +
+                "  LastFixedPrice: 0\n" +
+                "\n" +
+                "type: Day\n" +
+                "day\n" +
+                "  Trace: Day\n" +
+                "  NumDay: 1\n" +
+                "  ObName: ob1\n" +
+                "  FirstFixedPrice: -1\n" +
+                "  LowestPrice: -1\n" +
+                "  HighestPrice: -1\n" +
+                "  LastFixedPrice: 0\n" +
+                "  NbPricesFixed: 0\n" +
+                "Timestamp: 526978801275\n" +
+                "\n" +
+                "type: Day\n" +
+                "day\n" +
+                "  Trace: Day\n" +
+                "  NumDay: 1\n" +
+                "  ObName: ob2\n" +
+                "  FirstFixedPrice: -1\n" +
+                "  LowestPrice: -1\n" +
+                "  HighestPrice: -1\n" +
+                "  LastFixedPrice: 0\n" +
+                "  NbPricesFixed: 0\n" +
+                "Timestamp: 526978801275\n" +
+                "\n" ;
 
         Assert.assertTrue("result converted as required", convertedText.equals(fileValue));
 
