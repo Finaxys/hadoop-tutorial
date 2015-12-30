@@ -109,24 +109,19 @@ public class Converter implements Serializable {
                 mkPutAgent(data, p);
                 break;
             case Day:
-                //TODO
-                p.addColumn(colFamily,Bytes.toBytes("todo"),Bytes.toBytes("todo"));
+                mkPutDay(data, p);
                 break;
             case Order:
-                //TODO
-                p.addColumn(colFamily,Bytes.toBytes("todo"),Bytes.toBytes("todo"));
+                mkPutOrder(data, p);
                 break;
             case Exec:
-                //TODO
-                p.addColumn(colFamily,Bytes.toBytes("todo"),Bytes.toBytes("todo"));
+                mkPutExec(data, p);
                 break;
             case Price:
-                //TODO
-                p.addColumn(colFamily,Bytes.toBytes("todo"),Bytes.toBytes("todo"));
+                mkPutPrice(data, p);
                 break;
             case Tick:
-                //TODO
-                p.addColumn(colFamily,Bytes.toBytes("todo"),Bytes.toBytes("todo"));
+                mkPutTick(data, p);
                 break;
         }
 
@@ -140,6 +135,61 @@ public class Converter implements Serializable {
         put.addColumn(colFamily,Q_OB_NAME,encoder.encodeString(data[3])) ;
         put.addColumn(colFamily,Q_INVEST,encoder.encodeString(data[4])) ;
         put.addColumn(colFamily,Q_PRICE,encoder.encodeLong(Long.parseLong(data[5]))) ;
+        put.addColumn(colFamily,Q_TIMESTAMP,encoder.encodeLong(Long.parseLong(data[6]))) ;
+    }
+
+    private void mkPutOrder(String[] data,Put put){
+        put.addColumn(colFamily,Q_TRACE_TYPE,encoder.encodeString(data[0])) ;
+        put.addColumn(colFamily,Q_OB_NAME,encoder.encodeString(data[1])) ;
+        put.addColumn(colFamily,Q_SENDER,encoder.encodeString(data[2])) ;
+        put.addColumn(colFamily,Q_EXT_ID,encoder.encodeString(data[3])) ;
+        put.addColumn(colFamily,Q_TYPE,encoder.encodeChar(data[4].charAt(0))) ;
+        put.addColumn(colFamily,Q_DIRECTION,encoder.encodeChar(data[5].charAt(0))) ;
+        put.addColumn(colFamily,Q_PRICE,encoder.encodeLong(Long.parseLong(data[6]))) ;
+        put.addColumn(colFamily,Q_QUANTITY,encoder.encodeInt(Integer.parseInt(data[7]))) ;
+        put.addColumn(colFamily,Q_PRICE,encoder.encodeLong(Long.parseLong(data[8]))) ;
+        put.addColumn(colFamily,Q_TIMESTAMP,encoder.encodeLong(Long.parseLong(data[9]))) ;
+    }
+
+    private void mkPutDay(String[] data,Put put){
+        put.addColumn(colFamily,Q_TRACE_TYPE,encoder.encodeString(data[0])) ;
+        put.addColumn(colFamily,Q_NUM_DAY,encoder.encodeInt(Integer.parseInt(data[1]))) ;
+        put.addColumn(colFamily,Q_OB_NAME,encoder.encodeString(data[2])) ;
+        put.addColumn(colFamily,Q_FIRST_FIXED_PRICE,encoder.encodeLong(Long.parseLong(data[3]))) ;
+        put.addColumn(colFamily,Q_LOWEST_PRICE,encoder.encodeLong(Long.parseLong(data[4]))) ;
+        put.addColumn(colFamily,Q_HIGHEST_PRICE,encoder.encodeLong(Long.parseLong(data[5]))) ;
+        put.addColumn(colFamily,Q_LAST_FIXED_PRICE,encoder.encodeLong(Long.parseLong(data[6]))) ;
+        put.addColumn(colFamily,Q_NB_PRICES_FIXED,encoder.encodeLong(Long.parseLong(data[7]))) ;
+        put.addColumn(colFamily,Q_TIMESTAMP,encoder.encodeLong(Long.parseLong(data[8]))) ;
+    }
+
+    private void mkPutExec(String[] data,Put put){
+        put.addColumn(colFamily,Q_TRACE_TYPE,encoder.encodeString(data[0])) ;
+        put.addColumn(colFamily,Q_SENDER,encoder.encodeString(data[1].split("-")[0])) ;
+        put.addColumn(colFamily,Q_EXT_ID,encoder.encodeString(data[1].split("-")[1])) ;
+        put.addColumn(colFamily,Q_TIMESTAMP,encoder.encodeLong(Long.parseLong(data[2]))) ;
+    }
+
+    private void mkPutPrice(String[] data,Put put){
+        put.addColumn(colFamily,Q_TRACE_TYPE,encoder.encodeString(data[0])) ;
+        put.addColumn(colFamily,Q_OB_NAME,encoder.encodeString(data[1])) ;
+        put.addColumn(colFamily,Q_PRICE,encoder.encodeLong(Long.parseLong(data[2])));
+        put.addColumn(colFamily,Q_QUANTITY,encoder.encodeInt(Integer.parseInt(data[3]))) ;
+        put.addColumn(colFamily,Q_DIR,encoder.encodeChar((data[4].charAt(0)))) ;
+        put.addColumn(colFamily,Q_ORDER1,encoder.encodeString(data[5]));
+        put.addColumn(colFamily,Q_ORDER2,encoder.encodeString(data[6])) ;
+        put.addColumn(colFamily,Q_BEST_ASK,encoder.encodeLong(Long.parseLong(data[7]))) ;
+        put.addColumn(colFamily,Q_BEST_BID,encoder.encodeLong(Long.parseLong(data[8]))) ;
+        put.addColumn(colFamily,Q_TIMESTAMP,encoder.encodeLong(Long.parseLong(data[9]))) ;
+    }
+
+    private void mkPutTick(String[] data,Put put){
+        put.addColumn(colFamily,Q_TRACE_TYPE,encoder.encodeString(data[0])) ;
+        put.addColumn(colFamily,Q_NUM_TICK,encoder.encodeInt(Integer.parseInt(data[1]))) ;
+        put.addColumn(colFamily,Q_OB_NAME,encoder.encodeString(data[2])) ;
+        put.addColumn(colFamily,Q_BEST_ASK,encoder.encodeLong(Long.parseLong(data[3]))) ;
+        put.addColumn(colFamily,Q_BEST_BID,encoder.encodeLong(Long.parseLong(data[4]))) ;
+        put.addColumn(colFamily,Q_LAST_FIXED_PRICE,encoder.encodeLong(Long.parseLong(data[5]))) ;
         put.addColumn(colFamily,Q_TIMESTAMP,encoder.encodeLong(Long.parseLong(data[6]))) ;
     }
 

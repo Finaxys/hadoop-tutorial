@@ -39,6 +39,7 @@ public class DataRow implements Serializable {
     private String details ;
     private String Invest ;
 
+
     public Long getBestBid() {
         return bestBid;
     }
