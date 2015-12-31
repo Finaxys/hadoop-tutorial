@@ -13,9 +13,8 @@ import v13.OrderBook;
 import v13.PriceRecord;
 import v13.agents.Agent;
 
+@Deprecated
 public class FileLogger extends v13.Logger {
-	
-	private static final java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger(FileLogger.class.getName());
 	
     private PrintStream pw = null;
     private TimeStampBuilder tsb;

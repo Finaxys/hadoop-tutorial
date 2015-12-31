@@ -16,7 +16,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- *
+ * Main configuration object that holds all properties.
  */
 public class AtomConfiguration {
 
@@ -86,37 +86,51 @@ public class AtomConfiguration {
 	private int tsbNbTickMax;
 	private int nbAgents;
     private int nbOrderBooks;
+    
+    private static AtomConfiguration instance;
 
-	public AtomConfiguration() throws HadoopTutorialException {
+	private AtomConfiguration() throws HadoopTutorialException {
 		load();
+	}
+	
+	public static final AtomConfiguration getInstance() {
+		if (instance == null) {
+			synchronized (AtomConfiguration.class) {
+				if (instance == null) {
+					instance = new AtomConfiguration();
+					instance.load();
+				}
+			}
+		}
+		return instance;
 	}
 
 	private void load() throws HadoopTutorialException {
-		InputStream propFile = null;
+		
 		// loading properties.txt into System Properties.
-		try {
-            try{
-			    propFile = new FileInputStream("properties.txt");
-            } catch (IOException e){
-                LOGGER.info("Not able to load properties from file. Trying to read properties.txt from hdfs.");
-                propFile = FileSystem.get(new Configuration()).open(new Path("/properties.txt"));
-            }
-			Properties p = new Properties(System.getProperties());
-			p.load(propFile);
-			System.setProperties(p);
-		} catch (IOException ioe) {
-			
-		} finally {
+		Properties p = new Properties(System.getProperties());
+		boolean tryHDFS = false;
+        try{
+        	p.load(new FileInputStream("properties.txt"));
+        } catch (IOException e){
+            LOGGER.info("Not able to load properties from file. Trying to read properties.txt from hdfs. May be in MapReduce or Spark.");
+            tryHDFS = true;
+        }
+		if (tryHDFS) {
 			try {
+				InputStream propFile = FileSystem.get(new Configuration()).open(new Path("/properties.txt"));
+				p.load(propFile);
 				propFile.close();
-			} catch (IOException e) {
-				// cannot do anything.
+			} catch (IOException ioe) {
+				LOGGER.info("Not able to load properties from HDFS. ");
+				throw new HadoopTutorialException("could not load property files properties.txt on file system or hdfs.");
 			}
 		}
+		System.setProperties(p);
+		// Loading properties in local variables
 		try {
 
 			// Get agents & orderbooks
-
 			agentsParam = System.getProperty("atom.agents", "");
 			assert agentsParam != null;
 			LOGGER.info("agsym = " + agentsParam);

@@ -44,7 +44,6 @@ public class SparkHBaseAnalysisTest {
 
     private static final byte[] TEST_FAMILY = Bytes.toBytes("cf");
 
-
     private static HBaseTestingUtility TEST_UTIL = null;
     private static Configuration CONF = null;
     private static Table table = null;
@@ -52,7 +51,7 @@ public class SparkHBaseAnalysisTest {
 
     final HBaseDataTypeEncoder hbEncoder = new HBaseDataTypeEncoder();
 
-    private SparkHBaseAnalysis analysis = new SparkHBaseAnalysis();
+    private SparkHBaseAnalysis analysis;
     private TimeStampBuilder tsb = null;
     private Date testDate;
 
@@ -90,9 +89,11 @@ public class SparkHBaseAnalysisTest {
             testDate = f.parse(sDate);
             tsb = new TimeStampBuilder(sDate, "9:00", "17:30", 3000, 2, 2);
             tsb.init();
+            analysis = new SparkHBaseAnalysis();
             analysis.setHbaseConfiguration(CONF);
             analysis.setTableName(TEST_TABLE);
             analysis.setColumnFamily(TEST_FAMILY);
+            analysis.setSparkTableName("testSpark");
             analysis.openTable();
         } catch (ParseException e) {
             LOGGER.log(Level.SEVERE, "Could not parse Date for Test:"+sDate+", expected format"+TimeStampBuilder.DATE_FORMAT);
@@ -144,6 +145,7 @@ public class SparkHBaseAnalysisTest {
         Assert.assertEquals("2 should have count 1", r.get(TraceType.Agent), new Integer(1));
         Assert.assertEquals("Order should be null", r.get(TraceType.Order), null);
     }
+    
     @SuppressWarnings("unchecked")
     @Test
     public void testZAgentPosition() throws Exception {

@@ -1,8 +1,6 @@
 package fr.finaxys.tutorials.utils.avro;
 
-import com.sun.istack.NotNull;
 import fr.finaxys.tutorials.utils.AgentReferentialLine;
-import fr.finaxys.tutorials.utils.AtomConfiguration;
 import fr.finaxys.tutorials.utils.AtomDataInjector;
 import fr.finaxys.tutorials.utils.HadoopTutorialException;
 import fr.finaxys.tutorials.utils.avro.models.*;
@@ -25,36 +23,40 @@ import java.util.Collection;
 import java.util.List;
 
 public class AvroInjector implements AtomDataInjector {
+	
 	private static final java.util.logging.Logger LOGGER = java.util.logging.Logger
 			.getLogger(AtomDataInjector.class.getName());
-	private final AtomConfiguration atomConf;
+	
 	private Configuration conf;
 	private FileSystem fileSystem;
-	private String destHDFS;
+	private String avroHDFSDest;
 
     private int dayGap;
     private DataFileWriter<VRecord> fileWriter ;
 
-	public AvroInjector(@NotNull AtomConfiguration atomConf) throws Exception {
-		this.atomConf = atomConf;
-		this.destHDFS = atomConf.getAvroHDFSDest();
-		this.conf = new Configuration();
-		this.conf.addResource(new Path(atomConf.getHadoopConfCore()));
-		this.conf.addResource(new Path(atomConf.getHadoopConfHdfs()));
-		this.conf.set("fs.hdfs.impl",
+	public AvroInjector(String avroHDFSDest, int dayGap, String hadoopConfCore, String hadoopConfHdfs) {
+		Configuration conf = new Configuration();
+		conf.addResource(new Path(hadoopConfCore));
+		conf.addResource(new Path(hadoopConfHdfs));
+		conf.set("fs.hdfs.impl",
 				org.apache.hadoop.hdfs.DistributedFileSystem.class.getName());
-		this.conf.set("fs.file.impl",
+		conf.set("fs.file.impl",
 				org.apache.hadoop.fs.LocalFileSystem.class.getName());
-        this.dayGap = atomConf.getDayGap();
+		
+		this.conf = conf;
+		this.avroHDFSDest = avroHDFSDest;
+        this.dayGap = dayGap;
 	}
 
-    public AvroInjector(@NotNull AtomConfiguration atomConf,Configuration conf) throws Exception {
-        this.atomConf = atomConf;
-        this.destHDFS = atomConf.getAvroHDFSDest();
+    public AvroInjector(Configuration conf, String avroHDFSDest, int dayGap) {
         this.conf = conf;
-        this.dayGap = atomConf.getDayGap();
+        this.avroHDFSDest = avroHDFSDest;
+        this.dayGap = dayGap;
     }
-
+    
+    public AvroInjector(Configuration conf) {
+        this.conf = conf;
+    }
 
     public void createRecord()  {
         Schema schema = VRecord.getClassSchema() ;
@@ -62,7 +64,7 @@ public class AvroInjector implements AtomDataInjector {
         fileWriter = new DataFileWriter<VRecord>(orderDatumWriter);
         FSDataOutputStream file = null;
         try {
-            file = fileSystem.create(new Path(destHDFS));
+            file = fileSystem.create(new Path(avroHDFSDest));
             fileWriter.create(schema, file);
         } catch (IOException e) {
             LOGGER.severe("can't create record for avro injection : "+e.getMessage());
@@ -295,4 +297,12 @@ public class AvroInjector implements AtomDataInjector {
     public void setDayGap(int dayGap) {
         this.dayGap = dayGap;
     }
+
+	public String getAvroHDFSDest() {
+		return avroHDFSDest;
+	}
+
+	public void setAvroHDFSDest(String avroHDFSDest) {
+		this.avroHDFSDest = avroHDFSDest;
+	}
 }

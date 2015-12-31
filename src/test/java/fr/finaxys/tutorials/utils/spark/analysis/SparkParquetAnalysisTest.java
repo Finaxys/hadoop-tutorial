@@ -12,12 +12,14 @@ import fr.finaxys.tutorials.utils.avro.AvroInjector;
 import fr.finaxys.tutorials.utils.hbase.HBaseDataTypeEncoder;
 import fr.finaxys.tutorials.utils.parquet.AvroParquetConverter;
 import fr.univlille1.atom.trace.TraceType;
+
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.hbase.HBaseTestingUtility;
 import org.junit.*;
 import org.junit.experimental.categories.Category;
+
 import v13.LimitOrder;
 import v13.Order;
 import v13.PriceRecord;
@@ -39,16 +41,12 @@ public class SparkParquetAnalysisTest {
 
     private static final java.util.logging.Logger LOGGER = java.util.logging.Logger
             .getLogger(SparkParquetAnalysisTest.class.getName());
-
-
-
-
-
+    
     private static HBaseTestingUtility TEST_UTIL = null;
     private static Configuration CONF = null;
     private static AvroInjector injector ;
     private static AvroParquetConverter converter ;
-    private static AtomConfiguration atomConfiguration = new AtomConfiguration();
+    private static AtomConfiguration atomConfiguration;
 
     final HBaseDataTypeEncoder hbEncoder = new HBaseDataTypeEncoder();
 
@@ -58,6 +56,9 @@ public class SparkParquetAnalysisTest {
 
     @BeforeClass
     public static void setupBeforeClass() throws Exception {
+    	
+    	atomConfiguration = AtomConfiguration.getInstance();
+    	
         TEST_UTIL = new HBaseTestingUtility();
         CONF = TEST_UTIL.getConfiguration();
 //		OutputStream os = new FileOutputStream("/tmp/configuration.xml");
@@ -74,8 +75,14 @@ public class SparkParquetAnalysisTest {
 		/*MiniHBaseCluster hbaseCluster = */TEST_UTIL.startMiniCluster();
         CONF = TEST_UTIL.getConfiguration() ;
         analysis = new SparkParquetAnalysis(CONF) ;
-        injector = new AvroInjector(atomConfiguration,CONF) ;
-        converter = new AvroParquetConverter(atomConfiguration,CONF) ;
+        analysis.setParquetHDFSDest("/parquet");
+        // Configuration conf, String avroHDFSDest, int dayGap
+        injector = new AvroInjector(CONF) ;
+        injector.setAvroHDFSDest("/avro");
+        injector.setDayGap(1);
+        converter = new AvroParquetConverter(CONF) ;
+        converter.setParquetHDFSDest("/parquet");
+        converter.setAvroHDFSDest("/avro");
     }
 
     @AfterClass
@@ -143,6 +150,7 @@ public class SparkParquetAnalysisTest {
         Assert.assertEquals("2 should have count 1", r.get(TraceType.Agent), new Integer(1));
         Assert.assertEquals("Order should be null", r.get(TraceType.Order), null);
     }
+    
     @SuppressWarnings("unchecked")
     @Test
     public void testZAgentPosition() throws Exception {

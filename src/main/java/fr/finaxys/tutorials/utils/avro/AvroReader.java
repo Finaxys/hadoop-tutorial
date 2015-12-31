@@ -1,6 +1,5 @@
 package fr.finaxys.tutorials.utils.avro;
 
-import fr.finaxys.tutorials.utils.AtomConfiguration;
 import fr.finaxys.tutorials.utils.AtomDataInjector;
 import fr.finaxys.tutorials.utils.avro.models.VRecord;
 import org.apache.avro.file.DataFileReader;
@@ -20,27 +19,31 @@ import java.util.List;
  */
 public class AvroReader {
 
-    private final AtomConfiguration atomConf;
-    private Configuration conf;
-    private String destHDFS;
     private static final java.util.logging.Logger LOGGER = java.util.logging.Logger
             .getLogger(AtomDataInjector.class.getName());
+	
+    private Configuration conf;
+    private String avroHDFSDest;
 
-    public AvroReader(AtomConfiguration atomConf) {
-        this.atomConf = atomConf;
-        this.destHDFS = atomConf.getAvroHDFSDest();
+    public AvroReader(String hadoopConfCore, String hadoopConfHdfs, String avroHDFSDest) {
+        
         this.conf = new Configuration();
-        this.conf.addResource(new Path(atomConf.getHadoopConfCore()));
-        this.conf.addResource(new Path(atomConf.getHadoopConfHdfs()));
+        this.conf.addResource(new Path(hadoopConfCore));
+        this.conf.addResource(new Path(hadoopConfHdfs));
         this.conf.set("fs.hdfs.impl",
                 org.apache.hadoop.hdfs.DistributedFileSystem.class.getName());
         this.conf.set("fs.file.impl",
                 org.apache.hadoop.fs.LocalFileSystem.class.getName());
+        
+        this.avroHDFSDest = avroHDFSDest;
     }
 
-    public AvroReader(AtomConfiguration atomConf,Configuration conf) {
-        this.atomConf = atomConf;
-        this.destHDFS = atomConf.getAvroHDFSDest();
+    public AvroReader(Configuration conf, String avroHDFSDest) {
+        this.conf = conf ;
+        this.avroHDFSDest = avroHDFSDest;
+    }
+    
+    public AvroReader(Configuration conf) {
         this.conf = conf ;
     }
 
@@ -49,7 +52,7 @@ public class AvroReader {
         try {
             List<VRecord> result = new ArrayList<VRecord>();
             DatumReader<VRecord> datumReader = new SpecificDatumReader<>(VRecord.getClassSchema());
-            SeekableInput file = new FsInput(new Path(destHDFS), conf);
+            SeekableInput file = new FsInput(new Path(avroHDFSDest), conf);
             DataFileReader<VRecord> dataFileReader = new DataFileReader<VRecord>(file, datumReader);
             VRecord exec = null;
             int i=0 ;
@@ -65,4 +68,12 @@ public class AvroReader {
             return null ;
         }
     }
+
+	public String getAvroHDFSDest() {
+		return avroHDFSDest;
+	}
+
+	public void setAvroHDFSDest(String avroHDFSDest) {
+		this.avroHDFSDest = avroHDFSDest;
+	}
 }

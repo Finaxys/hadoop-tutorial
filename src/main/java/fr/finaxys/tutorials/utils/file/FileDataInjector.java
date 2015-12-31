@@ -5,6 +5,7 @@ import java.io.PrintStream;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.logging.Level;
 
 import v13.Day;
 import v13.LimitOrder;
@@ -15,7 +16,6 @@ import v13.agents.Agent;
 import fr.finaxys.tutorials.utils.AgentReferentialLine;
 import fr.finaxys.tutorials.utils.AtomDataInjector;
 import fr.finaxys.tutorials.utils.HadoopTutorialException;
-import fr.finaxys.tutorials.utils.TimeStampBuilder;
 
 public class FileDataInjector implements AtomDataInjector {
 	
@@ -56,6 +56,7 @@ public class FileDataInjector implements AtomDataInjector {
 	@Override
 	public void createOutput() throws HadoopTutorialException {
 		try {
+			LOGGER.log(Level.INFO, "Creating File output on :"+filename);
 			if (this.pw == null) {
 				if (this.filename != null) {
 					this.pw = new PrintStream(filename);

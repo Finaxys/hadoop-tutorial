@@ -1,6 +1,5 @@
 package fr.finaxys.tutorials.utils.hdfs;
 
-import fr.finaxys.tutorials.utils.AtomConfiguration;
 import fr.finaxys.tutorials.utils.HadoopTutorialException;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileStatus;
@@ -12,17 +11,14 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 
 
-/**
- * Created by finaxys on 11/20/15.
- */
 public class HDFSReader {
 
     private Configuration conf ;
     private FileSystem fs ;
 
-    public HDFSReader(AtomConfiguration atomConf){
+    public HDFSReader(String hadoopConfHdfs) {
         this.conf = new Configuration();
-        this.conf.addResource(new Path(atomConf.getHadoopConfHdfs()));
+        this.conf.addResource(new Path(hadoopConfHdfs));
         this.conf.reloadConfiguration();
         try {
             this.fs = FileSystem.get(this.conf);
@@ -32,9 +28,9 @@ public class HDFSReader {
 
     }
 
-    public HDFSReader(Configuration conf){
+    public HDFSReader(Configuration conf) {
         this.conf = conf;
-        conf.reloadConfiguration();
+        //conf.reloadConfiguration();
         try {
             this.fs = FileSystem.get(this.conf);
         } catch (IOException e) {
@@ -42,7 +38,7 @@ public class HDFSReader {
         }
 
     }
-
+    
     public void setConf(Configuration conf){
         this.conf = conf ;
     }

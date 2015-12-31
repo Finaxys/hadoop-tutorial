@@ -33,7 +33,7 @@ import java.util.Map;
  */
 public class KafkaStreamingRequester {
     private static JavaSparkContext jsc;
-    private static AtomConfiguration atom = new AtomConfiguration();
+    private static AtomConfiguration atom = AtomConfiguration.getInstance();
     private final static Logger LOGGER = LoggerFactory.getLogger(KafkaStreamingRequester.class);
     private static String kafkaTopic = atom.getKafkaTopic() ;
     private static String kafkaQuorum = atom.getKafkaQuorum() ;

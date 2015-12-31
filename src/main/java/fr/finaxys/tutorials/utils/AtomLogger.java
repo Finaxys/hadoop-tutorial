@@ -2,6 +2,7 @@ package fr.finaxys.tutorials.utils;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.logging.Level;
 
 import v13.Day;
 import v13.Logger;
@@ -22,20 +23,15 @@ public class AtomLogger extends Logger {
 
   public AtomLogger(AtomConfiguration conf, AtomDataInjector... injectors) {
     super();
-//    if (conf.isOutFile()) {
-//      this.getClass().getField("pw").setAccessible(true);
-//      this.getClass().getField("pw").set(this, new PrintStream(conf.getOutFilePath()));
-//    }
     this.conf = conf;
     this.injectors = injectors;
     init();
   }
 
   public void init() {
-	  
+	  LOGGER.log(Level.INFO, "Initializing AtomLogger");
       tsb = new TimeStampBuilder(conf.getTsbDateBegin(), conf.getTsbOpenHour(), conf.getTsbCloseHour(), conf.getTsbNbTickMax(), conf.getNbAgents(), conf.getNbOrderBooks());
       tsb.init();
-	  
       for (int i = 0; i < injectors.length; i++) {
     	  injectors[i].createOutput();
       }

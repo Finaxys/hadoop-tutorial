@@ -4,7 +4,10 @@ import fr.finaxys.tutorials.utils.AtomAnalysis;
 import fr.finaxys.tutorials.utils.spark.batch.ParquetSparkRequester;
 import fr.univlille1.atom.trace.OrderTrace;
 import fr.univlille1.atom.trace.TraceType;
+
 import org.apache.hadoop.conf.Configuration;
+
+import com.sun.istack.NotNull;
 
 import java.util.*;
 import java.util.logging.Level;
@@ -12,16 +15,21 @@ import java.util.logging.Level;
 /**
  * Created by finaxys on 12/15/15.
  */
-public class SparkParquetAnalysis  implements AtomAnalysis {
+public class SparkParquetAnalysis implements AtomAnalysis {
 
     private static final java.util.logging.Logger LOGGER = java.util.logging.Logger
             .getLogger(SparkParquetAnalysis.class.getName());
-    private Configuration configuration ;
+    
+    private Configuration configuration;
+    private String parquetHDFSDest;
 
+    public SparkParquetAnalysis(Configuration configuration, @NotNull String parquetHDFSDest){
+        this.configuration = configuration ;
+        this.parquetHDFSDest = parquetHDFSDest;
+    }
+    
     public SparkParquetAnalysis(Configuration configuration){
         this.configuration = configuration ;
-    }
-    public SparkParquetAnalysis(){
     }
 
     @Override
@@ -36,8 +44,8 @@ public class SparkParquetAnalysis  implements AtomAnalysis {
         LOGGER.log(Level.INFO, "traceCount Date : " +date + ", Min TimeStamp : "+ minStamp + ", Max TimeStamp : "+ maxStamp);
 
         //request
-        String request = "select records.type as trace , count(*) as total from records where records.Timestamp <= "+maxStamp+" and records.Timestamp >= "+minStamp+" GROUP BY records.type" ;
-        ParquetSparkRequester requester = new ParquetSparkRequester(this.configuration);
+        String request = "select records.type as trace , count(*) as total from records where records.Timestamp <= "+maxStamp+" and records.Timestamp >= "+minStamp+" GROUP BY records.type";
+        ParquetSparkRequester requester = new ParquetSparkRequester(this.configuration, parquetHDFSDest);
         org.apache.spark.sql.Row[] result = requester.executeRequest(request);
 
         //post-request
@@ -52,9 +60,7 @@ public class SparkParquetAnalysis  implements AtomAnalysis {
         }*/
         return ret;
     }
-
-
-
+    
     @Override
     public Map<String, Integer> agentPosition(Date date) {
         //pre-request
@@ -68,7 +74,7 @@ public class SparkParquetAnalysis  implements AtomAnalysis {
         //request
         //request
         String request = "select  order.Sender as Sender , order.ObName as ObName , sum(order.Quantity) as totalQty from records where records.Timestamp <= "+maxStamp+" and records.Timestamp >= "+minStamp+" GROUP BY order.ObName , order.Sender " ;
-        ParquetSparkRequester requester = new ParquetSparkRequester(this.configuration);
+        ParquetSparkRequester requester = new ParquetSparkRequester(this.configuration, parquetHDFSDest);
         org.apache.spark.sql.Row[] result = requester.executeRequest(request);
         for(int i=0 ; i< result.length ; i++){
             ret.put(result[i].getString(0)+"-"+result[i].getString(1),new Integer((int)result[i].getLong(2)));
@@ -94,5 +100,13 @@ public class SparkParquetAnalysis  implements AtomAnalysis {
         // TODO Auto-generated method stub
         return null;
     }
+
+	public String getParquetHDFSDest() {
+		return parquetHDFSDest;
+	}
+
+	public void setParquetHDFSDest(String parquetHDFSDest) {
+		this.parquetHDFSDest = parquetHDFSDest;
+	}
 
 }

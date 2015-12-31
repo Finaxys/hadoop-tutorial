@@ -2,12 +2,10 @@ package fr.finaxys.tutorials.utils.spark.models;
 
 import java.io.Serializable;
 
-/**
- * Created by finaxys on 12/8/15.
- */
 public class DataRow implements Serializable {
     
-    private String trace;
+	private static final long serialVersionUID = 5371135155801685329L;
+	private String trace;
     private Integer numDay;
     private Integer numTick;
     private Long bestBid;

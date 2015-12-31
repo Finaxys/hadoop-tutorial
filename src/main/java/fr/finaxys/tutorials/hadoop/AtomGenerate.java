@@ -5,9 +5,11 @@ import fr.finaxys.tutorials.utils.avro.AvroInjector;
 import fr.finaxys.tutorials.utils.file.FileDataInjector;
 import fr.finaxys.tutorials.utils.hbase.SimpleHBaseInjector;
 import fr.finaxys.tutorials.utils.kafka.KafkaInjector;
+
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
 import v13.Day;
 import v13.MonothreadedSimulation;
 import v13.Simulation;
@@ -54,7 +56,8 @@ public class AtomGenerate {
 				injectors.add(new SimpleHBaseInjector(atomConf));
 			}
 			if (parseArgs.contains("-avro") || atomConf.isOutAvro()) {
-				injectors.add(new AvroInjector(atomConf));
+				// String avroHDFSDest, int dayGap, String hadoopConfCore, String hadoopConfHdfs
+				injectors.add(new AvroInjector(atomConf.getAvroHDFSDest(), atomConf.getDayGap(), atomConf.getHadoopConfCore(), atomConf.getHadoopConfHdfs()));
 			}
 			if (parseArgs.contains("-file") || atomConf.isOutFile()) {
 				PrintStream out = new PrintStream(new LoggerStream(
@@ -127,7 +130,7 @@ public class AtomGenerate {
 
 	private static void getConfiguration() {
 
-		atomConf = new AtomConfiguration();
+		atomConf = AtomConfiguration.getInstance();
 
 		// Get agents & orderbooks
 		agents = atomConf.getAgents();

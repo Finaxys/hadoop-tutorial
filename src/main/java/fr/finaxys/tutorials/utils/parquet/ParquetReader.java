@@ -1,6 +1,5 @@
 package fr.finaxys.tutorials.utils.parquet;
 
-import fr.finaxys.tutorials.utils.AtomConfiguration;
 import fr.finaxys.tutorials.utils.AtomDataInjector;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
@@ -20,26 +19,23 @@ import org.apache.parquet.hadoop.example.ExampleInputFormat;
 
 import java.io.IOException;
 
-
-/**
- * Created by finaxys on 11/20/15.
- */
 public class ParquetReader extends Configured implements Tool {
 
     private static final java.util.logging.Logger LOGGER = java.util.logging.Logger
             .getLogger(AtomDataInjector.class.getName());
+    
     private Configuration conf = null ;
     static private String FILE_PATH = "/part-m-00000.snappy.parquet" ;
+    private String hadoopConfHdfs;
+    private String parquetHDFSDest;
 
-    private AtomConfiguration atomConfiguration ;
-
-    public ParquetReader(AtomConfiguration atomConfiguration,Configuration conf){
-        this.atomConfiguration = atomConfiguration ;
+    public ParquetReader(Configuration conf){
         this.conf = conf ;
     }
-    public ParquetReader(AtomConfiguration atomConfiguration){
-        this.atomConfiguration = atomConfiguration ;
+    
+    public ParquetReader() {
     }
+
 
     public void setConfiguration(Configuration conf){
         this.conf = conf ;
@@ -53,13 +49,11 @@ public class ParquetReader extends Configured implements Tool {
             context.write(outKey, new Text(value.toString()));
         }
     }
-
-
+    
     public int run(String[] args) throws Exception {
-        AtomConfiguration atom = new AtomConfiguration() ;
         if(conf == null){
             conf = new Configuration();
-            conf.addResource(new Path(atom.getHadoopConfHdfs()));
+            conf.addResource(new Path(getHadoopConfHdfs()));
             conf.reloadConfiguration();
         }
         Path inputPath = new Path(args[0]+FILE_PATH);
@@ -88,17 +82,36 @@ public class ParquetReader extends Configured implements Tool {
 
     public void read(String outputFilePath){
         try {
-            String[] otherArgs = {atomConfiguration.getParquetHDFSDest(),outputFilePath} ; // parquet file path into hdfs , output file
-            int res = ToolRunner.run(conf, new ParquetReader(atomConfiguration,this.conf), otherArgs);
-            //System.exit(res);
+            String[] otherArgs = {getParquetHDFSDest(),outputFilePath} ; // parquet file path into hdfs , output file
+            int res = ToolRunner.run(conf, new ParquetReader(this.conf), otherArgs);
+            LOGGER.info("Reading file from hdfs exit code "+res);
         } catch (Exception e) {
             LOGGER.severe("failed to load hdfs conf..." + e.getMessage());
-            //System.exit(255);
         }
     }
 
-    public static void main(String[] args) throws Exception {
-        ParquetReader reader = new ParquetReader(new AtomConfiguration());
-        reader.read(args[0]);
-    }
+//    public static void main(String[] args) throws Exception {
+//    	AtomConfiguration conf = AtomConfiguration.getInstance();
+//        ParquetReader reader = new ParquetReader();
+//        reader.setParquetHDFSDest(conf.getParquetHDFSDest());
+//        reader.setHadoopConfHdfs(conf.getHadoopConfHdfs());
+//        reader.read(args[0]);
+//    }
+
+
+	public String getHadoopConfHdfs() {
+		return hadoopConfHdfs;
+	}
+
+	public void setHadoopConfHdfs(String hadoopConfHdfs) {
+		this.hadoopConfHdfs = hadoopConfHdfs;
+	}
+
+	public String getParquetHDFSDest() {
+		return parquetHDFSDest;
+	}
+
+	public void setParquetHDFSDest(String parquetHDFSDest) {
+		this.parquetHDFSDest = parquetHDFSDest;
+	}
 }

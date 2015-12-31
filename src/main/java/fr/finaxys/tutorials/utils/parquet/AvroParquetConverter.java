@@ -25,16 +25,17 @@ public class AvroParquetConverter extends Configured implements Tool {
 
     private static final java.util.logging.Logger LOGGER = java.util.logging.Logger
             .getLogger(AvroParquetConverter.class.getName());
-    private Configuration configuration= null ;
-    private AtomConfiguration atom = null ;
+    private Configuration configuration;
+    //private AtomConfiguration atom;
+    private String avroHDFSDest;
+    private String hadoopConfHdfs;
+    private String parquetHDFSDest;
 
-    public AvroParquetConverter(AtomConfiguration atom){
-        this.atom = atom ;
+    public AvroParquetConverter() {
     }
-
-    public AvroParquetConverter(AtomConfiguration atom,Configuration configuration){
-        this.atom = atom ;
-        this.configuration = configuration ;
+    
+    public AvroParquetConverter(Configuration configuration) {
+    	this.configuration = configuration;
     }
 
     public void setConfiguration(Configuration configuration){
@@ -42,12 +43,12 @@ public class AvroParquetConverter extends Configured implements Tool {
     }
 
     public int run(String[] args) {
-        Path inputPath = new Path(atom.getAvroHDFSDest());
-        Path outputPath = new Path(args[0]);
+        Path inputPath = new Path(args[0]);
+        Path outputPath = new Path(args[1]);
         Configuration conf;
         if (this.configuration == null){
             conf = new Configuration();
-            conf.addResource(new Path(atom.getHadoopConfHdfs()));
+            conf.addResource(new Path(getHadoopConfHdfs()));
             conf.reloadConfiguration();
         }
         else {
@@ -64,7 +65,6 @@ public class AvroParquetConverter extends Configured implements Tool {
         }
         job.setJarByClass(getClass());
         Schema avroSchema = VRecord.getClassSchema();
-        System.out.println(new AvroSchemaConverter().convert(avroSchema).toString());
         try {
             FileInputFormat.addInputPath(job, inputPath);
         } catch (IOException e) {
@@ -85,30 +85,56 @@ public class AvroParquetConverter extends Configured implements Tool {
             success = job.waitForCompletion(true) ? 0 : 1;
         } catch (Exception e) {
             LOGGER.severe("can't wait for completion : "+e.getMessage());
-            throw new HadoopTutorialException() ;
+            throw new HadoopTutorialException("exception while converting avro in parquet", e) ;
         }
         return success;
     }
 
     public boolean convert(){
-        String[] otherArgs = {atom.getParquetHDFSDest()} ;
-        int exitCode = 0;
+        String[] otherArgs = {getAvroHDFSDest(), getParquetHDFSDest()} ;
         boolean success = false;
         try {
-            exitCode = ToolRunner.run(new AvroParquetConverter(this.atom,this.configuration), otherArgs);
+            ToolRunner.run(new AvroParquetConverter(this.configuration), otherArgs);
             success = true;
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Can't run map reduce job", e);
         }
-        finally {
-            //System.exit(exitCode);
-            return success ;
-        }
+        return success;
     }
 
     public static void main(String[] args)  {
-            AvroParquetConverter converter = new AvroParquetConverter(new AtomConfiguration());
-            converter.convert();
+    	AtomConfiguration atomConfiguration = AtomConfiguration.getInstance();
+        AvroParquetConverter converter = new AvroParquetConverter();
+        converter.setAvroHDFSDest(atomConfiguration.getAvroHDFSDest());
+        converter.setHadoopConfHdfs(atomConfiguration.getHadoopConfHdfs());
+        converter.setParquetHDFSDest(atomConfiguration.getParquetHDFSDest());
+        converter.convert();
     }
+
+	public String getAvroHDFSDest() {
+		return avroHDFSDest;
+	}
+
+	public void setAvroHDFSDest(String avroHDFSDest) {
+		this.avroHDFSDest = avroHDFSDest;
+	}
+
+	public String getHadoopConfHdfs() {
+		return hadoopConfHdfs;
+	}
+
+	public void setHadoopConfHdfs(String hadoopConfHdfs) {
+		this.hadoopConfHdfs = hadoopConfHdfs;
+	}
+
+
+	public String getParquetHDFSDest() {
+		return parquetHDFSDest;
+	}
+
+
+	public void setParquetHDFSDest(String parquetHDFSDest) {
+		this.parquetHDFSDest = parquetHDFSDest;
+	}
 
 }

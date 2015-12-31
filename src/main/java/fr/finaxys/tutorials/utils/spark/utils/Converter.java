@@ -12,9 +12,6 @@ import scala.Tuple2;
 import java.io.Serializable;
 import java.util.Map;
 
-/**
- * Created by finaxys on 12/4/15.
- */
 public class Converter implements Serializable {
 
     /**

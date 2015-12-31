@@ -1,6 +1,5 @@
 package fr.finaxys.tutorials.utils.parquet;
 
-import fr.finaxys.tutorials.utils.AtomConfiguration;
 import fr.finaxys.tutorials.utils.InjectorTests;
 import fr.finaxys.tutorials.utils.TimeStampBuilder;
 import fr.finaxys.tutorials.utils.avro.AvroInjector;
@@ -24,6 +23,7 @@ import java.util.logging.Level;
 public class AvroParquetConverterTest {
     private static final java.util.logging.Logger LOGGER = java.util.logging.Logger
             .getLogger(AvroParquetConverterTest.class.getName());
+    
     private static HBaseTestingUtility TEST_UTIL = null;
     private static Configuration CONF = null;
     private static AvroParquetConverter converter;
@@ -40,10 +40,13 @@ public class AvroParquetConverterTest {
         TEST_UTIL = new HBaseTestingUtility();
         TEST_UTIL.startMiniCluster();
         CONF = TEST_UTIL.getConfiguration();
-        AtomConfiguration atomConf = new AtomConfiguration();
-        converter = new AvroParquetConverter(atomConf,CONF);
-        parquetReader = new ParquetReader(atomConf,CONF);
-        avroInjector = new AvroInjector(atomConf,CONF);
+        converter = new AvroParquetConverter(CONF);
+        converter.setAvroHDFSDest("AvroHDFSDest");
+        converter.setParquetHDFSDest("ParquetHDFSDest");
+        parquetReader = new ParquetReader(CONF);
+        parquetReader.setParquetHDFSDest("ParquetHDFSDest");
+        avroInjector = new AvroInjector(CONF);
+        avroInjector.setAvroHDFSDest("AvroHDFSDest");
         LOGGER.log(Level.INFO, "ready to start tests");
     }
 

@@ -1,7 +1,10 @@
 package fr.finaxys.tutorials.utils.spark.batch;
 
+import java.io.Serializable;
+
 import fr.finaxys.tutorials.utils.AtomConfiguration;
 import fr.finaxys.tutorials.utils.spark.utils.RequestReader;
+
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.spark.SparkConf;
@@ -10,37 +13,28 @@ import org.apache.spark.sql.DataFrame;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SQLContext;
 
-import java.io.Serializable;
+import com.sun.istack.NotNull;
 
-/**
- * Created by finaxys on 12/8/15.
- */
-public class ParquetSparkRequester implements Serializable{
+public class ParquetSparkRequester implements Serializable {
 
-    public static  AtomConfiguration atomConfiguration;
-    public static  String hdfsSitePAth ;
-    public static  Configuration hdfsConf ;
-    public static final RequestReader requestReader= new RequestReader("spark-requests/parquet-batch-request.sql");
+	private static final long serialVersionUID = 3422217377336638635L;
+	//private AtomConfiguration atomConfiguration;
+    private String hdfsSitePath ;
+    private Configuration hdfsConf ;
+    private String parquetHDFSDest;
+    transient private final RequestReader requestReader= new RequestReader("spark-requests/parquet-batch-request.sql");
 
-    private static final java.util.logging.Logger LOGGER = java.util.logging.Logger
-            .getLogger(ParquetSparkRequester.class.getName());
-
-
-    public ParquetSparkRequester(AtomConfiguration atomConfiguration) {
-        this.atomConfiguration = atomConfiguration ;
-        this.hdfsSitePAth = atomConfiguration.getHadoopConfHdfs();
+    public ParquetSparkRequester(@NotNull String hadoopConfHdfs, 
+    		@NotNull String parquetHDFSDest) {
+        this.hdfsSitePath = hadoopConfHdfs;
+        this.parquetHDFSDest = parquetHDFSDest;
     }
 
-    public ParquetSparkRequester(Configuration hdfsConf) {
+    public ParquetSparkRequester(Configuration hdfsConf, @NotNull String parquetHDFSDest) {
         this.hdfsConf = hdfsConf ;
-        this.atomConfiguration = new AtomConfiguration() ;
-        this.hdfsSitePAth = atomConfiguration.getHadoopConfHdfs();
+        this.parquetHDFSDest = parquetHDFSDest;
     }
 
-    public ParquetSparkRequester() {
-        this.atomConfiguration = new AtomConfiguration() ;
-        this.hdfsSitePAth = atomConfiguration.getHadoopConfHdfs();
-    }
 
     public Row[] executeRequest(){
         return executeRequest(requestReader.readRequest());
@@ -59,14 +53,13 @@ public class ParquetSparkRequester implements Serializable{
         Configuration conf ;
         if(hdfsConf == null){
             conf = new Configuration();
-            conf.addResource(new Path(hdfsSitePAth));
+            conf.addResource(new Path(hdfsSitePath));
         } else {
             conf = this.hdfsConf ;
         }
         conf.reloadConfiguration();
-        System.out.println("fs.default.name : - " + conf.get("fs.default.name"));
         SQLContext sqlContext = new SQLContext(sc);
-        DataFrame df = sqlContext.read().load(conf.get("fs.default.name")+"/"+atomConfiguration.getParquetHDFSDest());
+        DataFrame df = sqlContext.read().load(conf.get("fs.default.name")+"/"+parquetHDFSDest);
         df.registerTempTable("records");
         DataFrame df2 = sqlContext.sql(request);
         df2.show(1000);
@@ -76,7 +69,8 @@ public class ParquetSparkRequester implements Serializable{
     }
 
     public static void main(String[] args)  {
-        ParquetSparkRequester analysis = new ParquetSparkRequester() ;
+    	AtomConfiguration conf = AtomConfiguration.getInstance();
+        ParquetSparkRequester analysis = new ParquetSparkRequester(conf.getHadoopConfHdfs(), conf.getParquetHDFSDest()) ;
         analysis.executeRequest();
     }
 }

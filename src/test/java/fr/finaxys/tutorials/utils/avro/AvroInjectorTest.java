@@ -1,6 +1,5 @@
 package fr.finaxys.tutorials.utils.avro;
 
-import fr.finaxys.tutorials.utils.AtomConfiguration;
 import fr.finaxys.tutorials.utils.InjectorTests;
 import fr.finaxys.tutorials.utils.TimeStampBuilder;
 import fr.finaxys.tutorials.utils.avro.models.Tick;
@@ -24,25 +23,24 @@ import java.util.List;
 @Category(InjectorTests.class)
 public class AvroInjectorTest {
 
-    private static final java.util.logging.Logger LOGGER = java.util.logging.Logger
-            .getLogger(AvroInjector.class.getName());
     private static final int DAY_GAP = 2;
     private static HBaseTestingUtility TEST_UTIL = null;
     private static Configuration CONF = null;
     private static AvroInjector injector ;
     private static AvroReader reader ;
     private TimeStampBuilder tsb = null;
-    private static AtomConfiguration ATOM_CONF ;
+
 
     @BeforeClass
     public static void setupBeforeClass() throws Exception {
         TEST_UTIL = new HBaseTestingUtility();
         CONF = TEST_UTIL.getConfiguration();
         TEST_UTIL.startMiniCluster();
-        Configuration conf = TEST_UTIL.getConfiguration() ;
-        ATOM_CONF = new AtomConfiguration() ;
-        injector = new AvroInjector(ATOM_CONF,conf) ;
-        reader = new AvroReader(ATOM_CONF,conf);
+        injector = new AvroInjector(CONF) ;
+        injector.setAvroHDFSDest("AvroHDFSDest");
+        injector.setDayGap(1);
+        reader = new AvroReader(CONF);
+        reader.setAvroHDFSDest("AvroHDFSDest");
     }
 
     @AfterClass

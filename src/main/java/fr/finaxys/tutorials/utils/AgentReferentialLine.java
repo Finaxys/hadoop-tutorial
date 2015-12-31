@@ -2,11 +2,6 @@ package fr.finaxys.tutorials.utils;
 
 import com.sun.istack.NotNull;
 
-import fr.finaxys.tutorials.utils.hbase.HBaseDataTypeEncoder;
-
-import org.apache.hadoop.hbase.client.Put;
-import org.apache.hadoop.hbase.util.Bytes;
-
 public class AgentReferentialLine {
 
   public final int agentRefId;

@@ -17,25 +17,21 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 
-/**
- * Created by finaxys on 12/21/15.
- */
 public class KafkaInjector implements AtomDataInjector {
+	
     private final static Logger LOGGER = LoggerFactory.getLogger(KafkaInjector.class);
     private Producer<String, String> producer;
     private String topic;
-    private AtomConfiguration atomConfiguration;
     private int count = 0 ;
 
     public KafkaInjector(AtomConfiguration atomConfiguration) {
-        this.atomConfiguration = atomConfiguration;
         topic = atomConfiguration.getKafkaTopic();
         Properties props = new Properties();
         props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, atomConfiguration.getKafkaBoot());
         props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringSerializer");
         props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringSerializer");
         props.put("request.timeout.ms", 100);
-        producer = new KafkaProducer(props);
+        producer = new KafkaProducer<String, String>(props);
     }
 
     @Override

@@ -4,7 +4,6 @@ import com.sun.istack.NotNull;
 import fr.finaxys.tutorials.utils.AgentReferentialLine;
 import fr.finaxys.tutorials.utils.AtomConfiguration;
 import fr.finaxys.tutorials.utils.AtomDataInjector;
-import fr.finaxys.tutorials.utils.TimeStampBuilder;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Put;
 import v13.Day;
@@ -26,16 +25,12 @@ public class SimpleHBaseInjector extends AtomHBaseHelper implements AtomDataInje
 			.getLogger(SimpleHBaseInjector.class.getName());
 
 	private int dayGap;
-	private AtomConfiguration atomConfiguration;
 
 	private final AtomicLong globalCount = new AtomicLong(0L);
 	
 	public SimpleHBaseInjector(@NotNull AtomConfiguration conf) {
 		super(conf.getColumnFamily(), TableName.valueOf(conf.getTableName()),conf);
-		this.atomConfiguration = conf;
-		this.dayGap = atomConfiguration.getDayGap();
-		/* this.table = createHTableConnexion(tableName
-				, this.hbaseConfiguration); */
+		this.dayGap = conf.getDayGap();
 	}
 	
 	public SimpleHBaseInjector() {
@@ -125,10 +120,6 @@ public class SimpleHBaseInjector extends AtomHBaseHelper implements AtomDataInje
 			putTable(p);
 		}
 	}
-	
-	public void setAtomConfiguration(AtomConfiguration atomConfiguration) {
-		this.atomConfiguration = atomConfiguration;
-	}
 
 	public int getDayGap() {
 		return dayGap;
@@ -136,10 +127,6 @@ public class SimpleHBaseInjector extends AtomHBaseHelper implements AtomDataInje
 
 	public void setDayGap(int dayGap) {
 		this.dayGap = dayGap;
-	}
-	
-	public AtomConfiguration getAtomConfiguration() {
-		return atomConfiguration;
 	}
 
 }
