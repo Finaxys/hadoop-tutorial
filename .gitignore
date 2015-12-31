@@ -35,3 +35,5 @@ TestSuite.jav__.java
 
 target/surefire-reports/TEST-fr.finaxys.AppTest.xml
 target/*
+
+dependency-reduced-pom.xml

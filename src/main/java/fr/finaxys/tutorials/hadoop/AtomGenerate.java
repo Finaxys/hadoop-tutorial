@@ -76,7 +76,7 @@ public class AtomGenerate {
 
 		logger = new AtomLogger(atomConf,
 				injectors.toArray(new AtomDataInjector[injectors.size()]));
-		Simulation sim = new MonothreadedSimulation();
+		final Simulation sim = new MonothreadedSimulation();
 		sim.setLogger(logger);
 
 		// sim.setLogger(new FileLogger(System.getProperty("atom.output.file",
@@ -85,8 +85,8 @@ public class AtomGenerate {
 		LOGGER.log(Level.INFO, "Setting up agents and orderbooks");
 
 		// Create Agents and Order book to MarketMaker depending properties
-		boolean marketmaker = atomConf.isMarketMarker();
-		int marketmakerQuantity = marketmaker ? atomConf
+		final boolean marketmaker = atomConf.isMarketMarker();
+		final int marketmakerQuantity = marketmaker ? atomConf
 				.getMarketMakerQuantity() : 0;
 
 		for (String agent : agents) {

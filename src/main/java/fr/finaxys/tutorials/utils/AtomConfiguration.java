@@ -92,17 +92,28 @@ public class AtomConfiguration {
 	}
 
 	private void load() throws HadoopTutorialException {
+		InputStream propFile = null;
+		// loading properties.txt into System Properties.
 		try {
-            InputStream propFile ;
             try{
 			    propFile = new FileInputStream("properties.txt");
-            }catch(IOException e){
-                LOGGER.info("try to read properties.txt from hdfs");
+            } catch (IOException e){
+                LOGGER.info("Not able to load properties from file. Trying to read properties.txt from hdfs.");
                 propFile = FileSystem.get(new Configuration()).open(new Path("/properties.txt"));
             }
 			Properties p = new Properties(System.getProperties());
 			p.load(propFile);
 			System.setProperties(p);
+		} catch (IOException ioe) {
+			
+		} finally {
+			try {
+				propFile.close();
+			} catch (IOException e) {
+				// cannot do anything.
+			}
+		}
+		try {
 
 			// Get agents & orderbooks
 

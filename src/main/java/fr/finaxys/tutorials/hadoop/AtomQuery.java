@@ -29,7 +29,7 @@ public class AtomQuery {
 			}
 			
 			AtomAnalysis analysis = new HBaseAnalysis();
-			
+			// @TODO a terminer
 		}
 		private static void getConfiguration() {
 
