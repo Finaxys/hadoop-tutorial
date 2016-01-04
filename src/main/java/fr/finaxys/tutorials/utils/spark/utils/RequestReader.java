@@ -30,6 +30,7 @@ public class RequestReader {
             reader.read(chars);
             request = new String(chars);
             reader.close();
+            LOGGER.info("request readed from "+filePath);
         } catch (IOException e) {
             LOGGER.severe("can't read request : "+e.getMessage());
             throw new HadoopTutorialException() ;
