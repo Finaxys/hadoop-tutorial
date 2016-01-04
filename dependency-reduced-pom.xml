@@ -94,13 +94,6 @@
   </profiles>
   <dependencies>
     <dependency>
-      <groupId>atom</groupId>
-      <artifactId>atom</artifactId>
-      <version>1.0</version>
-      <scope>system</scope>
-      <systemPath>/Users/pierre/workspace/hadoop-tutorial/atom.jar</systemPath>
-    </dependency>
-    <dependency>
       <groupId>org.apache.hadoop</groupId>
       <artifactId>hadoop-hdfs</artifactId>
       <version>2.7.1</version>
