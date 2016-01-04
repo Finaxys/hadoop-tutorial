@@ -41,9 +41,9 @@ public class HBaseStreamingRequester implements Serializable{
    private static final String RESULT_QUALIFIER = "result";
    private static final int MAX = 10000 ;
 
-   transient private JavaSparkContext jsc;
+   static private JavaSparkContext jsc;
    private Long lastTS;
-   transient private Configuration conf;
+   static  private Configuration conf;
    private JavaRDD<DataRow> mainRDDs ;
    
    private String hbaseSitePath ;
@@ -51,7 +51,7 @@ public class HBaseStreamingRequester implements Serializable{
    private String sparkTableName;
    private byte[] columnFamily;
    private String request;
-   transient private JavaStreamingContext jssc;
+   static private JavaStreamingContext jssc;
    
    public HBaseStreamingRequester(@NotNull AtomConfiguration atomConfiguration) {
        hbaseSitePath = atomConfiguration.getHbaseConfHbase();
