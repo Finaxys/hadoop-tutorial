@@ -100,13 +100,11 @@
 		<artifactId>log4j-core</artifactId>
 		<version>${log4j.version}</version>
 	</dependency>
-    <dependency>
-        <groupId>atom</groupId>
-        <artifactId>atom</artifactId>
-        <version>1.0</version>
-        <scope>system</scope>
-        <systemPath>${project.basedir}/atom.jar</systemPath>
-    </dependency>
+      <dependency>
+          <groupId>atom</groupId>
+          <artifactId>atom</artifactId>
+          <version>1.0</version>
+      </dependency>
 	<!-- hadoop -->
     <dependency>
         <groupId>org.apache.hadoop</groupId>
