@@ -32,17 +32,18 @@ import com.sun.istack.NotNull;
 
 import scala.Tuple2;
 
+import java.io.Serializable;
 import java.util.Calendar;
 import java.util.Date;
 
-public class HBaseStreamingRequester {
+public class HBaseStreamingRequester implements Serializable{
 	
    private static final String RESULT_QUALIFIER = "result";
    private static final int MAX = 10000 ;
 
-   private JavaSparkContext jsc;
+   transient private JavaSparkContext jsc;
    private Long lastTS;
-   private Configuration conf;
+   transient private Configuration conf;
    private JavaRDD<DataRow> mainRDDs ;
    
    private String hbaseSitePath ;
@@ -50,7 +51,7 @@ public class HBaseStreamingRequester {
    private String sparkTableName;
    private byte[] columnFamily;
    private String request;
-   private JavaStreamingContext jssc;
+   transient private JavaStreamingContext jssc;
    
    public HBaseStreamingRequester(@NotNull AtomConfiguration atomConfiguration) {
        hbaseSitePath = atomConfiguration.getHbaseConfHbase();
