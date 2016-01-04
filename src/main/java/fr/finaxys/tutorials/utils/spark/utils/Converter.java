@@ -7,6 +7,8 @@ import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.io.ImmutableBytesWritable;
 import org.apache.hadoop.hbase.util.Bytes;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import scala.Tuple2;
 
 import java.io.Serializable;
@@ -17,6 +19,7 @@ public class Converter implements Serializable {
     /**
      *
      */
+    private final static Logger LOGGER = LoggerFactory.getLogger(Converter.class);
     private static final long serialVersionUID = 3142828016264704546L;
     private  Map<byte[], byte[]> cfmap;
     private static  HBaseDataTypeEncoder encoder = new HBaseDataTypeEncoder() ;
@@ -58,6 +61,7 @@ public class Converter implements Serializable {
 
     public DataRow  convertTupleToDataRow(
             Tuple2<ImmutableBytesWritable, Result> tuple) {
+        try{
         cfmap = tuple._2.getFamilyMap(colFamily);
         DataRow dr = new DataRow() {
             {
@@ -94,7 +98,11 @@ public class Converter implements Serializable {
                 setInvest(getString("Invest"));
             }
         };
-        return dr;
+        return dr;}
+        catch (NullPointerException e){
+            LOGGER.info("column family not found ");
+            return null ;
+        }
     }
 
     public Put convertStringToPut(String key,String value){
