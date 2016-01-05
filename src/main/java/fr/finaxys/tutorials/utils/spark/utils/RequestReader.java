@@ -34,7 +34,7 @@ public class RequestReader {
             reader.close();
             LOGGER.info("request readed from "+filePath);
         } catch (IOException e) {
-            LOGGER.info("Not able to load properties from file. Trying to read "+filePath+" from hdfs. May be in MapReduce or Spark.");
+            LOGGER.info("Not able to load "+filePath+" from file. Trying to read "+filePath+" from hdfs. May be in MapReduce or Spark.");
             tryHDFS = true;
         }finally {
             if(reader !=null){
