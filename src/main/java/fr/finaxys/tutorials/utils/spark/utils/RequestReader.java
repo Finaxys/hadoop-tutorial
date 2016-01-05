@@ -1,10 +1,11 @@
 package fr.finaxys.tutorials.utils.spark.utils;
 
 import fr.finaxys.tutorials.utils.HadoopTutorialException;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
 
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 
 /**
  * Created by finaxys on 12/9/15.
@@ -24,6 +25,7 @@ public class RequestReader {
         String request = null ;
         File file = new File(filePath); //for ex foo.txt
         FileReader reader = null;
+        boolean tryHDFS = false;
         try {
             reader = new FileReader(file);
             char[] chars = new char[(int) file.length()];
@@ -32,9 +34,9 @@ public class RequestReader {
             reader.close();
             LOGGER.info("request readed from "+filePath);
         } catch (IOException e) {
-            LOGGER.severe("can't read request : "+e.getMessage());
-            throw new HadoopTutorialException() ;
-        } finally {
+            LOGGER.info("Not able to load properties from file. Trying to read "+filePath+" from hdfs. May be in MapReduce or Spark.");
+            tryHDFS = true;
+        }finally {
             if(reader !=null){
                 try {
                     reader.close();
@@ -43,6 +45,27 @@ public class RequestReader {
                 }
             }
         }
+        if (tryHDFS) {
+            try {
+                FileSystem fs = FileSystem.get(new Configuration()) ;
+                Path pt=new Path(filePath);
+                BufferedReader br=new BufferedReader(new InputStreamReader(fs.open(pt)));
+                String line;
+                StringBuffer buffer = new StringBuffer();
+                line=br.readLine();
+                while (line != null){
+                    buffer.append(line + "\n");
+                    line=br.readLine();
+                }
+                br.close();
+                request =  buffer.toString() ;
+                LOGGER.info("request readed from hdfs : " + filePath);
+            } catch (IOException ioe) {
+                LOGGER.info("Not able to load "+filePath+" from HDFS. ");
+                throw new HadoopTutorialException("could not load  "+filePath+" on file system or hdfs.");
+            }
+        }
+
         return request ;
     }
 
