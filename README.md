@@ -1,27 +1,5 @@
 # hadoop-tutorial
 
-### Finaxys nexus repository
-
-You'll need to modify the maven configuration file **setting.xml**, it must be in the bin folder of your maven installation.
-For example, *$M2_HOME/conf/setting.xml*
-
->```xml
-><?xml version="1.0" encoding="UTF-8"?>
->
-><settings xmlns="http://maven.apache.org/SETTINGS/1.0.0" 
->          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
->          xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 http://maven.apache.org/xsd/settings-1.0.0.xsd">
->  <mirrors>
->    <mirror>
->      <id>alm-mirror</id>
->      <mirrorOf>central</mirrorOf>
->      <name>ALM mirror</name>
->      <url>https://alm.finaxys.com:44313/nexus/content/groups/public/</url>
->    </mirror>
->  <mirrors>
-></settings>
->```	
-
 ### Patch your JDK
 
 Download the certificat: https://alm.finaxys.com/ALMsite/cacert.alm.finaxys.com.cer
