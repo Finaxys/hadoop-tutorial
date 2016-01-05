@@ -1,6 +1,6 @@
 # hadoop-tutorial
 
-### Dependencies
+### Finaxys nexus repository
 You'll need to modify the maven configuration file **setting.xml**, it must be in the bin folder of your maven installation.
 For example, */opt/apache-maven-3.2.1/bin/setting.xml*
 
