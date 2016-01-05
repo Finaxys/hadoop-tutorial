@@ -77,7 +77,6 @@ public class HBaseStreamingRequester implements Serializable{
 	   
        JavaReceiverInputDStream<DataRow> jrids = jssc
                .receiverStream(new EmptyReceiver(StorageLevel.MEMORY_ONLY()));
-       final Converter converter = new Converter(columnFamily);
        conf = HBaseConfiguration.create();
        conf.addResource(new Path(hbaseSitePath));
        conf.set(TableInputFormat.INPUT_TABLE, tableName);
@@ -112,6 +111,7 @@ public class HBaseStreamingRequester implements Serializable{
                                    public DataRow call(
                                            Tuple2<ImmutableBytesWritable, Result> tuple)
                                            throws Exception {
+                                       Converter converter = new Converter(columnFamily);
                                        DataRow dr = converter
                                                .convertTupleToDataRow(tuple);
                                        lastTS = tuple._2.getColumnLatestCell(Bytes.toBytes("cf"), Bytes.toBytes("Trace")).getTimestamp();

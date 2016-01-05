@@ -61,7 +61,7 @@ public class Converter implements Serializable {
 
     public DataRow  convertTupleToDataRow(
             Tuple2<ImmutableBytesWritable, Result> tuple) {
-        try{
+
         cfmap = tuple._2.getFamilyMap(colFamily);
         DataRow dr = new DataRow() {
             {
@@ -98,11 +98,7 @@ public class Converter implements Serializable {
                 setInvest(getString("Invest"));
             }
         };
-        return dr;}
-        catch (NullPointerException e){
-            LOGGER.info("column family not found ");
-            return null ;
-        }
+        return dr;
     }
 
     public Put convertStringToPut(String key,String value){
