@@ -10,12 +10,14 @@ For example, */M2_HOME/conf/setting.xml*
 ><settings xmlns="http://maven.apache.org/SETTINGS/1.0.0" 
 >          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
 >          xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 http://maven.apache.org/xsd/settings-1.0.0.xsd">
->  <mirror>
->    <id>alm-mirror</id>
->    <mirrorOf>central</mirrorOf>
->    <name>ALM mirror</name>
->    <url>https://alm.finaxys.com:44313/nexus/content/groups/public/</url>
->  </mirror>
+>  <mirrors>
+>    <mirror>
+>      <id>alm-mirror</id>
+>      <mirrorOf>central</mirrorOf>
+>      <name>ALM mirror</name>
+>      <url>https://alm.finaxys.com:44313/nexus/content/groups/public/</url>
+>    </mirror>
+>  <mirrors>
 ></settings>
 >```	
 
