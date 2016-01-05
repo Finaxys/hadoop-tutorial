@@ -2,7 +2,7 @@
 
 ### Finaxys nexus repository
 You'll need to modify the maven configuration file **setting.xml**, it must be in the bin folder of your maven installation.
-For example, */M2_HOME/conf/setting.xml*
+For example, *$M2_HOME/conf/setting.xml*
 
 >```xml
 ><?xml version="1.0" encoding="UTF-8"?>
@@ -27,7 +27,7 @@ Download the certificat: https://alm.finaxys.com/ALMsite/cacert.alm.finaxys.com.
 
 Add the previous certificat downloaded to your java trust store.
 >```ruby
->sudo keytool -importcert -file cacert.alm.finaxys.com.cer -keystore /JAVA_HOME/jre/lib/security/cacerts -trustcacerts
+>sudo keytool -importcert -file cacert.alm.finaxys.com.cer -keystore $JAVA_HOME/jre/lib/security/cacerts -trustcacerts
 >```
 
 ### Compile/Build project
