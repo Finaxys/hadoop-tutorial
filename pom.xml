@@ -7,7 +7,15 @@
   <version>0.2-SNAPSHOT</version>
   <name>hadoop-tutorial</name>
   <url>http://maven.apache.org</url>
-  
+
+  <repositories>
+          <repository>
+              <id>alm-finaxys</id>
+              <name>ALM Finaxys</name>
+              <url>https://alm.finaxys.com:44313/nexus/content/groups/public/</url>
+          </repository>
+  </repositories>
+
   <build>
     <plugins>
       <!-- any other plugins -->
