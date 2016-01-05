@@ -47,6 +47,7 @@ public class RequestReader {
         }
         if (tryHDFS) {
             try {
+                filePath="/"+filePath;
                 FileSystem fs = FileSystem.get(new Configuration()) ;
                 Path pt=new Path(filePath);
                 BufferedReader br=new BufferedReader(new InputStreamReader(fs.open(pt)));
