@@ -99,3 +99,9 @@ Add the previous certificat downloaded to your java trust store.
 
      $HADOOP_HOME/sbin/stop-yarn.sh
      $HADOOP_HOME/sbin/stop-dfs.sh
+    
+### ALM links
+
+Sonar - https://alm.finaxys.com:9000/
+Nexus -https://alm.finaxys.com:44313/nexus/index.html#welcome
+Jenkins - https://alm.finaxys.com:44312/job/hadoop-tutorial/
