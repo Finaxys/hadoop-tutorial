@@ -102,6 +102,6 @@ Add the previous certificat downloaded to your java trust store.
     
 ### ALM links
 
-Sonar - https://alm.finaxys.com:9000/
-Nexus -https://alm.finaxys.com:44313/nexus/index.html#welcome
-Jenkins - https://alm.finaxys.com:44312/job/hadoop-tutorial/
+* Sonar - https://alm.finaxys.com:9000/
+* Nexus -https://alm.finaxys.com:44313/nexus/index.html#welcome
+* Jenkins - https://alm.finaxys.com:44312/job/hadoop-tutorial/
