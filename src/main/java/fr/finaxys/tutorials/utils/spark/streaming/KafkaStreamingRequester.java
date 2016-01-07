@@ -42,6 +42,8 @@ public class KafkaStreamingRequester {
     private static byte[] columnFamily = atom.getColumnFamily();
 
     public static void main(String[] args){
+
+        //create SparkConfig and try to start local or distributed mode
         SparkConf sparkConf = new SparkConf().setAppName("kafkaStreaming");
         try{
             jsc = new JavaSparkContext(sparkConf);
@@ -53,35 +55,21 @@ public class KafkaStreamingRequester {
         }
         JavaStreamingContext jssc = new JavaStreamingContext(jsc,
                 Durations.seconds(2));
+
+        //create kafka receiver
         Map<String, Integer> topics  = new HashMap<>();
         topics.put(kafkaTopic,new Integer(1));
         JavaPairReceiverInputDStream<String, String> kafkaStream = KafkaUtils.createStream(jssc,kafkaQuorum,"groupid",topics);
 
+        // persist collected data
         kafkaStream.foreachRDD(new Function<JavaPairRDD<String, String>, Void>() {
 
             private static final long serialVersionUID = -6487126638165154032L;
 
             @Override
             public Void call(JavaPairRDD<String, String> rdd) throws Exception {
+                // log data count
                 LOGGER.info("data count = "+rdd.count());
-                rdd.map(new Function<Tuple2<String,String>, Object>() {
-                    @Override
-                    public Put call(Tuple2<String, String> data) throws Exception {
-                        return null;
-                    }
-                });
-                return null;
-            }
-        });
-
-
-        kafkaStream.foreachRDD(new Function<JavaPairRDD<String, String>, Void>() {
-
-            private static final long serialVersionUID = -6487126638165154032L;
-
-            @Override
-            public Void call(JavaPairRDD<String, String> rdd) throws Exception {
-
                 // create connection with HBase
                 final Configuration config = new Configuration();
                 try {
@@ -94,6 +82,7 @@ public class KafkaStreamingRequester {
                     LOGGER.error("HBase is not running!" + e.getMessage());
                     throw new HadoopTutorialException(e.getMessage());
                 }
+                config.set(TableInputFormat.INPUT_TABLE, tableName);
                 config.set(TableInputFormat.INPUT_TABLE, tableName);
 
                 final Job newAPIJobConfiguration1 ;
@@ -123,6 +112,7 @@ public class KafkaStreamingRequester {
             }
         });
 
+        //start spark streaming
         jssc.start();
         jssc.awaitTermination();
     }

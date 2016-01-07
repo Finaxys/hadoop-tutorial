@@ -1,8 +1,6 @@
 package fr.finaxys.tutorials.utils;
 
 public class HadoopTutorialException extends RuntimeException {
-	
-	private static final long serialVersionUID = 6811954454103190812L;
 
 	public HadoopTutorialException() {
 		super();
