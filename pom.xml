@@ -7,13 +7,13 @@
   <version>0.2-SNAPSHOT</version>
   <name>hadoop-tutorial</name>
   <url>http://maven.apache.org</url>
-  <repositories>
+  <!-- <repositories>
           <repository>
               <id>alm-mirror</id>
               <name>ALM mirror</name>
               <url>https://alm.finaxys.com:44313/nexus/content/groups/public/</url>
           </repository>
-  </repositories>
+  </repositories> -->
   <build>
     <plugins>
       <!-- any other plugins -->
@@ -106,11 +106,18 @@
 		<artifactId>log4j-core</artifactId>
 		<version>${log4j.version}</version>
 	</dependency>
-      <dependency>
+	<dependency>
+	         <groupId>atom</groupId>
+	         <artifactId>atom</artifactId>
+	         <version>1.0</version>
+	         <scope>system</scope>
+	         <systemPath>${project.basedir}/atom.jar</systemPath>
+	     </dependency>
+      <!-- <dependency>
           <groupId>atom</groupId>
           <artifactId>atom</artifactId>
           <version>1.0</version>
-      </dependency>
+      </dependency> -->
 	<!-- hadoop -->
     <dependency>
         <groupId>org.apache.hadoop</groupId>
