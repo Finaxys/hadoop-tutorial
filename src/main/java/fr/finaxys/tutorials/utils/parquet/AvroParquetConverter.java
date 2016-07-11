@@ -94,7 +94,7 @@ public class AvroParquetConverter extends Configured implements Tool {
         String[] otherArgs = {getAvroHDFSDest(), getParquetHDFSDest()} ;
         boolean success = false;
         try {
-            ToolRunner.run(new AvroParquetConverter(this.configuration), otherArgs);
+            ToolRunner.run(this, /*new AvroParquetConverter(this.configuration),*/ otherArgs);
             success = true;
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Can't run map reduce job", e);
