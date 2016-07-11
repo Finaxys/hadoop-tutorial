@@ -5,9 +5,7 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.hbase.util.Bytes;
 
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -490,4 +488,18 @@ public class AtomConfiguration {
     public void setKafkaQuorum(String kafkaQuorum) {
         this.kafkaQuorum = kafkaQuorum;
     }
+
+
+
+
+	public boolean check_hadoopConfCore_fileExists() {
+			return new File(hadoopConfCore).isFile();
+	}
+	public boolean check_hadoopConfHdfs_fileExists() {
+		return new File(hadoopConfHdfs).isFile();
+	}
+	public boolean check_hbaseConfHbase_fileExists() {
+		return new File(hbaseConfHbase).isFile();
+	}
+
 }

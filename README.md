@@ -1,24 +1,67 @@
 # hadoop-tutorial
 
-### Patch your JDK
 
-Download the certificat: https://alm.finaxys.com/ALMsite/cacert.alm.finaxys.com.cer
 
-Add the previous certificat downloaded to your java trust store.
->```ruby
->sudo keytool -importcert -file cacert.alm.finaxys.com.cer -keystore $JAVA_HOME/jre/lib/security/cacerts -trustcacerts
->```
+### Adding Atom 
+
+Manually add atom.jar to the project directory once you've pulled it from github.
+You can download it [here](http://atom.univ-lille1.fr/atom.zip) : unzip the archive and move the atom.jar to the project directory.
+
+
+
+~~Patch your JDK~~
+
+~~Download the certificat: https://alm.finaxys.com/ALMsite/cacert.alm.finaxys.com.cer~~
+
+~~Add the previous certificat downloaded to your java trust store.~~
+
+```ruby
+# sudo keytool -importcert -file cacert.alm.finaxys.com.cer -keystore $JAVA_HOME/jre/lib/security/cacerts -trustcacerts
+```
+
+
 
 ### Compile/Build project
+Run the command in the project directory.
+You need to have maven and java installed.
 
     mvn clean compile package
+
+
+**From this point, you will need to install what you choose to use : Hadoop, Hbase, Avro, Kafka, ...**
+
+
+
+### Installations required to run the project
+
+* Hadoop
+* Hbase
+* Zookeeper
+
+
+
     
 ### Generate Atom files simulation into AtomLogs/*
-    ./atom-generate.sh
-	-- Update properties.txt to generate more (or less) data
-	-- You can look at atom-example.txt for sample file format
 
-	-- Update log4j2.xml to change output directory and rolling file strategy
+    -- Update properties.txt to generate more (or less) data
+        -- You can look at atom-example.txt for sample file format
+    
+    -- Update properties.txt to set your outpu choices
+        -- By default, the output is set to false for all 4 possible choices (local file, kafka, hbase, avro) : set to true the outputs you want to enable.
+    	
+    
+    -- Update properties.txt to set the path to the config files for hadoop and hbase
+        -- Depending on your OS and your installation, the path to the files can change
+        -- Here is the name of the files needed :
+            - hadoop.conf.core : the conf file is core-site.xml
+            - hadoop.conf.hdfs : the conf file is hdfs-site.xml
+            - hbase.conf.hbase : the conf file is hbase-site.xml
+    
+    -- Update log4j2.xml to change output directory and rolling file strategy
+    
+    
+    Finally, you can run the command :
+    ./atom-generate.sh
 	
 ### If Hadoop has not been setup and started
 
@@ -28,7 +71,8 @@ Add the previous certificat downloaded to your java trust store.
 ### To check that hadoop is up and running
 
 	Web Interface - http://localhost:50070
-	With $> Jps 
+	
+	-- With the Jps command in your terminal that should give this sort of output
 	6262 DataNode
 	6366 SecondaryNameNode
 	6182 NameNode

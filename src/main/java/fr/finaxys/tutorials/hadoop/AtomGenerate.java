@@ -53,6 +53,11 @@ public class AtomGenerate {
 		List<AtomDataInjector> injectors = new ArrayList<AtomDataInjector>();
 		try {
 			if (parseArgs.contains("-hbase") || atomConf.isOutHbase()) {
+				if ( !(atomConf.check_hadoopConfCore_fileExists()
+						&& atomConf.check_hadoopConfHdfs_fileExists()
+						&& atomConf.check_hbaseConfHbase_fileExists() )) {
+					throw new HadoopTutorialException("Path to hadoop and hbase files in properties.txt is incorrect !");
+				}
 				injectors.add(new SimpleHBaseInjector(atomConf));
 			}
 			if (parseArgs.contains("-avro") || atomConf.isOutAvro()) {
