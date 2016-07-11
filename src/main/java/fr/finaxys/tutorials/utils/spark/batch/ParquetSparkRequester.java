@@ -61,6 +61,8 @@ public class ParquetSparkRequester implements Serializable {
         SQLContext sqlContext = new SQLContext(sc);
         DataFrame df = sqlContext.read().load(conf.get("fs.default.name")+"/"+parquetHDFSDest);
         df.registerTempTable("records");
+        //SELECT Order.ObName as OrderBook , SUM(order.Quantity) as TotalQuantity FROM records where type='Order' 
+        	// GROUP BY Order.ObName ORDER BY TotalQuantity DESC
         DataFrame df2 = sqlContext.sql(request);
         df2.show(1000);
         Row[] result = df2.collect();
