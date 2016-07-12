@@ -79,6 +79,34 @@ You need to have maven and java installed.
 	3073 
 	6802 Jps
 	
+### Configuring Hbase (specifically zookeeper) if connection is refused
+
+Here is the error that might occur : 
+
+```
+zookeeper.ClientCnxn: Session 0x0 for server null, unexpected error, closing socket connection and attempting reconnect
+java.net.ConnectException: Connection refused
+	at sun.nio.ch.SocketChannelImpl.checkConnect(Native Method)
+	at sun.nio.ch.SocketChannelImpl.finishConnect(SocketChannelImpl.java:717)
+	at org.apache.zookeeper.ClientCnxnSocketNIO.doTransport(ClientCnxnSocketNIO.java:361)
+	at org.apache.zookeeper.ClientCnxn$SendThread.run(ClientCnxn.java:1081)
+```
+
+To solve this, you need to add a property to your Hbase configuration file.
+The file to edit is hbase-site.xml in your installation folder and you need to add this property :
+
+```xml
+<property>
+    <name>hbase.zookeeper.quorum</name>
+    <value>your_hostname.local</value>
+</property>
+```
+
+Replace "your_hostname" by your real host name (type hostname in a terminal to have it).
+
+More information [here](http://stackoverflow.com/questions/10188889/hbase-connection-refused).
+
+	
 ### Create working directories on HDFS
 
     $HADOOP_HOME/bin/hdfs dfs -mkdir /user/
