@@ -492,13 +492,13 @@ public class AtomConfiguration {
 
 
 
-	public boolean check_hadoopConfCore_fileExists() {
-			return new File(hadoopConfCore).isFile();
+	public boolean checkHadoopConfCoreFileExists() {
+		return new File(hadoopConfCore).isFile();
 	}
-	public boolean check_hadoopConfHdfs_fileExists() {
+	public boolean checkHadoopConfHdfsFileExists() {
 		return new File(hadoopConfHdfs).isFile();
 	}
-	public boolean check_hbaseConfHbase_fileExists() {
+	public boolean checkHbaseConfHbaseFileExists() {
 		return new File(hbaseConfHbase).isFile();
 	}
 
