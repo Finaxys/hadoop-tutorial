@@ -50,34 +50,17 @@ public class AtomGenerate {
 
 		// Create simulator with custom logger
 
-		List<AtomDataInjector> injectors = new ArrayList<AtomDataInjector>();
+		List<AtomDataInjector> injectors;
 		try {
-			if (parseArgs.contains("-hbase") || atomConf.isOutHbase()) {
-				if ( !(atomConf.check_hadoopConfCore_fileExists()
-						&& atomConf.check_hadoopConfHdfs_fileExists()
-						&& atomConf.check_hbaseConfHbase_fileExists() )) {
-					throw new HadoopTutorialException("Path to hadoop and hbase files in properties.txt is incorrect !");
-				}
-				injectors.add(new SimpleHBaseInjector(atomConf));
-			}
-			if (parseArgs.contains("-avro") || atomConf.isOutAvro()) {
-				// String avroHDFSDest, int dayGap, String hadoopConfCore, String hadoopConfHdfs
-				injectors.add(new AvroInjector(atomConf.getAvroHDFSDest(), atomConf.getDayGap(), atomConf.getHadoopConfCore(), atomConf.getHadoopConfHdfs()));
-			}
-			if (parseArgs.contains("-file") || atomConf.isOutFile()) {
-				PrintStream out = new PrintStream(new LoggerStream(
-						LogManager.getLogger("atom"), Level.INFO));
-				injectors.add(new FileDataInjector(out)); // new
-															// AtomLogger(atomConf);
-			}
-            if (parseArgs.contains("-kafka") || atomConf.isOutKafka()) {
-                injectors.add(new KafkaInjector(atomConf));
-            }
-
+			injectors = initInjectors(parseArgs);
+		} catch (HadoopTutorialException e) {
+			LOGGER.log(Level.ERROR, "Error when creating injectors in AtomGenerate.main()", e);
+			return;
 		} catch (Exception e) {
 			LOGGER.log(Level.ERROR, "Could not instantiate logger", e);
 			return;
 		}
+
 		if (injectors.isEmpty()) {
 			throw new HadoopTutorialException("No output define");
 		}
@@ -145,5 +128,29 @@ public class AtomGenerate {
 			LOGGER.log(Level.ERROR, "Agents/Orderbooks not set");
 			throw new HadoopTutorialException("agents or orderbooks not set");
 		}
+	}
+
+
+	private static List<AtomDataInjector> initInjectors(List<String> parseArgs) {
+		List<AtomDataInjector> injectors = new ArrayList<AtomDataInjector>();
+
+		if (parseArgs.contains("-hbase") || atomConf.isOutHbase()) {
+			injectors.add(new SimpleHBaseInjector(atomConf));
+		}
+		if (parseArgs.contains("-avro") || atomConf.isOutAvro()) {
+			// String avroHDFSDest, int dayGap, String hadoopConfCore, String hadoopConfHdfs
+			injectors.add(new AvroInjector(atomConf.getAvroHDFSDest(), atomConf.getDayGap(), atomConf.getHadoopConfCore(), atomConf.getHadoopConfHdfs()));
+		}
+		if (parseArgs.contains("-file") || atomConf.isOutFile()) {
+			PrintStream out = new PrintStream(new LoggerStream(
+					LogManager.getLogger("atom"), Level.INFO));
+			injectors.add(new FileDataInjector(out)); // new
+			// AtomLogger(atomConf);
+		}
+		if (parseArgs.contains("-kafka") || atomConf.isOutKafka()) {
+			injectors.add(new KafkaInjector(atomConf));
+		}
+
+		return injectors;
 	}
 }

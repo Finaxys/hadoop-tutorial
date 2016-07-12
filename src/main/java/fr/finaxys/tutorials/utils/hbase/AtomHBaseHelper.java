@@ -284,6 +284,14 @@ public abstract class AtomHBaseHelper {
 			// File(atomConf.getHadoopConfCore()).getAbsoluteFile().toURI().toURL());
 			conf.addResource(new File(atomConf.getHbaseConfHbase())
 					.getAbsoluteFile().toURI().toURL());
+
+			/* HadoopTutorialException will be caught in AtomGenerate.main() when hbase injector
+				(of type SimpleHBaseInjector) will be instantiated */
+			if (! atomConf.checkHbaseConfHbaseFileExists()) { // TODO implement unit test
+				throw new HadoopTutorialException("Path to hbase config file in properties.txt is incorrect !");
+			}
+
+
 			// conf.addResource(new
 			// File(atomConf.getHadoopConfHdfs()).getAbsoluteFile().toURI().toURL());
 		} catch (MalformedURLException e) {
