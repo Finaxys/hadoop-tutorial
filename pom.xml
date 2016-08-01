@@ -1,343 +1,446 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-  <modelVersion>4.0.0</modelVersion>
-  <groupId>fr.finaxys</groupId>
-  <artifactId>hadoop-tutorial</artifactId>
-  <packaging>jar</packaging>
-  <version>0.2-SNAPSHOT</version>
-  <name>hadoop-tutorial</name>
-  <url>http://maven.apache.org</url>
-  <!-- <repositories>
-          <repository>
-              <id>alm-mirror</id>
-              <name>ALM mirror</name>
-              <url>https://alm.finaxys.com:44313/nexus/content/groups/public/</url>
-          </repository>
-  </repositories> -->
-  <build>
-    <plugins>
-      <!-- any other plugins -->
-        <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-surefire-plugin</artifactId>
-            <version>2.9</version>
-            <configuration>
-                <argLine>-XX:MaxPermSize=1024m</argLine>
-            </configuration>
-        </plugin>
-	  <plugin>
-	          <groupId>org.apache.maven.plugins</groupId>
-	          <artifactId>maven-compiler-plugin</artifactId>
-	          <version>3.2</version>
-	          <configuration>
-	            <source>1.7</source>
-	            <target>1.7</target>
-	          </configuration>
-	        </plugin>
-      <plugin>
-        <artifactId>maven-assembly-plugin</artifactId>
-        <executions>
-          <execution>
-            <phase>package</phase>
-            <goals>
-              <goal>single</goal>
-            </goals>
-          </execution>
-        </executions>
-        <configuration>
-          <descriptorRefs>
-            <descriptorRef>jar-with-dependencies</descriptorRef>
-          </descriptorRefs>
-        </configuration>
-      </plugin>
-	  <plugin>
-	      <groupId>org.apache.maven.plugins</groupId>
-	      <artifactId>maven-shade-plugin</artifactId>
-	      <version>2.1</version>
-	      <executions>
-	          <execution>
-	              <phase>package</phase>
-	              <goals>
-	                  <goal>shade</goal>
-	              </goals>
-	              <configuration>
-	                  <transformers>
-	                      <transformer implementation = "org.apache.maven.plugins.shade.resource.ApacheLicenseResourceTransformer"/>
-	                  </transformers>
-                      <!-- Uncomment if you have errors similar to issues #7 and #8
-                      <filters>
-                          <filter>
-                              <artifact>*:*</artifact>
-                              <excludes>
-                                  This 3 lines are for issue #7 (comment this line)
-                                  <exclude>META-INF/*.SF</exclude>
-                                  <exclude>META-INF/*.DSA</exclude>
-                                  <exclude>META-INF/*.RSA</exclude>
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>fr.finaxys</groupId>
+    <artifactId>hadoop-tutorial</artifactId>
+    <packaging>jar</packaging>
+    <version>0.2-SNAPSHOT</version>
+    <name>hadoop-tutorial</name>
+    <url>http://maven.apache.org</url>
+    <!-- <repositories>
+            <repository>
+                <id>alm-mirror</id>
+                <name>ALM mirror</name>
+                <url>https://alm.finaxys.com:44313/nexus/content/groups/public/</url>
+            </repository>
+    </repositories> -->
 
-                                  This 2 lines are for issue #8 (comment this line)
-                                  <exclude>META-INF/LICENSE*</exclude>
-                                  <exclude>license/*</exclude>
-                              </excludes>
-                          </filter>
-                      </filters>
-                      -->
-	              </configuration>
-	          </execution>
-	      </executions>
-	  </plugin>
-    </plugins>
-  </build>
-   <properties>
-  	 <junit.version>4.11</junit.version>
-  	 <log4j.version>2.3</log4j.version>
-  	 <hadoop.version>2.7.1</hadoop.version>
-     <parquet.version>1.7.0</parquet.version>
-  	 <hbase.version>1.1.2</hbase.version>
-  	 <testng.version>6.4</testng.version>
-     <spark.version>1.5.2</spark.version>
-     <avro.version>1.7.7</avro.version>
-     <kafka-version>0.8.2.2</kafka-version>
-  	 <mockito-all.version>1.10.8</mockito-all.version>
-  	 <protobuf.version>2.5.0</protobuf.version>
-   </properties>
-  <dependencies>
-      <dependency>
-          <groupId>javax.servlet</groupId>
-          <artifactId>javax.servlet-api</artifactId>
-          <version>3.1.0</version>
-      </dependency>
-      <!--<dependency>
-        <groupId>junit</groupId>
-        <artifactId>junit</artifactId>
-        <version>3.8.1</version>
-        <scope>test</scope>
-      </dependency>-->
-	<dependency>
-	    <groupId>org.apache.logging.log4j</groupId>
-	    <artifactId>log4j-api</artifactId>
-	    <version>${log4j.version}</version>
-	  </dependency>
-	<dependency>
-		<groupId>org.apache.logging.log4j</groupId>
-		<artifactId>log4j-core</artifactId>
-		<version>${log4j.version}</version>
-	</dependency>
-	<dependency>
-	         <groupId>atom</groupId>
-	         <artifactId>atom</artifactId>
-	         <version>1.0</version>
-	         <scope>system</scope>
-	         <systemPath>${project.basedir}/atom.jar</systemPath>
-	     </dependency>
-      <!-- <dependency>
-          <groupId>atom</groupId>
-          <artifactId>atom</artifactId>
-          <version>1.0</version>
-      </dependency> -->
-	<!-- hadoop -->
-    <dependency>
-        <groupId>org.apache.hadoop</groupId>
-        <artifactId>hadoop-common</artifactId>
-        <version>${hadoop.version}</version>
-    </dependency>
-      <dependency>
-          <groupId>org.apache.hadoop</groupId>
-          <artifactId>hadoop-hdfs</artifactId>
-          <version>${hadoop.version}</version>
-          <scope>test</scope>
-          <type>test-jar</type>
-      </dependency>
-    <dependency>
-        <groupId>org.apache.hadoop</groupId>
-        <artifactId>hadoop-hdfs</artifactId>
-        <version>${hadoop.version}</version>
-    </dependency>
-	<!-- yarn -->
-	<dependency>
-        <groupId>org.apache.hadoop</groupId>
-        <artifactId>hadoop-yarn-api</artifactId>
-        <version>${hadoop.version}</version>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.hadoop</groupId>
-        <artifactId>hadoop-yarn-common</artifactId>
-        <version>${hadoop.version}</version>
-    </dependency>
-   <!-- <dependency>
-        <groupId>org.apache.hadoop</groupId>
-        <artifactId>hadoop-yarn-client</artifactId>
-        <version>${hadoop.version}</version>
-    </dependency>-->
-    <dependency>
-        <groupId>org.apache.hadoop</groupId>
-        <artifactId>hadoop-yarn-server-common</artifactId>
-        <version>${hadoop.version}</version>
-    </dependency>
-    <!-- map reduce -->
-    <dependency>
-        <groupId>org.apache.hadoop</groupId>
-        <artifactId>hadoop-mapreduce-client-common</artifactId>
-        <version>${hadoop.version}</version>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.hadoop</groupId>
-        <artifactId>hadoop-mapreduce-client-jobclient</artifactId>
-        <version>${hadoop.version}</version>
-    </dependency>
-    <!-- hbase -->
-    <dependency>
-      <groupId>org.apache.hbase</groupId>
-      <artifactId>hbase-server</artifactId>
-       <version>${hbase.version}</version>
-    </dependency>
-    <dependency>
-    	<groupId>org.apache.hbase</groupId>
-    	<artifactId>hbase-client</artifactId>
-    	<version>${hbase.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>com.google.protobuf</groupId>
-      <artifactId>protobuf-java</artifactId>
-      <version>${protobuf.version}</version>
-    </dependency>
-     <dependency>
-        <groupId>org.apache.hbase</groupId>
-        <artifactId>hbase-testing-util</artifactId>
-        <scope>test</scope>
-        <version>${hbase.version}</version>
-    </dependency>
-    <dependency>
-        <groupId>org.mockito</groupId>
-        <artifactId>mockito-all</artifactId>
-        <version>${mockito-all.version}</version>
-        <scope>test</scope>
-      </dependency>
-    <!--<dependency>
-            <groupId>org.testng</groupId>
-            <artifactId>testng</artifactId>
-            <version>${testng.version}</version>
-            <scope>test</scope>
-        </dependency>-->
-     <dependency>
-        <groupId>junit</groupId>
-        <artifactId>junit</artifactId>
-        <version>${junit.version}</version>
-        <scope>test</scope>
-      </dependency>
-      <dependency>
-        <groupId>com.tngtech.java</groupId>
-        <artifactId>junit-dataprovider</artifactId>
-        <version>1.10.2</version>
-        <scope>test</scope>
-      </dependency>
-      <dependency>
-          <groupId>org.apache.avro</groupId>
-          <artifactId>avro-mapred</artifactId>
-          <version>${avro.version}</version>
-           <classifier>hadoop2</classifier>
-      </dependency>
-      <dependency>
-          <groupId>org.apache.avro</groupId>
-          <artifactId>avro-tools</artifactId>
-          <version>${avro.version}</version>
-      </dependency>
-      <dependency>
-          <groupId>org.apache.parquet</groupId>
-          <artifactId>parquet-avro</artifactId>
-          <version>${parquet.version}</version>
-      </dependency>
-      <dependency>
-          <groupId>org.apache.parquet</groupId>
-          <artifactId>parquet-column</artifactId>
-          <version>${parquet.version}</version>
-      </dependency>
-      <dependency>
-          <groupId>org.apache.parquet</groupId>
-          <artifactId>parquet-hadoop</artifactId>
-          <version>${parquet.version}</version>
-      </dependency>
-      <dependency> <!-- Spark dependency -->
-          <groupId>org.apache.spark</groupId>
-          <artifactId>spark-core_2.10</artifactId>
-          <version>${spark.version}</version>
-          <exclusions>
-              <exclusion>
-                  <groupId>org.eclipse.jetty.orbit</groupId>
-                  <artifactId>javax.servlet</artifactId>
-              </exclusion>
-          </exclusions>
-      </dependency>
-      <dependency>
-          <groupId>org.apache.spark</groupId>
-          <artifactId>spark-streaming_2.10</artifactId>
-          <version>${spark.version}</version>
-      </dependency>
-      <dependency>
-          <groupId>org.apache.spark</groupId>
-          <artifactId>spark-sql_2.10</artifactId>
-          <version>${spark.version}</version>
-      </dependency>
-      <dependency>
-          <groupId>org.apache.spark</groupId>
-          <artifactId>spark-streaming-kafka_2.10</artifactId>
-          <version>${spark.version}</version>
-      </dependency>
-      <!--kafka -->
-      <dependency>
-          <groupId>org.apache.kafka</groupId>
-          <artifactId>kafka_2.10</artifactId>
-          <version>${kafka-version}</version>
-      </dependency>
-      <dependency>
-          <groupId>org.apache.kafka</groupId>
-          <artifactId>kafka_2.10</artifactId>
-          <version>${kafka-version}</version>
-          <classifier>test</classifier>
-      </dependency>
-      <dependency>
-          <groupId>org.apache.kafka</groupId>
-          <artifactId>kafka-clients</artifactId>
-          <version>${kafka-version}</version>
-      </dependency>
-  </dependencies>
-  <profiles>
-  <profile>
-      <id>compile-protobuf</id>
-      <activation>
-        <property>
-          <name>compile-protobuf</name>
-        </property>
-      </activation>
-      <build>
+
+
+
+
+    <build>
         <plugins>
-          <plugin>
-            <groupId>org.apache.hadoop</groupId>
-            <artifactId>hadoop-maven-plugins</artifactId>
-            <executions>
-              <execution>
-                <id>compile-protoc</id>
-                <phase>generate-sources</phase>
-                <goals>
-                  <goal>protoc</goal>
-                </goals>
+            <!-- any other plugins -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.9</version>
                 <configuration>
-                  <imports>
-                    <param>${basedir}/src/main/protobuf</param>
-                    <!--<param>${basedir}/../hbase-protocol/src/main/protobuf</param>-->
-                  </imports>
-                  <source>
-                    <directory>${basedir}/src/main/protobuf</directory>
-                    <includes>
-                      <include>Examples.proto</include>
-                    </includes>
-                  </source>
-                  <output>${basedir}/src/main/java/</output>
+                    <argLine>-XX:MaxPermSize=1024m</argLine>
                 </configuration>
-              </execution>
-            </executions>
-          </plugin>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.2</version>
+                <configuration>
+                    <source>1.7</source>
+                    <target>1.7</target>
+                </configuration>
+            </plugin>
+            <plugin>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <descriptorRefs>
+                        <descriptorRef>jar-with-dependencies</descriptorRef>
+                    </descriptorRefs>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>2.1</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <transformers>
+                                <transformer implementation = "org.apache.maven.plugins.shade.resource.ApacheLicenseResourceTransformer"/>
+                            </transformers>
+                            <!--Uncomment if you have errors similar to issues #7 and #8-->
+                            <filters>
+                                <filter>
+                                    <artifact>*:*</artifact>
+                                    <excludes>
+                                        <!--This 3 lines are for issue #7 (comment this line)-->
+                                        <exclude>META-INF/*.SF</exclude>
+                                        <exclude>META-INF/*.DSA</exclude>
+                                        <exclude>META-INF/*.RSA</exclude>
+
+                                        <!--This 2 lines are for issue #8 (comment this line)-->
+                                        <exclude>META-INF/LICENSE*</exclude>
+                                        <exclude>license/*</exclude>
+                                    </excludes>
+                                </filter>
+                            </filters>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
-      </build>
-    </profile>
-  </profiles>
+    </build>
+
+
+
+
+
+
+
+
+
+
+    <properties>
+        <junit.version>4.11</junit.version>
+        <log4j.version>2.3</log4j.version>
+        <hadoop.version>2.7.1</hadoop.version> <!-- initial = 2.7.1-->
+        <parquet.version>1.7.0</parquet.version>
+        <hbase.version>1.1.2</hbase.version>
+        <testng.version>6.4</testng.version>
+        <spark.version>1.5.2</spark.version>
+        <avro.version>1.7.7</avro.version>
+        <kafka-version>0.8.2.2</kafka-version> <!-- initial = 0.8.2.2-->
+        <mockito-all.version>1.10.8</mockito-all.version>
+        <protobuf.version>2.5.0</protobuf.version>
+        <flink.version>1.0.3</flink.version> <!-- works with 1.0.3-hadoop1 but why ??? -->
+    </properties>
+
+
+
+
+
+
+
+
+    <dependencies>
+
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
+            <version>3.1.0</version>
+        </dependency>
+
+        <!--<dependency>
+          <groupId>junit</groupId>
+          <artifactId>junit</artifactId>
+          <version>3.8.1</version>
+          <scope>test</scope>
+        </dependency>-->
+
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-api</artifactId>
+            <version>${log4j.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-core</artifactId>
+            <version>${log4j.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>atom</groupId>
+            <artifactId>atom</artifactId>
+            <version>1.0</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/atom.jar</systemPath>
+        </dependency>
+
+        <!-- <dependency>
+            <groupId>atom</groupId>
+            <artifactId>atom</artifactId>
+            <version>1.0</version>
+        </dependency> -->
+
+
+
+        <!-- hadoop -->
+        <dependency>
+            <groupId>org.apache.hadoop</groupId>
+            <artifactId>hadoop-common</artifactId>
+            <version>${hadoop.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.hadoop</groupId>
+            <artifactId>hadoop-hdfs</artifactId>
+            <version>${hadoop.version}</version>
+            <scope>test</scope>
+            <type>test-jar</type>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.hadoop</groupId>
+            <artifactId>hadoop-hdfs</artifactId>
+            <version>${hadoop.version}</version>
+        </dependency>
+
+
+
+        <!-- yarn -->
+        <dependency>
+            <groupId>org.apache.hadoop</groupId>
+            <artifactId>hadoop-yarn-api</artifactId>
+            <version>${hadoop.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.hadoop</groupId>
+            <artifactId>hadoop-yarn-common</artifactId>
+            <version>${hadoop.version}</version>
+        </dependency>
+
+        <!-- <dependency>
+             <groupId>org.apache.hadoop</groupId>
+             <artifactId>hadoop-yarn-client</artifactId>
+             <version>${hadoop.version}</version>
+         </dependency>-->
+
+        <dependency>
+            <groupId>org.apache.hadoop</groupId>
+            <artifactId>hadoop-yarn-server-common</artifactId>
+            <version>${hadoop.version}</version>
+        </dependency>
+
+
+
+        <!-- map reduce -->
+        <dependency>
+            <groupId>org.apache.hadoop</groupId>
+            <artifactId>hadoop-mapreduce-client-common</artifactId>
+            <version>${hadoop.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.hadoop</groupId>
+            <artifactId>hadoop-mapreduce-client-jobclient</artifactId>
+            <version>${hadoop.version}</version>
+        </dependency>
+
+
+
+        <!-- hbase -->
+        <dependency>
+            <groupId>org.apache.hbase</groupId>
+            <artifactId>hbase-server</artifactId>
+            <version>${hbase.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.hbase</groupId>
+            <artifactId>hbase-client</artifactId>
+            <version>${hbase.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.google.protobuf</groupId>
+            <artifactId>protobuf-java</artifactId>
+            <version>${protobuf.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.hbase</groupId>
+            <artifactId>hbase-testing-util</artifactId>
+            <scope>test</scope>
+            <version>${hbase.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-all</artifactId>
+            <version>${mockito-all.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!--<dependency>
+                <groupId>org.testng</groupId>
+                <artifactId>testng</artifactId>
+                <version>${testng.version}</version>
+                <scope>test</scope>
+            </dependency>-->
+
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>${junit.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.tngtech.java</groupId>
+            <artifactId>junit-dataprovider</artifactId>
+            <version>1.10.2</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.avro</groupId>
+            <artifactId>avro-mapred</artifactId>
+            <version>${avro.version}</version>
+            <classifier>hadoop2</classifier>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.avro</groupId>
+            <artifactId>avro-tools</artifactId>
+            <version>${avro.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.parquet</groupId>
+            <artifactId>parquet-avro</artifactId>
+            <version>${parquet.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.parquet</groupId>
+            <artifactId>parquet-column</artifactId>
+            <version>${parquet.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.parquet</groupId>
+            <artifactId>parquet-hadoop</artifactId>
+            <version>${parquet.version}</version>
+        </dependency>
+
+        <dependency> <!-- Spark dependency -->
+            <groupId>org.apache.spark</groupId>
+            <artifactId>spark-core_2.10</artifactId>
+            <version>${spark.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.eclipse.jetty.orbit</groupId>
+                    <artifactId>javax.servlet</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.spark</groupId>
+            <artifactId>spark-streaming_2.10</artifactId>
+            <version>${spark.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.spark</groupId>
+            <artifactId>spark-sql_2.10</artifactId>
+            <version>${spark.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.spark</groupId>
+            <artifactId>spark-streaming-kafka_2.10</artifactId>
+            <version>${spark.version}</version>
+        </dependency>
+
+
+
+
+        <!--kafka -->
+        <dependency>
+            <groupId>org.apache.kafka</groupId>
+            <artifactId>kafka_2.10</artifactId>
+            <version>${kafka-version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.kafka</groupId>
+            <artifactId>kafka_2.10</artifactId>
+            <version>${kafka-version}</version>
+            <classifier>test</classifier>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.kafka</groupId>
+            <artifactId>kafka-clients</artifactId>
+            <version>${kafka-version}</version>
+        </dependency>
+
+
+
+        <!-- Flink -->
+
+
+        <dependency>
+            <groupId>org.apache.flink</groupId>
+            <artifactId>flink-java</artifactId>
+            <version>${flink.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.flink</groupId>
+            <artifactId>flink-streaming-java_2.10</artifactId>
+            <version>${flink.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.flink</groupId>
+            <artifactId>flink-clients_2.10</artifactId>
+            <version>${flink.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.flink</groupId>
+            <artifactId>flink-connector-kafka-0.9_2.10</artifactId>
+            <version>1.0.3</version>
+        </dependency>
+
+
+    </dependencies>
+
+
+
+    <profiles>
+        <profile>
+            <id>compile-protobuf</id>
+            <activation>
+                <property>
+                    <name>compile-protobuf</name>
+                </property>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.hadoop</groupId>
+                        <artifactId>hadoop-maven-plugins</artifactId>
+                        <executions>
+                            <execution>
+                                <id>compile-protoc</id>
+                                <phase>generate-sources</phase>
+                                <goals>
+                                    <goal>protoc</goal>
+                                </goals>
+                                <configuration>
+                                    <imports>
+                                        <param>${basedir}/src/main/protobuf</param>
+                                        <!--<param>${basedir}/../hbase-protocol/src/main/protobuf</param>-->
+                                    </imports>
+                                    <source>
+                                        <directory>${basedir}/src/main/protobuf</directory>
+                                        <includes>
+                                            <include>Examples.proto</include>
+                                        </includes>
+                                    </source>
+                                    <output>${basedir}/src/main/java/</output>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>
