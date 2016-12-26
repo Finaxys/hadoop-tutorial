@@ -45,10 +45,12 @@ public class AvroParquetConverter extends Configured implements Tool {
     public int run(String[] args) {
         Path inputPath = new Path(args[0]);
         Path outputPath = new Path(args[1]);
+        Path hdfsConfPath = new Path(args[2]);
+        
         Configuration conf;
         if (this.configuration == null){
             conf = new Configuration();
-            conf.addResource(new Path(getHadoopConfHdfs()));
+            conf.addResource(hdfsConfPath);
             conf.reloadConfiguration();
         }
         else {
@@ -91,7 +93,9 @@ public class AvroParquetConverter extends Configured implements Tool {
     }
 
     public boolean convert(){
-        String[] otherArgs = {getAvroHDFSDest(), getParquetHDFSDest()} ;
+    	
+        String[] otherArgs = {getAvroHDFSDest(), getParquetHDFSDest(),getHadoopConfHdfs()} ;
+
         boolean success = false;
         try {
             ToolRunner.run(new AvroParquetConverter(this.configuration), otherArgs);
@@ -108,6 +112,7 @@ public class AvroParquetConverter extends Configured implements Tool {
         converter.setAvroHDFSDest(atomConfiguration.getAvroHDFSDest());
         converter.setHadoopConfHdfs(atomConfiguration.getHadoopConfHdfs());
         converter.setParquetHDFSDest(atomConfiguration.getParquetHDFSDest());
+        
         converter.convert();
     }
 
